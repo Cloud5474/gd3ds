@@ -982,6 +982,10 @@ void change_blending(bool blending) {
 void draw_background(float x, float y) {
     C2D_ImageTint tint = { 0 };
     Color col = channels[CHANNEL_BG].color;
+
+    // If flash is happening, use lbg
+    if (state.flash_data.use_lbg) col = channels[CHANNEL_LBG_NOLERP].color;
+
     C2D_PlainImageTint(&tint, C2D_Color32(col.r, col.g, col.b, 255), 1.f);
 
     float offset = 512 * BACKGROUND_SCALE;

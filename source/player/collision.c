@@ -538,6 +538,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
         case BIG_PORTAL:
             if (!GET_ACTIVATED(obj)) {
                 if (player->mini) {
+                    start_bg_flash();
                     set_mini(player, false);
                     UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &portal_use_effect, GFX_TOP);
                     if (effect) {
@@ -545,21 +546,18 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                         effect->def.colorG = 255 / 255.f;
                         effect->def.colorB = 50 / 255.f;
                     }
+                    UseEffect *effect2;
                     if (state.current_player == 0) {
-                        UseEffect *effect2 = add_use_effect(player_1->x, player_1->y, USE_EFFECT_OBJ_P1, &portal_use_effect, GFX_TOP);
-                        if (effect2) {
-                            effect2->def.colorR = 0 / 255.f;
-                            effect2->def.colorG = 255 / 255.f;
-                            effect2->def.colorB = 50 / 255.f;
-                        }
+                        effect2 = add_use_effect(player_1->x, player_1->y, USE_EFFECT_OBJ_P1, &size_change_big_effect, GFX_TOP);
                     } else {
-                        UseEffect *effect2 = add_use_effect(player_2->x, player_2->y, USE_EFFECT_OBJ_P2, &portal_use_effect, GFX_TOP);
-                        if (effect2) {
-                            effect2->def.colorR = 0 / 255.f;
-                            effect2->def.colorG = 255 / 255.f;
-                            effect2->def.colorB = 50 / 255.f;
-                        }
+                        effect2 = add_use_effect(player_2->x, player_2->y, USE_EFFECT_OBJ_P2, &size_change_big_effect, GFX_TOP);
                     }                    
+
+                    if (effect2) {
+                        effect2->def.colorR = 0 / 255.f;
+                        effect2->def.colorG = 255 / 255.f;
+                        effect2->def.colorB = 50 / 255.f;
+                    }
                 }
                 SET_ACTIVATED(obj, true);
             }
@@ -568,6 +566,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
         case MINI_PORTAL:
             if (!GET_ACTIVATED(obj)) {
                 if (!player->mini){
+                    start_bg_flash();
                     set_mini(player, true);
                     UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &portal_use_effect, GFX_TOP);
                     if (effect) {

@@ -269,6 +269,8 @@ void init_variables() {
 
     state.ground_y_gfx = calc_height; 
     state.hitboxesTempEnabled = false;
+
+    clear_bg_flash();
 }
 
 void handle_death() {
@@ -301,4 +303,54 @@ void handle_death() {
     if (hitboxesOnDeath) {
         state.hitboxesTempEnabled = true;
     }
+}
+
+// Size portal flashing
+
+void start_bg_flash() {
+    BGFlashData *data = &state.flash_data;
+    data->flashing = true;
+    data->timer = FLASH_TIME_1;
+    data->state = FLASH_FIRST_LIGHT;
+    data->use_lbg = true;
+}
+
+void handle_bg_flash() {
+    BGFlashData *data = &state.flash_data;
+    if (!data->flashing) return;
+
+    switch (data->state) {
+        case FLASH_NONE:
+            break;
+        
+        case FLASH_FIRST_LIGHT:
+            data->timer -= STEPS_DT;
+            if (data->timer <= 0) {
+                data->state = FLASH_UNLIGHTED;
+                data->timer = FLASH_TIME_2;
+                data->use_lbg = false;
+            }
+            break;
+        case FLASH_UNLIGHTED:
+            data->timer -= STEPS_DT;
+            if (data->timer <= 0) {
+                data->state = FLASH_SECOND_LIGHT;
+                data->timer = FLASH_TIME_2;
+                data->use_lbg = true;
+            }
+            break;
+        case FLASH_SECOND_LIGHT:
+            data->timer -= STEPS_DT;
+            if (data->timer <= 0) {
+                data->state = FLASH_NONE;
+                data->timer = 0;
+                data->use_lbg = false;
+                data->flashing = false;
+            }
+            break;
+    }
+}
+
+void clear_bg_flash() {
+    state.flash_data.flashing = false;
 }

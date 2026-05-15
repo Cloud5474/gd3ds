@@ -506,6 +506,7 @@ void game_loop() {
                     }
                     
                     run_camera();
+                    handle_bg_flash();
 
                     u64 end_physics = svcGetSystemTick();
                     float physics_time = (end_physics - start_physics) / (CPU_TICKS_PER_MSEC);

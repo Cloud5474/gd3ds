@@ -204,6 +204,9 @@ int gameplay_screen_bot_loop() {
     hidTouchRead(&touchPos);
 
     ColorChannel channel = channels[CHANNEL_BG];
+    // If flash is happening, use lbg
+    if (state.flash_data.use_lbg) channel = channels[CHANNEL_LBG_NOLERP];
+    
     Color color = channel.color;
 
     ui_image_set_tint(bg_gradient, C2D_Color32(color.r, color.g, color.b, 255));

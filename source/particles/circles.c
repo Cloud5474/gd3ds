@@ -168,6 +168,22 @@ const UseEffectDefinition wave_radius_effect = {
     .end_rad_ease = EASE_OUT,
     .line_thickness = 2.0f
 };
+const UseEffectDefinition size_change_big_effect = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 0,
+    .duration = 0.4f,
+    .start_opacity = 0.95f,
+    .end_opacity = 0,
+    .start_rad = 5,
+    .end_rad = 40,
+    .hollow = false,
+    .trifading = false,
+    .start_opacity_ease = EASE_IN,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = EASE_OUT,
+    .end_rad_ease = EASE_OUT,
+}; 
 
 UseEffect use_effects_top[MAX_USE_EFFECTS];
 UseEffect use_effects_bot[MAX_USE_EFFECTS];
@@ -279,7 +295,7 @@ void draw_use_effects(int screen) {
             float opacity = 1.f;
 
             // If stationary, dont convert to screen space
-            if (screen == GFX_TOP && effect->obj != USE_EFFECT_OBJ_NOTHING) {
+            if (screen == GFX_TOP) {
                 // If obj is positive, it is an object, else it is a player
                 if (effect->obj >= 0) { // Obj
                     float tmp_x = (x - state.camera_x);
@@ -289,6 +305,9 @@ void draw_use_effects(int screen) {
                     opacity = obj_edge_fade(tmp_x, SCREEN_WIDTH / SCALE) / 255.f;
 
                     x = get_mirror_x(tmp_x + fade_x, state.mirror_factor);
+                    y = GSP_SCREEN_WIDTH - ((y - state.camera_y));  
+                } else if (effect->obj == USE_EFFECT_OBJ_NOTHING) { // No objects
+                    x = get_mirror_x((x - state.camera_x), state.mirror_factor);
                     y = GSP_SCREEN_WIDTH - ((y - state.camera_y));  
                 } else { // Player
                     float tmp_x;

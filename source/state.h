@@ -22,6 +22,24 @@ typedef struct {
     u8 pressedJump:1;
     u8 holdJump:1;
 } KeyInput;
+// First flash
+#define FLASH_TIME_1 (20.f / STEPS_HZ)
+// Rest of timers
+#define FLASH_TIME_2 (14.f / STEPS_HZ)
+
+typedef enum {
+    FLASH_NONE,
+    FLASH_FIRST_LIGHT,
+    FLASH_UNLIGHTED,
+    FLASH_SECOND_LIGHT
+} FlashState;
+
+typedef struct {
+    bool flashing;
+    FlashState state;
+    float timer;
+    bool use_lbg;
+} BGFlashData;
 
 typedef struct {
     float camera_x;
@@ -90,6 +108,8 @@ typedef struct {
     bool custom_level;
     char custom_level_path[256];
 
+    BGFlashData flash_data;
+
     int last_hitbox_trail;
     PlayerHitboxTrail hitbox_trail_players[2][HITBOX_TRAIL_SIZE];
 
@@ -108,5 +128,9 @@ void init_variables();
 void run_camera();
 
 void handle_death();
+
+void start_bg_flash();
+void handle_bg_flash();
+void clear_bg_flash();
 
 extern bool disableHitboxesAfterRespawn;
