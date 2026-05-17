@@ -1113,6 +1113,8 @@ void handle_collision(Player *player, int obj, const ObjectHitbox *hitbox) {
                 // Check if block should collide with player, then bye bye slope
                 if (obj_getRight(obj) >= player->x) {
                     clear_slope_data(player);
+                    clear_coyote_slope_data(player);
+                    player->on_ground = true;
                 }
             }
 

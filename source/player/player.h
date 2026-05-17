@@ -237,3 +237,5 @@ void draw_p1_trail(Player *player, int player_id);
 void update_rotation_direction(Player *player);
 
 void push_player_action(void (*func)(Player *));
+
+float convert_to_closest_rotation(float rotation, float angle);

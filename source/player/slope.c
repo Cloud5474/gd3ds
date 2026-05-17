@@ -24,6 +24,13 @@ void clear_slope_data(Player *player) {
     player->slope_data.snapDown = false;
 }
 
+void clear_coyote_slope_data(Player *player) {
+    player->coyote_slope.slope_id = -1;
+    player->coyote_slope.elapsed = -1;
+    player->coyote_slope.snapDown = -1;
+    player->slope_slide_coyote_time = 0;
+}
+
 int grav_slope_orient(int obj, Player *player) {
     int orient = objects.orientation[obj];
 
@@ -517,7 +524,6 @@ void slope_collide(int obj, Player *player) {
         if (hasSlope && slope >= 0) {
             hasSlope = objects.orientation[state.old_player.slope_data.slope_id] == objects.orientation[slope];
         }
-        
 
         bool projectedHit = (orient == ORIENT_NORMAL_DOWN || orient == ORIENT_UD_DOWN) ? (angle * 5.f <= slope_angle(obj, player)) : (angle <= slope_angle(obj, player));
         bool clip = true;//slope_touching(obj, player);
@@ -609,25 +615,7 @@ bool slope_touching(int obj, Player *player) {
 void snap_player_to_slope(int obj, Player *player) {
     if (player->gamemode == GAMEMODE_PLAYER) {
         float base = RadToDeg(slope_snap_angle(obj, player));
-        float bestSnap = base;
-        float minDiff = 999999.0f;
-
-        for (int i = 0; i < 4; ++i) {
-            float snapAngle = base + i * 90.0f;
-            
-            while (snapAngle < 0) snapAngle += 360.0f;
-            while (snapAngle >= 360.0f) snapAngle -= 360.0f;
-
-            float diff = fabsf(snapAngle - (player->rotation - 0.01f));
-            if (diff > 180.0f) diff = 360.0f - diff;
-
-            if (diff < minDiff) {
-                minDiff = diff;
-                bestSnap = snapAngle;
-            }
-        }
-
-        player->rotation = bestSnap;
+        player->rotation = convert_to_closest_rotation(player->rotation, base);
     } else if (player->gamemode == GAMEMODE_BIRD) {
         player->rotation = RadToDeg(slope_snap_angle(obj, player));
     }

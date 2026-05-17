@@ -88,6 +88,22 @@ void update_rotation_direction(Player *player) {
     player->rotation_direction = (player->upside_down ? -1 : 1);
 }
 
+float convert_to_closest_rotation(float rotation, float angle) {
+    float rot = (int)rotation % 360;
+
+    if (rot < 0)
+        rot += 360.0f;
+
+    float snapped = roundf((rot - angle) / 90.0f) * 90.0f + angle;
+
+    snapped = fmodf(snapped, 360.0f);
+
+    if (snapped < 0)
+        snapped += 360.0f;
+
+    return snapped;
+}
+
 void cube_gamemode(Player *player) {
     int mult = player->rotation_direction;
     
@@ -104,10 +120,12 @@ void cube_gamemode(Player *player) {
     if (player->y > 2794.f) state.dead = true;
 
     // Do cube rotation
-    if (player->inverse_rotation) {
-        player->rotation -= (415.3848f / 2) * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
-    } else {
-        player->rotation += 415.3848f * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
+    if (player->slope_data.slope_id < 0 && !player->on_ground) {
+        if (player->inverse_rotation) {
+            player->rotation -= (415.3848f / 2) * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
+        } else {
+            player->rotation += 415.3848f * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
+        }
     }
 
     bool jump = false;
@@ -127,7 +145,9 @@ void cube_gamemode(Player *player) {
         update_rotation_direction(player);
 
         // If not in a slope, snap to nearest 90 degree angle
-        if (player->slope_data.slope_id < 0) player->rotation = roundf(player->rotation / 90.0f) * 90.0f;
+        if (player->slope_data.slope_id < 0) {
+            player->rotation = convert_to_closest_rotation(player->rotation, 0);
+        }
     }
 
     if (player->upside_down && state.input.holdJump && player->coyote_frames < 10) {
