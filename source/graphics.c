@@ -402,7 +402,7 @@ int get_glow_channel(int obj) {
         case 675:
         case 676:
         case 677:
-            return CHANNEL_P1;
+            return CHANNEL_LBG;
 
     }
     return CHANNEL_OBJ_BLENDING;
