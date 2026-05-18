@@ -370,4 +370,5 @@ void handle_bg_flash() {
 
 void clear_bg_flash() {
     state.flash_data.flashing = false;
+    state.flash_data.use_lbg = false;
 }
