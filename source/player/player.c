@@ -202,7 +202,26 @@ void rotate_fly(Player *player, float mult) {
         player->lerp_rotation = player->rotation;
     } else if (STEPS_DT * 72 <= diff_x * diff_x + diff_y * diff_y) {
         // This is how gd does rotation
-		player->rotation = RadToDeg(slerp_fancy(DegToRad(player->rotation), angle_rad, (STEPS_DT * 60) * mult));
+        if (player->gamemode == GAMEMODE_BIRD) {
+            if (player->slope_data.slope_id >= 0 || player->slope_slide_coyote_time) {
+                int slope = player->slope_data.slope_id;
+
+                if (player->slope_slide_coyote_time) {
+                    slope = player->coyote_slope.slope_id;
+                }
+
+                angle_rad = slope_snap_angle(slope, player);
+            } else if (player->on_ground) {
+                angle_rad = 0;
+            } else if (!player->upside_down) {
+                angle_rad = MAX(angle_rad * -0.4f, -0.1f);
+            } else {
+                angle_rad = MIN(angle_rad * -0.4f, 0.1f);
+            }
+        }
+
+        player->rotation = RadToDeg(slerp_fancy(DegToRad(player->rotation), angle_rad, (STEPS_DT * 60) * mult));
+
         player->lerp_rotation = player->rotation;
 	}
 }
@@ -415,14 +434,12 @@ void ufo_gamemode(Player *player) {
     drag_particles_2[state.current_player].gravityFlipped = !player->upside_down;
     drag_particles_2[state.current_player].scale = (player->mini ? 0.6f : 1.0f);
 
-    int mult = (player->upside_down ? -1 : 1);
     bool buffering_check = ((state.old_player.gamemode == GAMEMODE_PLAYER || state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_DART) && (state.input.holdJump));
     // If buffering, jump
     if (player->buffering_state == BUFFER_READY && (state.input.pressedJump || buffering_check)) {
         player->vel_y = fmaxf(player->vel_y, player->mini ? 358.992 : 371.034);
         player->buffering_state = BUFFER_END;
         player->velocity_override = true;
-        player->ufo_last_y = player->y;
         player->burst_particle_timer = BURST_PARTICLES_DURATION;
     } else {
         // Same as ship
@@ -451,22 +468,6 @@ void ufo_gamemode(Player *player) {
 
     burst_particles[state.current_player].gravityFlipped = player->upside_down;
     burst_particles[state.current_player].scale = (player->mini ? 0.6f : 1.0f);
-
-    // If on ground, set last y position
-    if (player->on_ground) {
-        player->ufo_last_y = player->y;
-    }
-
-    // Set the player rotation depending on how far vertical from the y point the ufo is
-    if (player->slope_data.slope_id < 0) {
-        float y_diff = (player->y - player->ufo_last_y) * mult;
-
-        if (y_diff >= 0) {
-            player->rotation = map_range(y_diff, 0.f, 60.f, 0.f, 10.f) * mult;
-        } else {
-            player->rotation = -map_range(-y_diff, 0.f, 300.f, 0.f, 25.f) * mult;
-        }
-    }
 
     float min = player->mini ? -406.566f : -345.6f;
     float max = player->mini ? 508.248f : 432.0f;
@@ -663,16 +664,8 @@ void run_player(Player *player) {
         player->lerp_rotation = player->rotation;
     } else {
         // Lerp the player rotation
-        // TODO: look at how gd does this for ufo and cube
-        if (player->gamemode == GAMEMODE_BIRD) {
-            if (player->slope_data.slope_id >= 0) {
-                player->lerp_rotation = iSlerp(player->lerp_rotation, player->rotation, 0.05f, STEPS_DT);
-            } else {
-                player->lerp_rotation = iSlerp(player->lerp_rotation, player->rotation, 0.1f, STEPS_DT);
-            }
-        } else {
-            player->lerp_rotation = iSlerp(player->lerp_rotation, player->rotation, 0.2f, STEPS_DT);
-        }
+        // TODO: look at how gd does this for cube
+        player->lerp_rotation = iSlerp(player->lerp_rotation, player->rotation, 0.2f, STEPS_DT);
     }
 
     player->left_ground = false;
@@ -716,6 +709,7 @@ void run_player(Player *player) {
     // Handle rotation for ship and wave
     if (player->gamemode == GAMEMODE_SHIP) rotate_fly(player, 0.15f);
     if (player->gamemode == GAMEMODE_DART) rotate_fly(player, player->mini ? 0.4f : 0.25f);
+    if (player->gamemode == GAMEMODE_BIRD) rotate_fly(player, 0.07f);
 
     player->snap_rotation = false;
 }

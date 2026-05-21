@@ -678,7 +678,5 @@ void snap_player_to_slope(int obj, Player *player) {
     if (player->gamemode == GAMEMODE_PLAYER) {
         float base = RadToDeg(slope_snap_angle(obj, player));
         player->rotation = convert_to_closest_rotation(player->rotation, base);
-    } else if (player->gamemode == GAMEMODE_BIRD) {
-        player->rotation = RadToDeg(slope_snap_angle(obj, player));
     }
 }

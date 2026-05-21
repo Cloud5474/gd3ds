@@ -435,7 +435,6 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->inverse_rotation = false;
                 player->left_ground = true;
                 player->buffering_state = BUFFER_END;
-                player->ufo_last_y = player->y;
                 
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &orb_use_effect, GFX_TOP);
                 if (effect) {
@@ -771,9 +770,8 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                     if (player->gamemode == GAMEMODE_DART) player->vel_y *= 0.9f;
                     player->vel_y /= (player->gamemode == GAMEMODE_SHIP || player->gamemode == GAMEMODE_DART) ? 4 : 2;
                     set_gamemode(player, GAMEMODE_BIRD);
-                    player->ufo_last_y = player->y;
                     player->inverse_rotation = false;
-                    player->snap_rotation = true;
+                    player->rotation = 0;
                     flip_other_player(state.current_player ^ 1);
 
                     if (state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_DART) {

@@ -107,8 +107,6 @@ typedef struct {
     int buffering_state;
 
     float time_since_ground;
-    
-    float ufo_last_y;
 
     float ceiling_inv_time;
 
