@@ -422,7 +422,8 @@ void game_loop() {
         if (hitboxTrail) {
             hitboxesEnabled = true;
             state.hitbox_display = 2;
-        };
+        }
+        
         int steps = 0;
 
         u32 kHeld = hidKeysHeld();
@@ -564,6 +565,7 @@ void game_loop() {
                     if (song_loaded) unpause_playback_mp3();
                     fixed_dt = true; 
                     state.dead = false;
+                    state.hitbox_display = 0;
                 }
             }
 

@@ -214,8 +214,6 @@ void init_state() {
     level_info.wall_y = 0;
 
     state.end_wall_anim_playing = false;
-    
-    state.hitbox_enabled_when_dead = false;
 
     state.current_data.attempts++;
 }
@@ -259,7 +257,12 @@ void init_level_bounds() {
     state.ground_y_gfx = calc_height; 
 
     // Set attempt text positions
-    state.attempt_text_pos.x = state.camera_x + 120;
+    if (state.current_data.attempts == 1) {
+        state.attempt_text_pos.x = SCREEN_WIDTH_AREA / 2;
+    } else {
+        state.attempt_text_pos.x = state.player.x + (5 * 30);
+    }
+
     state.attempt_text_pos.y = state.camera_y + (5 * 30);
 }
 

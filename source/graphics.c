@@ -1143,7 +1143,7 @@ void draw_attempt_text() {
     float calc_y = SCREEN_HEIGHT - ((state.attempt_text_pos.y - state.camera_y));  
 
     if (calc_x > -200) {
-        draw_text(&bigFont_fontCharset, &bigFont_sheet, calc_x, calc_y, 1, 0, "Attempt %d", attempts);
+        draw_text(&bigFont_fontCharset, &bigFont_sheet, calc_x, calc_y, 1, 0.5f, "Attempt %d", attempts);
     }
 }
 
