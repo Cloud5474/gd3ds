@@ -58,7 +58,6 @@ void run_camera() {
             state.camera_y = final_camera_y_wall + 3.f * random_float(-1, 1);
         }
     } else { 
-        
         float cam_y = state.camera_y_lerp;
         float target_y = cam_y;
 
@@ -184,6 +183,8 @@ void init_player(Player *player) {
 void init_state() {
     state.current_player = 0;
 
+    state.camera_x = 0;
+    
     state.camera_wall_timer = 0;
     state.camera_wall_initial_y = 0;
 
@@ -203,6 +204,10 @@ void init_state() {
     state.speed = level_info.initial_speed;
     state.ground_y = 0;
     state.ceiling_y = 999999;
+    
+    level_info.wall_y = 0;
+
+    state.end_wall_anim_playing = false;
     
     state.hitbox_enabled_when_dead = false;
 }

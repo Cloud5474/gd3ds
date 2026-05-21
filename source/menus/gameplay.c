@@ -40,6 +40,8 @@ static UIElement *level_name;
 int decimal;
 
 void pause_game() {
+    if (state.end_wall_anim_playing) return;
+
     game_paused = true;
     if (song_loaded) pause_playback_mp3();
     if (!state.custom_level){

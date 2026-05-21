@@ -778,6 +778,7 @@ void handle_player(Player *player) {
     start = svcGetSystemTick();
 
     if (player->x >= level_info.wall_x - END_ANIMATION_X_START) {
+        state.end_wall_anim_playing = true;
         p1_trail = true;
         if (player->cutscene_timer == 0) {
             // Add a trail point for wave

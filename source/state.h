@@ -91,6 +91,7 @@ typedef struct {
     float dual_portal_y;
     unsigned char speed;
 
+    bool end_wall_anim_playing;
     bool completion_shake;
     
     bool noclip;
