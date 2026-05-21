@@ -257,6 +257,10 @@ void init_level_bounds() {
     }
     
     state.ground_y_gfx = calc_height; 
+
+    // Set attempt text positions
+    state.attempt_text_pos.x = state.camera_x + 120;
+    state.attempt_text_pos.y = state.camera_y + (5 * 30);
 }
 
 void init_variables() {

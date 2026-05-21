@@ -715,6 +715,8 @@ void game_loop() {
             draw_objects();
 
             draw_end_wall();
+            
+            draw_attempt_text();
 
             draw_ground(state.ground_x, state.camera_y, 0, false, SCREEN_WIDTH);
             

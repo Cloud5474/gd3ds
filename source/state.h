@@ -74,6 +74,8 @@ typedef struct {
     Player player;
     Player player2;
 
+    Vec2D attempt_text_pos;
+
     unsigned char current_player;
 
     Player old_player;

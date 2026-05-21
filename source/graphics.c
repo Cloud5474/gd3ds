@@ -23,6 +23,8 @@
 
 #include "menus/components/ui_screen.h"
 
+#include "fonts/bigFont.h"
+
 const Color white = { 255, 255, 255 };
 
 int sprite_count = 0;
@@ -1132,6 +1134,17 @@ void draw_end_wall() {
         }
     }   
     change_blending(false);
+}
+
+void draw_attempt_text() {
+    int attempts = state.current_data.attempts;
+
+    float calc_x = (state.attempt_text_pos.x - state.camera_x);
+    float calc_y = SCREEN_HEIGHT - ((state.attempt_text_pos.y - state.camera_y));  
+
+    if (calc_x > -200) {
+        draw_text(&bigFont_fontCharset, &bigFont_sheet, calc_x, calc_y, 1, 0, "Attempt %d", attempts);
+    }
 }
 
 float object_creating_time = 0;
