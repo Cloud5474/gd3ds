@@ -3,6 +3,7 @@
 #include "math_helpers.h"
 #include "mp3_player.h"
 #include "utils/gfx.h"
+#include "wav_player.h"
 
 #include "endwall.h"
 
@@ -27,7 +28,8 @@ bool handle_wall_cutscene(float delta) {
         //spawn_particle(END_WALL_COLL_CIRCLE, level_info.wall_x, level_info.wall_y, NULL);
         //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL);
         circunferences_spawned++;
-        //PlayOgg(endStart_02_ogg, endStart_02_ogg_size, 0, OGG_ONE_TIME);
+        
+        play_sfx(&end_sound, 1);
     } else if (completion_timer <= 0.2 && circunferences_spawned < 5) {
         //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL);
         circunferences_spawned++;

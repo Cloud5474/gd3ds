@@ -58,6 +58,7 @@ C3D_RenderTarget* bot;
 SFX play_sound;
 SFX quit_sound;
 SFX explode_sound;
+SFX end_sound;
 
 ParticleSystem touch_drag_particles;
 ParticleSystem touch_explosion_particles;
@@ -887,6 +888,7 @@ void load_sfx() {
     load_wav("romfs:/sfx/playSound_01.wav", &play_sound);
     load_wav("romfs:/sfx/quitSound_01.wav", &quit_sound);
     load_wav("romfs:/sfx/explode_11.wav", &explode_sound);
+    load_wav("romfs:/sfx/endStart_02.wav", &end_sound);
 }
 
 int main(int argc, char* argv[]) {

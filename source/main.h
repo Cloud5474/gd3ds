@@ -73,6 +73,7 @@ extern bool playing_menu_loop;
 extern SFX play_sound;
 extern SFX quit_sound;
 extern SFX explode_sound;
+extern SFX end_sound;
 
 int output_log(const char *fmt, ...);
 
