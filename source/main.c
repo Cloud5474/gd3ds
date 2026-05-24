@@ -40,6 +40,7 @@
 #include "menus/external_levels.h"
 #include "menus/search_menu.h"
 #include "menus/saved_levels.h"
+#include "menus/loading_screen.h"
 
 #include "endwall.h"
 
@@ -834,15 +835,6 @@ void game_loop() {
 }
 
 void game_assets_init() {
-    bgSheet = C2D_SpriteSheetLoad("romfs:/gfx/bg_sheet_01.t3x");
-    if (!bgSheet) svcBreak(USERBREAK_PANIC);
-    
-    bg2Sheet = C2D_SpriteSheetLoad("romfs:/gfx/bg_sheet_02.t3x");
-    if (!bg2Sheet) svcBreak(USERBREAK_PANIC);
-    
-    groundSheet = C2D_SpriteSheetLoad("romfs:/gfx/grounds.t3x");
-    if (!groundSheet) svcBreak(USERBREAK_PANIC);
-    
     // Load graphics
     spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
     if (!spriteSheet) svcBreak(USERBREAK_PANIC);
@@ -900,32 +892,55 @@ int main(int argc, char* argv[]) {
     C2D_Prepare();
     osSetSpeedupEnable(1);
 
-    cfg_init();
+    top = C2D_CreateScreenTargetExt(GFX_TOP, GFX_LEFT, false);
+    bot = C2D_CreateScreenTargetExt(GFX_BOTTOM, GFX_LEFT, false);
+
+    srand(time(NULL));
+    alt_title_screen = (rand() & (128 - 1)) == 0;
     
     C2D_SetTintMode(C2D_TintMult);
     
     if(ndspInit()) {
         no_dsp_firmware();
     }
+    
+    required_loading_screen_assets_init();
+
+    loading_screen_init();
+
+    u64 start = svcGetSystemTick();
+
+    loading_screen_update(0);
 
     ui_assets_init();
     game_assets_init();
+    
+    loading_screen_update(25);
 
     cache_all_sprites();
+
+    loading_screen_update(40);
+
+    cfg_init();
+
     update_player_colors();
+
+    loading_screen_update(75);
 
     make_opacity_lut();
 
     load_sfx();
 
-    srand(time(NULL));
-
-    alt_title_screen = (rand() & (128 - 1)) == 0;
-
-    top = C2D_CreateScreenTargetExt(GFX_TOP, GFX_LEFT, false);
-    bot = C2D_CreateScreenTargetExt(GFX_BOTTOM, GFX_LEFT, false);
-
     memset(&level_info, 0, sizeof(LoadedLevelInfo));
+    
+    loading_screen_update(100);
+
+    u64 end = svcGetSystemTick();
+    float loading_time = (end - start) / (CPU_TICKS_PER_MSEC) / 1000;
+    
+    // Wait a minimum of 3 seconds
+    long waiting = (long)((3 - loading_time) * 1e9);
+    if (waiting > 0) svcSleepThread(waiting);
 
     // Set to known value
     change_blending(false);

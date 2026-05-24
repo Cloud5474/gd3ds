@@ -98,6 +98,20 @@ void ui_progress_bar_set_images(UIElement *e, int style, float scale) {
 
             e->progress_bar.flip_order = true;
             break;
+        case 2:
+            C2D_SpriteFromSheet(&e->progress_bar.sprite, bar_sheet, 3);
+            C3D_TexSetFilter(e->progress_bar.sprite.image.tex, GPU_LINEAR, GPU_LINEAR);
+
+            C2D_SpriteFromSheet(&e->progress_bar.sprite_frame, bar_sheet, 1);
+            C3D_TexSetFilter(e->progress_bar.sprite_frame.image.tex, GPU_LINEAR, GPU_LINEAR);
+            
+            C2D_PlainImageTint(&e->progress_bar.tint_frame, C2D_Color32(255, 255, 255, 255), 1.0f);
+
+            e->w = e->progress_bar.sprite.image.subtex->width * scale;
+            e->h = e->progress_bar.sprite.image.subtex->height * scale;
+
+            e->progress_bar.flip_order = true;
+            break;
     }
 }
 

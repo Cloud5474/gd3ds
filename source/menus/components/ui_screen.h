@@ -38,6 +38,7 @@ extern C2D_SpriteSheet bar_sheet;
 
 extern const LabelFont fonts[NUM_FONTS];
 
+void required_loading_screen_assets_init();
 void ui_assets_init();
 
 C2D_SpriteSheet *get_sheet(int sheet);

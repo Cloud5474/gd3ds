@@ -53,15 +53,27 @@ const LabelFont fonts[NUM_FONTS] = {
     }
 };
 
-void ui_assets_init() {
+void required_loading_screen_assets_init() {
     ui_sheet = C2D_SpriteSheetLoad("romfs:/gfx/ui.t3x");
     ui_2_sheet = C2D_SpriteSheetLoad("romfs:/gfx/ui_2.t3x");
+    goldFont_sheet = C2D_SpriteSheetLoad("romfs:/gfx/goldFont.t3x");
+    bar_sheet = C2D_SpriteSheetLoad("romfs:/gfx/bars.t3x");
+
+    bgSheet = C2D_SpriteSheetLoad("romfs:/gfx/bg_sheet_01.t3x");
+    if (!bgSheet) svcBreak(USERBREAK_PANIC);
+}
+
+void ui_assets_init() {
     window_sheet = C2D_SpriteSheetLoad("romfs:/gfx/windows.t3x");
     bigFont_sheet = C2D_SpriteSheetLoad("romfs:/gfx/bigFont.t3x");
     chatFont_sheet = C2D_SpriteSheetLoad("romfs:/gfx/chatFont.t3x");
-    goldFont_sheet = C2D_SpriteSheetLoad("romfs:/gfx/goldFont.t3x");
     bg_gradient_sheet = C2D_SpriteSheetLoad("romfs:/gfx/bg_gradient.t3x");
-    bar_sheet = C2D_SpriteSheetLoad("romfs:/gfx/bars.t3x");
+    
+    bg2Sheet = C2D_SpriteSheetLoad("romfs:/gfx/bg_sheet_02.t3x");
+    if (!bg2Sheet) svcBreak(USERBREAK_PANIC);
+    
+    groundSheet = C2D_SpriteSheetLoad("romfs:/gfx/grounds.t3x");
+    if (!groundSheet) svcBreak(USERBREAK_PANIC);
 }
 
 C2D_SpriteSheet *get_sheet(int sheet) {
