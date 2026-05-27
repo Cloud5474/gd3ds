@@ -77,7 +77,9 @@ typedef struct {
     float gravity;
 
     float rotation;
-    float lerp_rotation;
+    float cube_target_rotation;
+
+    int consecutive_jumps;
     
     float width;
     float height;

@@ -79,6 +79,13 @@ const float slopeHeights[SPEED_COUNT] = {
     600.643296
 };
 
+const float player_speed_mults[SPEED_COUNT] = {
+	0.9f,
+	0.7f,
+	1.1f,
+	1.3f	
+};
+
 float player_get_vel(Player *player, float vel) {
     return vel * (player->upside_down ? -1 : 1);
 }
@@ -126,9 +133,9 @@ void cube_gamemode(Player *player) {
     // Do cube rotation
     if (player->slope_data.slope_id < 0 && !player->on_ground) {
         if (player->inverse_rotation) {
-            player->rotation -= (415.3848f / 2) * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
+            player->cube_target_rotation -= (428.4f / 2) * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
         } else {
-            player->rotation += 415.3848f * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
+            player->cube_target_rotation += 428.4f * STEPS_DT * mult * (player->mini ? 1.2f : 1.f);
         }
     }
 
@@ -142,16 +149,13 @@ void cube_gamemode(Player *player) {
     drag_particles[state.current_player].scale = (player->mini ? 0.6f : 1.0f);
     if (state.input.holdJump) {
         jump = true;
+    } else if (player->on_ground) {
+        player->consecutive_jumps = 0;
     }
 
     if (player->on_ground) {
         MotionTrail_StopStroke(trail);
         update_rotation_direction(player);
-
-        // If not in a slope, snap to nearest 90 degree angle
-        if (player->slope_data.slope_id < 0) {
-            player->rotation = convert_to_closest_rotation(player->rotation, 0);
-        }
     }
 
     if (player->upside_down && state.input.holdJump && player->coyote_frames < 10) {
@@ -184,11 +188,17 @@ void cube_gamemode(Player *player) {
         player->buffering_state = BUFFER_END;
     
         player->on_ground = false;
+        player->consecutive_jumps++;
     
         if (!(state.input.pressedJump)) {
             // This prevents drag particles on succesive jumps
             player->time_since_ground = DRAG_PARTICLES_FLOOR_DURATION;
         }
+    }
+
+    // If not in a slope, snap to nearest 90 degree angle
+    if (player->on_ground && player->slope_data.slope_id < 0) {
+        player->cube_target_rotation = convert_to_closest_rotation(player->rotation, 0);
     }
 }
 
@@ -199,7 +209,6 @@ void rotate_fly(Player *player, float mult) {
  
     if (player->snap_rotation) {
         player->rotation = RadToDeg(angle_rad);
-        player->lerp_rotation = player->rotation;
     } else if (STEPS_DT * 72 <= diff_x * diff_x + diff_y * diff_y) {
         // This is how gd does rotation
         if (player->gamemode == GAMEMODE_BIRD) {
@@ -221,8 +230,6 @@ void rotate_fly(Player *player, float mult) {
         }
 
         player->rotation = RadToDeg(slerp_fancy(DegToRad(player->rotation), angle_rad, (STEPS_DT * 60) * mult));
-
-        player->lerp_rotation = player->rotation;
 	}
 }
 
@@ -659,14 +666,6 @@ void run_player(Player *player) {
     if (player->cutscene_timer > 0) return;
 
     player->rotation = normalize_angle(player->rotation);
-    
-    if (player->snap_rotation) {
-        player->lerp_rotation = player->rotation;
-    } else {
-        // Lerp the player rotation
-        // TODO: look at how gd does this for cube
-        player->lerp_rotation = iSlerp(player->lerp_rotation, player->rotation, 0.2f, STEPS_DT);
-    }
 
     player->left_ground = false;
 
@@ -707,6 +706,16 @@ void run_player(Player *player) {
     }
 
     // Handle rotation for ship and wave
+    if (player->gamemode == GAMEMODE_PLAYER) {
+        float lerp_speed = player_speed_mults[state.speed] * 0.175f;
+
+        if (player->on_ground || player->slope_data.slope_id >= 0) {
+            lerp_speed *= 3.0f;
+            player->rotation = RadToDeg(slerp_fancy(DegToRad(player->rotation), DegToRad(player->cube_target_rotation), MIN(STEPS_DT, STEPS_DT * lerp_speed) * 60));
+        } else {
+            player->rotation = player->cube_target_rotation;
+        }
+    }
     if (player->gamemode == GAMEMODE_SHIP) rotate_fly(player, 0.15f);
     if (player->gamemode == GAMEMODE_DART) rotate_fly(player, player->mini ? 0.4f : 0.25f);
     if (player->gamemode == GAMEMODE_BIRD) rotate_fly(player, 0.07f);
@@ -782,8 +791,7 @@ void handle_player(Player *player) {
             player->cutscene_initial_player_y = player->y;
         }
         anim_player_to_wall(player);
-        player->lerp_rotation += easeValue(EASE_IN, 0, 415.3848f, player->cutscene_timer, 0.5f, 2.f) * STEPS_DT;
-        player->rotation = player->lerp_rotation;
+        player->rotation += easeValue(EASE_IN, 0, 415.3848f, player->cutscene_timer, 0.5f, 2.f) * STEPS_DT;
         player->cutscene_timer += STEPS_DT;
         
         // End level
@@ -874,7 +882,7 @@ void spawn_p1_trail(Player *player) {
     
     trail_data->x = player->x;
     trail_data->y = player->y;
-    trail_data->rot = player->lerp_rotation;
+    trail_data->rot = player->rotation;
     trail_data->opacity = 0.7f;
     trail_data->life = P1_TRAIL_DURATION;
 
@@ -976,7 +984,7 @@ void draw_player(Player *player) {
     float p_y = calc_y + rot_y * scale;
 
     float calc_x_mirror = get_mirror_x(calc_x, state.mirror_factor);
-    float p_rot = player->lerp_rotation * state.mirror_mult;
+    float p_rot = player->rotation * state.mirror_mult;
 
 
 
