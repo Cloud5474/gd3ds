@@ -70,6 +70,9 @@ ParticleSystem normal_speed_particles_bottom;
 ParticleSystem fast_speed_particles_bottom;
 ParticleSystem faster_speed_particles_bottom;
 ParticleSystem end_wall_particles;
+ParticleSystem end_wall_firework;
+ParticleSystem level_complete_effect_p1;
+ParticleSystem level_complete_effect_p2;
 
 float slow_speed_particles_timer = 0.f;
 float normal_speed_particles_timer = 0.f;
@@ -215,15 +218,11 @@ void game_loop() {
 
     if (song_loaded) pause_playback_mp3();
 
-    state.camera_x = 0;
-    state.camera_y = 0;
-    current_fading_effect = FADE_NONE;
-
     set_fade_status(FADE_STATUS_IN);
 
     bool being_faded = true;
 
-    init_variables();
+    first_load_init_variables();
 
     init_op_system();
 
@@ -263,15 +262,24 @@ void game_loop() {
     initParticleSystem(&coin_pickup_particles, &coin_pickup_effect);
 
     initParticleSystem(&end_wall_particles, &end_effect_portal);
+    initParticleSystem(&end_wall_firework, &firework);
+    initParticleSystem(&level_complete_effect_p1, &level_complete_01);
+    initParticleSystem(&level_complete_effect_p2, &level_complete_01);
     
     slow_speed_particles.stationary = true;
     normal_speed_particles.stationary = true;
     fast_speed_particles.stationary = true;
     faster_speed_particles.stationary = true;
+
     slow_speed_particles.affectedByMirror = false;
     normal_speed_particles.affectedByMirror = false;
     fast_speed_particles.affectedByMirror = false;
     faster_speed_particles.affectedByMirror = false;
+
+    end_wall_firework.affectedByMirror = false;
+    
+    level_complete_effect_p1.stationary = true;
+    level_complete_effect_p2.stationary = true;
 
     Color p1_not_white = get_white_if_black(p1_color);
     Color p2_not_white = get_white_if_black(p2_color);
@@ -390,6 +398,31 @@ void game_loop() {
     end_wall_particles.cfg.finishColorBlue  = p1_not_white.b / 255.f;
 
     end_wall_particles.scale = 1.5f;
+
+    end_wall_firework.cfg.startColorRed   = p1_not_white.r / 255.f;
+    end_wall_firework.cfg.startColorGreen = p1_not_white.g / 255.f;
+    end_wall_firework.cfg.startColorBlue  = p1_not_white.b / 255.f;
+    
+    end_wall_firework.cfg.finishColorRed   = p1_not_white.r / 255.f;
+    end_wall_firework.cfg.finishColorGreen = p1_not_white.g / 255.f;
+    end_wall_firework.cfg.finishColorBlue  = p1_not_white.b / 255.f;
+
+    
+    level_complete_effect_p1.cfg.startColorRed   = p1_not_white.r / 255.f;
+    level_complete_effect_p1.cfg.startColorGreen = p1_not_white.g / 255.f;
+    level_complete_effect_p1.cfg.startColorBlue  = p1_not_white.b / 255.f;
+
+    level_complete_effect_p1.cfg.finishColorRed   = p1_not_white.r / 255.f;
+    level_complete_effect_p1.cfg.finishColorGreen = p1_not_white.g / 255.f;
+    level_complete_effect_p1.cfg.finishColorBlue  = p1_not_white.b / 255.f;
+    
+    level_complete_effect_p2.cfg.startColorRed   = p2_not_white.r / 255.f;
+    level_complete_effect_p2.cfg.startColorGreen = p2_not_white.g / 255.f;
+    level_complete_effect_p2.cfg.startColorBlue  = p2_not_white.b / 255.f;
+
+    level_complete_effect_p2.cfg.finishColorRed   = p2_not_white.r / 255.f;
+    level_complete_effect_p2.cfg.finishColorGreen = p2_not_white.g / 255.f;
+    level_complete_effect_p2.cfg.finishColorBlue  = p2_not_white.b / 255.f;
 
     exiting_level = false;
 
@@ -618,7 +651,17 @@ void game_loop() {
             updateParticleSystem(&fast_speed_particles, delta);
             updateParticleSystem(&faster_speed_particles, delta);
             updateParticleSystem(&coin_pickup_particles, delta);
-            updateParticleSystem(&end_wall_particles, delta);
+
+            // End wall particles
+            if (level_info.wall_y > 0) {
+                updateParticleSystem(&end_wall_particles, delta);
+                updateParticleSystem(&end_wall_firework, delta);
+                updateParticleSystem(&level_complete_effect_p1, delta);
+                updateParticleSystem(&level_complete_effect_p2, delta);
+
+                handle_level_complete_popup(delta);
+            }
+
             float calc_x_speed_particles = SCREEN_WIDTH_AREA;
             float calc_y_speed_particles = (SCREEN_HEIGHT_AREA / 2);
 
@@ -748,6 +791,19 @@ void game_loop() {
                 if (state.camera_y - LEVEL_Y_OFFSET + state.ground_y_gfx > 0) draw_ground(state.ground_x, state.camera_y, state.camera_y + state.ground_y_gfx - LEVEL_Y_OFFSET, false, SCREEN_WIDTH);
                 draw_ground(state.ground_x, state.camera_y, state.camera_y - LEVEL_Y_OFFSET + SCREEN_HEIGHT_AREA - state.ground_y_gfx, true, SCREEN_WIDTH);
             }
+
+            draw_use_effects(GFX_TOP_BUT_ABOVE_LEVEL);
+
+            if (level_info.wall_y > 0) {
+                change_blending(true);
+                drawParticleSystem(&end_wall_firework, 0, 0, 1);
+                drawParticleSystem(&level_complete_effect_p1, 0, 0, 1);
+                drawParticleSystem(&level_complete_effect_p2, 0, 0, 1);
+                change_blending(false);
+
+                draw_level_complete_popup();
+            }
+
             C2D_ViewTranslate(0, -CAM_Y_MTX_OFFSET);
             C2D_ViewScale(1/SCALE, 1/SCALE);
             gameplay_screen_top_loop();

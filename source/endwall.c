@@ -7,95 +7,130 @@
 
 #include "endwall.h"
 #include "particles/rays.h"
+#include "particles/circles.h"
 
-int circles_spawned = 0;
-int circunferences_spawned = 0;
-float completion_timer = 0.0f;
+#include "menus/components/ui_screen.h"
 
-// TODO: implement all the gfx stuff of the end wall
+static int fireworks_spawned = 0;
+static int circunferences_spawned = 0;
+static float completion_timer = 0.0f;
+static float circunference_timer = 0.0f;
+
+typedef enum {
+    SCALE_IN,
+    WAITING,
+    SCALE_OUT,
+} LevelCompleteState;
+
+typedef struct {
+    bool active;
+    
+    LevelCompleteState state;
+
+    float scale;
+
+    float initial_scale;
+    float target_scale;
+    float timer;
+    float duration;
+    EaseTypes ease;
+} LevelCompletePopup;
+
+static void init_level_complete_popup();
+
+static LevelCompletePopup level_complete_popup;
+
 bool handle_wall_cutscene(float delta) {
     // Init wall variables
     if (completion_timer == 0) {
         state.completion_shake = true;
-        circles_spawned = 0;
+        fireworks_spawned = 0;
         circunferences_spawned = 0;
         
-        //particle_templates[END_WALL_COLL_CIRCLE].end_scale = 400;
-        //particle_templates[END_WALL_COLL_CIRCLE].life = 0.5f;
-        //spawn_particle(END_WALL_COLL_CIRCLE, level_info.wall_x, level_info.wall_y, NULL);
-        //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL);
-        circunferences_spawned++;
+        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_first, GFX_TOP);
+        if (effect) {
+            Color p1_white = get_white_if_black(p1_color);
+            effect->def.colorR = p1_white.r / 255.f;
+            effect->def.colorG = p1_white.g / 255.f;
+            effect->def.colorB = p1_white.b / 255.f;
+        }
         
         play_sfx(&end_sound, 1);
 
         rays_start();
-    } else if (completion_timer <= 0.2 && circunferences_spawned < 5) {
-        //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL);
+    }
+
+    // Make circunferences
+    if (circunference_timer >= (circunferences_spawned * CIRCUNFERENCE_SPAWN_DELAY) && circunferences_spawned < CIRCUNFERENCE_COUNT) {        
+        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_circunference, GFX_TOP);
+        if (effect) {
+            Color p1_white = get_white_if_black(p1_color);
+            effect->def.colorR = p1_white.r / 255.f;
+            effect->def.colorG = p1_white.g / 255.f;
+            effect->def.colorB = p1_white.b / 255.f;
+        }
         circunferences_spawned++;
     }
 
-    // Spawn circles
-    if (completion_timer > CIRCLE_SPAWN_TIME) {
+    // Handle level complete text and co
+    if (completion_timer >= FIREWORK_SPAWN_TIME) {
         // Init circles
-        if (circles_spawned == 0) {
+        if (fireworks_spawned == 0) {
             rays_start_fade();
 
-            //float screen_middle_x = state.camera_x_middle;
-            //float screen_middle_y = state.camera_y_middle;
+            init_level_complete_popup();
 
-            //particle_templates[END_WALL_COLL_CIRCLE].end_scale = 400;
-            //particle_templates[END_WALL_COLL_CIRCLE].life = 0.5f;
+            // Spawn again circunferences
+            circunferences_spawned = 0;
+            circunference_timer = 0.0f;
 
-            //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL); // Comes from wall
-            circunferences_spawned++;
-
-            //spawn_particle(END_WALL_COLL_CIRCLE, level_info.wall_x, level_info.wall_y, NULL); // Comes from wall
-            //spawn_particle(END_WALL_COLL_CIRCLE, screen_middle_x, screen_middle_y, NULL); // Comes from complete text
-
-            // TODO: use a particle system
-            for (s32 i = 0; i < END_EFFECT_COUNT; i++) {
-                //float x = random_float(screen_middle_x - 120, screen_middle_x + 120);
-                //float y = random_float(screen_middle_y - 10, screen_middle_y + 10);
-                //int color = random_int(0,1);
-                //if (color) {
-                //    set_particle_color(END_WALL_TEXT_EFFECT, p1.r, p1.g, p1.b);
-                //} else {
-                //    set_particle_color(END_WALL_TEXT_EFFECT, p2.r, p2.g, p2.b);
-                //}
-
-                //spawn_particle(END_WALL_TEXT_EFFECT, x, y, NULL);
+            // Endwall circle
+            UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_second, GFX_TOP_BUT_ABOVE_LEVEL);
+            if (effect) {
+                Color p1_white = get_white_if_black(p1_color);
+                effect->def.colorR = p1_white.r / 255.f;
+                effect->def.colorG = p1_white.g / 255.f;
+                effect->def.colorB = p1_white.b / 255.f;
             }
 
-            circles_spawned++;
-        } else {
-            if (circunferences_spawned < CIRCUNFERENCE_COUNT) {
-                //spawn_particle(END_WALL_COLL_CIRCUNFERENCE, level_info.wall_x, level_info.wall_y, NULL);
-                circunferences_spawned++;
-            }
+            level_complete_effect_p1.emitterX = SCREEN_WIDTH_AREA / 2;
+            level_complete_effect_p1.emitterY = SCREEN_HEIGHT_AREA / 2;
+            level_complete_effect_p2.emitterX = SCREEN_WIDTH_AREA / 2;
+            level_complete_effect_p2.emitterY = SCREEN_HEIGHT_AREA / 2;
 
-            // Fireworks
-            if (completion_timer > CIRCLE_SPAWN_TIME + (circles_spawned * CIRCLE_SPAWN_DELAY)) {
-                //float x = random_float(state.camera_x, state.camera_x + WIDTH_ADJUST_AREA + SCREEN_WIDTH_AREA);
-                //float y = random_float(state.camera_y, state.camera_y + SCREEN_HEIGHT_AREA);
-                //spawn_particle(END_WALL_COMPLETE_CIRCLES, x, y, NULL);
-                
-                // TODO: use a particle system
-                for (int i = 0; i < FIREWORK_COUNT; i++) {
-                    //particle_templates[END_WALL_FIREWORK].angle = random_float(0, 360);
-                    //spawn_particle(END_WALL_FIREWORK, x, y, NULL);
-                    //spawn_particle(END_WALL_FIREWORK, x, y, NULL);
-                }
-                
-                circles_spawned++;
-            }
+            spawnMultipleParticles(&level_complete_effect_p1, 100);
+            spawnMultipleParticles(&level_complete_effect_p2, 100);
         }
+
+        // Fireworks
+        if (completion_timer >= FIREWORK_SPAWN_TIME + (fireworks_spawned * FIREWORK_SPAWN_DELAY)) {
+            float calc_x = state.camera_x + 100 + random_float(0, SCREEN_WIDTH_AREA - 200);
+            float y = random_float(0, SCREEN_HEIGHT_AREA);
+            float calc_y = state.camera_y + (SCREEN_HEIGHT - y);
+            UseEffect *effect = add_use_effect(calc_x, calc_y, USE_EFFECT_OBJ_NOTHING, &end_wall_firework_circle, GFX_TOP);
+            if (effect) {
+                Color p2_white = get_white_if_black(p2_color);
+                effect->def.colorR = p2_white.r / 255.f;
+                effect->def.colorG = p2_white.g / 255.f;
+                effect->def.colorB = p2_white.b / 255.f;
+            }
+
+            end_wall_firework.emitterX = calc_x;
+            end_wall_firework.emitterY = calc_y;
+            spawnMultipleParticles(&end_wall_firework, 25);
+            
+            fireworks_spawned++;
+        }
+        
         state.completion_shake = false;
     }
 
     // End the level!
     if (completion_timer > END_TIME) {
-        completion_timer = 0.0f;
         stop_mp3();
+        
+        completion_timer = 0.0f;
+        circunference_timer = 0.0f;
         
         set_fade_status(FADE_STATUS_OUT);
         //erase_rays();
@@ -103,5 +138,68 @@ bool handle_wall_cutscene(float delta) {
     }
 
     completion_timer += delta;
+    circunference_timer += delta;
     return false;
+}
+
+static void init_level_complete_popup() {
+    level_complete_popup.active = true;
+    level_complete_popup.state = SCALE_IN;
+    level_complete_popup.ease = ELASTIC_OUT;
+
+    level_complete_popup.timer = 0;
+    level_complete_popup.duration = LVL_COMPLETE_STATE_0_DURATION;
+    level_complete_popup.initial_scale = 0.01;
+    level_complete_popup.target_scale = LVL_COMPLETE_STATE_0_TARGET_SCALE;
+}
+
+void handle_level_complete_popup(float delta) {
+    if (level_complete_popup.active) {
+        switch (level_complete_popup.state) {
+            case SCALE_IN:
+                if (level_complete_popup.timer > LVL_COMPLETE_STATE_0_DURATION) {
+                    level_complete_popup.state = WAITING;
+                    level_complete_popup.ease = EASE_LINEAR;
+
+                    level_complete_popup.timer = 0;
+                    level_complete_popup.duration = LVL_COMPLETE_STATE_1_DURATION;
+                    level_complete_popup.initial_scale = level_complete_popup.scale;
+                    level_complete_popup.target_scale = level_complete_popup.scale;
+                }
+                break;
+            case WAITING:
+                if (level_complete_popup.timer > LVL_COMPLETE_STATE_1_DURATION) {
+                    level_complete_popup.state = SCALE_OUT;
+                    level_complete_popup.ease = QUAD_IN;
+                    
+                    level_complete_popup.timer = 0;
+                    level_complete_popup.duration = LVL_COMPLETE_STATE_2_DURATION;
+                    level_complete_popup.initial_scale = level_complete_popup.scale;
+                    level_complete_popup.target_scale = LVL_COMPLETE_STATE_2_TARGET_SCALE;
+                }
+                break;
+            case SCALE_OUT:
+                if (level_complete_popup.timer > LVL_COMPLETE_STATE_2_DURATION) {
+                    level_complete_popup.active = false;
+                }
+                break;
+        }
+        level_complete_popup.scale = easeValue(level_complete_popup.ease, level_complete_popup.initial_scale, level_complete_popup.target_scale, level_complete_popup.timer, level_complete_popup.duration, 1.f);
+
+        level_complete_popup.timer += delta;
+    }
+}
+
+void draw_level_complete_popup() {
+    if (level_complete_popup.active) {
+        float scale = level_complete_popup.scale;
+
+        C2D_Sprite text = { 0 };
+        C2D_SpriteFromSheet(&text, ui_sheet, LVL_COMPLETE_IMAGE_ID);
+        C3D_TexSetFilter(text.image.tex, GPU_LINEAR, GPU_LINEAR);
+        C2D_SpriteSetCenter(&text, 0.5f, 0.5f);
+        C2D_SpriteSetPos(&text, SCREEN_WIDTH_AREA / 2, SCREEN_HEIGHT_AREA / 2);
+        C2D_SpriteSetScale(&text, scale, scale);
+        C2D_DrawSprite(&text);
+    }
 }

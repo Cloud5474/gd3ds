@@ -185,11 +185,95 @@ const UseEffectDefinition size_change_big_effect = {
     .end_rad_ease = EASE_OUT,
 }; 
 
+const UseEffectDefinition end_wall_filled_first = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 0,
+    .duration = 0.5f,
+    .start_opacity = 1.f,
+    .end_opacity = 0,
+    .start_rad = 2.5f,
+    .end_rad = 250,
+    .hollow = false,
+    .trifading = false,
+    .start_opacity_ease = EASE_IN,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = QUAD_OUT,
+    .end_rad_ease = QUAD_OUT,
+}; 
+
+const UseEffectDefinition end_wall_filled_second = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 0,
+    .duration = 0.8f,
+    .start_opacity = 1.f,
+    .end_opacity = 0,
+    .start_rad = 2.5f,
+    .end_rad = SCREEN_WIDTH_AREA,
+    .hollow = false,
+    .trifading = false,
+    .start_opacity_ease = EASE_IN,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = QUAD_OUT,
+    .end_rad_ease = QUAD_OUT,
+}; 
+
+const UseEffectDefinition end_wall_firework_circle = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 0,
+    .duration = 0.5f,
+    .start_opacity = 0.f,
+    .end_opacity = 1.f,
+    .start_rad = 10.f,
+    .end_rad = 42.5f,
+    .hollow = false,
+    .trifading = true,
+    .start_opacity_ease = EASE_LINEAR,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = EASE_LINEAR,
+    .end_rad_ease = EASE_LINEAR,
+}; 
+
+const UseEffectDefinition end_wall_circunference = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 0,
+    .duration = 0.5f,
+    .start_opacity = 0.f,
+    .end_opacity = 1.f,
+    .start_rad = 2.5f,
+    .end_rad = SCREEN_WIDTH_AREA,
+    .line_thickness = 2,
+    .hollow = true,
+    .trifading = true,
+    .start_opacity_ease = EASE_LINEAR,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = EASE_LINEAR,
+    .end_rad_ease = EASE_LINEAR,
+}; 
+
 UseEffect use_effects_top[MAX_USE_EFFECTS];
+UseEffect use_effects_top_above_level[MAX_USE_EFFECTS];
 UseEffect use_effects_bot[MAX_USE_EFFECTS];
 
+static UseEffect *get_array_ptr(int screen) {
+    switch (screen) {
+        case GFX_TOP:
+            return use_effects_top;
+            
+        case GFX_BOTTOM:
+            return use_effects_bot;
+        
+        case GFX_TOP_BUT_ABOVE_LEVEL:
+            return use_effects_top_above_level;
+    }
+    return use_effects_top;
+}
+
 UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, int screen) {
-    UseEffect *ptr = (screen == GFX_TOP) ? use_effects_top : use_effects_bot;
+    UseEffect *ptr = get_array_ptr(screen);
 
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
@@ -215,7 +299,7 @@ UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *
 }
 
 void update_use_effects(float delta, int screen) {
-    UseEffect *ptr = (screen == GFX_TOP) ? use_effects_top : use_effects_bot;
+    UseEffect *ptr = get_array_ptr(screen);
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
         if (effect->active) {
@@ -268,14 +352,14 @@ void update_use_effects(float delta, int screen) {
 }
 
 void clear_use_effects(int screen) {
-    UseEffect *ptr = (screen == GFX_TOP) ? use_effects_top : use_effects_bot;
+    UseEffect *ptr = get_array_ptr(screen);
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         ptr[i].active = false;
     }
 }
 
 void draw_use_effects(int screen) {
-    UseEffect *ptr = (screen == GFX_TOP) ? use_effects_top : use_effects_bot;
+    UseEffect *ptr = get_array_ptr(screen);
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
         if (effect->active) {

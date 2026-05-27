@@ -8,6 +8,9 @@
 #define USE_EFFECT_OBJ_P2 -2
 #define USE_EFFECT_OBJ_P1 -1
 
+// Stupid hack lmao
+#define GFX_TOP_BUT_ABOVE_LEVEL (GFX_BOTTOM+1)
+
 typedef struct {
     float duration;
 
@@ -62,6 +65,10 @@ extern const UseEffectDefinition coin_use_effect;
 extern const UseEffectDefinition coin_radius_effect;
 extern const UseEffectDefinition wave_radius_effect;
 extern const UseEffectDefinition size_change_big_effect;
+extern const UseEffectDefinition end_wall_filled_first;
+extern const UseEffectDefinition end_wall_filled_second;
+extern const UseEffectDefinition end_wall_firework_circle;
+extern const UseEffectDefinition end_wall_circunference;
 
 UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, int screen);
 void update_use_effects(float delta, int screen);

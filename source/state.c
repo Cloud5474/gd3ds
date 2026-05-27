@@ -263,6 +263,23 @@ void init_level_bounds() {
     state.attempt_text_pos.y = state.camera_y + (5 * 30);
 }
 
+void first_load_init_variables() {
+    memset(&state.current_data, 0, sizeof(StateLevelData));
+    
+    int rounded_last_obj_x = (int) (level_info.last_obj_x / 30) * 30 + 15;
+    level_info.wall_x = rounded_last_obj_x;
+    level_info.wall_y = 0;
+
+    state.background_x = 0;
+    state.ground_x = 0;
+    
+    state.camera_x = 0;
+    state.camera_y = 0;
+    current_fading_effect = FADE_NONE;
+
+    init_variables();
+}
+
 void init_variables() {
     level_frame = 0;
     

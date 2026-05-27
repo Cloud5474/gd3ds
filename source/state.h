@@ -132,6 +132,7 @@ extern GameState state;
 void set_intended_ceiling();
 void set_gamemode(Player *player, int gamemode);
 void set_mini(Player *player, bool mini);
+void first_load_init_variables();
 void init_variables();
 void run_camera();
 

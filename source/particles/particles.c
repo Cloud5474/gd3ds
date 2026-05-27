@@ -68,7 +68,7 @@ void initParticle(ParticleSystem* ps, const ParticleDefinition* cfg, int i) {
     float life = cfg->particleLifespan +
                  cfg->particleLifespanVariance * rand_minus1_1();
 
-    life = fmaxf(0.0f, life);
+    life = fabsf(life);
 
     d->timeToLive[i] = life;
     d->totalTimeToLive[i] = life;
@@ -424,12 +424,6 @@ void initParticleSystem(ParticleSystem* ps, const ParticleDefinition* cfg) {
 
     ps->emitCounter = 0.0f;
 
-    // Emission rate
-    if (cfg->particleLifespan > 0)
-        ps->emissionRate = cfg->maxParticles / cfg->particleLifespan;
-    else 
-        ps->emissionRate = 0;
-        
     // Gravity
     ps->gravityX = cfg->gravityx;
     ps->gravityY = cfg->gravityy;
@@ -439,6 +433,12 @@ void initParticleSystem(ParticleSystem* ps, const ParticleDefinition* cfg) {
         ps->cfg.particleLifespanVariance /= 2;
         ps->cfg.particleLifespan = ps->cfg.particleLifespanVariance;
     }
+    
+    // Emission rate
+    if (cfg->particleLifespan > 0)
+        ps->emissionRate = cfg->maxParticles / cfg->particleLifespan;
+    else 
+        ps->emissionRate = 0;
 }
 
 void freeParticleData(ParticleData* d) {
