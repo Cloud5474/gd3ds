@@ -1083,7 +1083,9 @@ void handle_collision(Player *player, int obj, const ObjectHitbox *hitbox) {
                     objects.x[obj], objects.y[obj], hitbox->width, hitbox->height, objects.rotation[obj]
                 );
 
-                gravSnap = (!state.old_player.on_ground || player->ceiling_inv_time > 0) && internalCollidingBlock && obj_gravBottom(player, obj) - gravInternalBottom(player) <= clip;
+                float diff = obj_gravBottom(player, obj) - gravInternalBottom(player);
+
+                gravSnap = (!state.old_player.on_ground || player->ceiling_inv_time > 0) && internalCollidingBlock && (diff >= 0 && diff <= clip);
             }
 
             bool safeZone = player->mini && ((obj_gravTop(player, obj) - gravBottom(player) <= clip) || (gravTop(player) - obj_gravBottom(player, obj) <= clip));
