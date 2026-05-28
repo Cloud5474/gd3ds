@@ -231,7 +231,7 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
     float offset_y = 0;
 
     // Get total text height
-    int line_count = count_lines(tmp);
+    int line_count = count_lines(tmp) - 1;
     float line_height = height * scale;
     float total_height = line_count * line_height;
 
