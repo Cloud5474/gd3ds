@@ -21,7 +21,7 @@ char *splash_texts[] = {
     "Now in potato hardware!",
     "Now with accurate physics!",
     "All hail linear filtering",
-    "Famidash Retray",
+    "Famidash Retray 100% ALL COINS",
     "ok",
     "add ground",
     "@ParticleGPT",
@@ -38,7 +38,7 @@ char *splash_texts[] = {
     "You wouldnt steal a geometry dash",
     "Free and Open Source!",
     "2.0 Coming never!",
-    "Wiidash is dead",
+    "Wiidash walked so GD3DS could run!",
     "Also try Famidash!",
     "Check out other TFDSoft projects!",
     "Dont make dumb issues. Please.",
@@ -54,7 +54,17 @@ char *splash_texts[] = {
     "we do eht",
     "MY GOD THE SPEED! THE SPEED!",
     "I love GD cologne",
-
+    "You cant beat TOE 2? Git gud",
+    "When the verification video is lost media",
+    "Music by... too many to list here",
+    "Update 1.9 is revolution!",
+    "1.9 compatible!",
+    "/\\/\\/\\",
+    "The dart walked so the wave could run",
+    "Get ready for a lot of fun and excitement!",
+    "Pathfinder training",
+    "Does this look possible to you?",
+    "Bwomp",
 };
 
 #define NUM_SPLASH_TEXTS (sizeof(splash_texts) / sizeof(char *))

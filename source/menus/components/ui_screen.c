@@ -471,9 +471,15 @@ void ui_load_screen(UIScreen* screen,
                     tag
                 );
         } else if (strcmp(type, "darken") == 0) {
+            if (w == 0 || h == 0) {
+                x = SCREEN_WIDTH/2;
+                y = SCREEN_HEIGHT/2;
+                w = SCREEN_WIDTH;
+                h = SCREEN_HEIGHT;
+            }
             screen->elements[screen->count++] =
                 ui_create_darken(
-                    opacity, tag
+                    x, y, w, h, opacity, tag
                 );
         } else if (strcmp(type, "icon") == 0) {
             screen->elements[screen->count++] =

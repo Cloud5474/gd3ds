@@ -20,6 +20,7 @@ typedef struct {
 // or this "<#ff0000>also red text wohoo</>"
 // you can also do this "<green>i am green <#ff0000>and i am red</>"
 // </> ALWAYS resets to white and doesn't care if there is a tag before, its just so it looks like html
+// <p> makes a new line
 
 // Even thought the macro is called "ABGR8", the paremeters are still in this order: red, green, blue, alpha
 static const TagColor color_table[] = {
@@ -32,7 +33,6 @@ static const TagColor color_table[] = {
 
 static bool parse_named_color_tag(const char *tag, u32 *out) {
     for (int i = 0; i < NUM_COLORS; i++) {
-
         if (strcasecmp(tag, color_table[i].name) == 0) {
             *out = color_table[i].color;
             return true;
@@ -112,6 +112,26 @@ static bool read_tag(const char *text, int *i, char *tag_out, int max) {
     return true;
 }
 
+// Count da lines
+static int count_lines(const char *text) {
+    int lines = 1;
+
+    for (int i = 0; text[i]; i++) {
+        if (text[i] == '<') {
+            char tag[64];
+            
+            // If found p tag, we found a line separator
+            if (read_tag(text, &i, tag, sizeof(tag))) {
+                if (strcmp(tag, "p") == 0) {
+                    lines++;
+                }
+            }
+        }
+    }
+
+    return lines;
+}
+
 const Glyph *get_glyph(const Charset *font, char character) {
     // Find matching character
     for (int i = 0; i < font->count; i++) {
@@ -135,27 +155,30 @@ const Glyph *get_glyph(const Charset *font, char character) {
     return NULL;
 }
 
-float get_text_length(const Charset *font, const float zoom_x, const char *text) {
+float get_line_length(const Charset *font, const float zoom_x, const char *text, int start) {
     float text_length = 0;
-    int size = strlen(text);
-    for (int i = 0; i < size; i++) {
+
+    for (int i = start; text[i]; i++) {
         const Glyph *character = get_glyph(font, text[i]);
-        
+
         // Skip tags
         if (text[i] == '<') {
             char tag[64];
 
             if (read_tag(text, &i, tag, sizeof(tag))) {
+                if (strcmp(tag, "p") == 0) {
+                    break;
+                }
+
                 continue;
             }
         }
 
-        if (character != NULL) {
-            float xadvance = character->xAdvance * zoom_x;
-
-            text_length += xadvance;
+        if (character) {
+            text_length += character->xAdvance * zoom_x;
         }
     }
+
     return text_length;
 }
 
@@ -170,10 +193,6 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
     va_start(argp, text);
     const int size = vsnprintf(tmp, sizeof(tmp), text, argp);
     va_end(argp);
-    
-    float length = get_text_length(font, fabsf(scale), tmp);
-    
-    float offset = 0;
 
     float height = HEIGHT_OFFSET;
 
@@ -181,6 +200,16 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
     if (aCharacter) {
         height = aCharacter->height * HEIGHT_OFFSET_MULT;
     }
+
+    float line_length = get_line_length(font, fabsf(scale), tmp, 0);
+
+    float offset_x = 0;
+    float offset_y = 0;
+
+    // Get total text height
+    int line_count = count_lines(tmp);
+    float line_height = height * scale;
+    float total_height = line_count * line_height;
 
     C2D_ImageTint tint = { 0 };
     u32 current_color = white;
@@ -190,7 +219,23 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
         if (tmp[i] == '<') {
             char tag[64];
 
-            if (read_tag(tmp, &i, tag, sizeof(tag))) {
+            if (read_tag(tmp, &i, tag, sizeof(tag))) {                
+                if (strcmp(tag, "p") == 0) {
+                    offset_x = 0;
+
+                    offset_y += height * scale;
+
+                    // Measure next line
+                    line_length = get_line_length(
+                        font,
+                        fabsf(scale),
+                        tmp,
+                        i + 1
+                    );
+
+                    continue;
+                }
+
                 parse_color_tag(tag, &current_color);
                 continue;
             }
@@ -208,9 +253,10 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
             float xadvance = character->xAdvance * scale;
 
             int index = character->spriteIndex;
-
-            float final_x = x + offset + xoffset - length * alignment;
-            float final_y = y + yoffset - (int)(height * scale);
+            
+            float base_y = y - total_height / 2.f;
+            float final_x = x + offset_x + xoffset - line_length * alignment;
+            float final_y = base_y + offset_y + yoffset - (int)(height * scale);
 
             final_x = (scale == 1.0f) ? roundf(final_x) : final_x;
             final_y = (scale == 1.0f) ? roundf(final_y) : final_y;
@@ -224,7 +270,7 @@ void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const
                 C2D_DrawSpriteTinted(&sprite, &tint);
             }
 
-            offset += xadvance;
+            offset_x += xadvance;
         }
     }
 }
