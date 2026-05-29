@@ -8,6 +8,7 @@
 #include "particles/circles.h"
 #include "particles/particles.h"
 #include "menus/settings.h"
+#include "menus/icon_kit.h"
 
 GameState state;
 
@@ -158,6 +159,17 @@ void init_player(Player *player) {
     set_gamemode(player, level_info.initial_gamemode);
     set_mini(player, level_info.initial_mini);
 
+    player->player_icons.cube = selected_cube;
+    player->player_icons.ship = selected_ship;
+    player->player_icons.ball = selected_ball;
+    player->player_icons.ufo  = selected_ufo;
+    player->player_icons.wave = selected_wave;
+    player->player_icons.glow = player_glow_enabled;
+
+    player->player_icons.p1_color = p1_color;
+    player->player_icons.p2_color = p2_color;
+    player->player_icons.glow_color = glow_color;
+    
     player->cutscene_timer = 0;
     player->x = 0;
     player->y = player->height / 2;
@@ -328,7 +340,7 @@ void init_variables() {
     clear_bg_flash();
 }
 
-void handle_death() {
+void handle_death(Player *player) {
     play_sfx(&explode_sound, 1);
     if (song_loaded) {
         pause_playback_mp3();
@@ -336,8 +348,6 @@ void handle_death() {
     }
 
     // Spawn death particles
-    Player *player = (state.current_player == 1) ? &state.player2 : &state.player;
-
     UseEffect *effect = add_use_effect(player->x, player->y, USE_EFFECT_OBJ_NOTHING, &death_effect, GFX_TOP);
     if (effect) {
         Color color_not_white = get_white_if_black((state.current_player == 1 ? p2_color : p1_color));

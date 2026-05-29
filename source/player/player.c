@@ -965,6 +965,10 @@ void draw_player(Player *player) {
     float calc_x = ((player->x - state.camera_x));
     float calc_y = SCREEN_HEIGHT - ((player->y - state.camera_y));
 
+    Color p1_color = player->player_icons.p1_color;
+    Color p2_color = player->player_icons.p2_color;
+    Color glow_color = player->player_icons.glow_color;
+
     u32 primary_color = C2D_Color32(p1_color.r, p1_color.g, p1_color.b, 255);
     u32 secondary_color = C2D_Color32(p2_color.r, p2_color.g, p2_color.b, 255);
 
@@ -1001,9 +1005,13 @@ void draw_player(Player *player) {
     float calc_x_mirror = get_mirror_x(calc_x, state.mirror_factor);
     float p_rot = player->rotation * state.mirror_mult;
 
+    int selected_cube = player->player_icons.cube;
+    int selected_ship = player->player_icons.ship;
+    int selected_ball = player->player_icons.ball;
+    int selected_ufo =  player->player_icons.ufo;
+    int selected_wave = player->player_icons.wave;
 
-
-    bool glow_enabled = (player_glow_enabled || ((p1_color.r | p1_color.g | p1_color.b) == 0));
+    bool glow_enabled = (player->player_icons.glow || ((p1_color.r | p1_color.g | p1_color.b) == 0));
 
     switch (player->gamemode) {
         case GAMEMODE_PLAYER:

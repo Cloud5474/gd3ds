@@ -263,7 +263,7 @@ void free_particles() {
     freeParticleData(&level_complete_effect_p2.data);
 }
 
-void init_particles() {    
+void init_particles(Color p1_color, Color p2_color) {    
     slow_speed_particles.stationary = true;
     normal_speed_particles.stationary = true;
     fast_speed_particles.stationary = true;
@@ -479,7 +479,7 @@ void game_loop() {
     
     // Particle
     allocate_particles();
-    init_particles();
+    init_particles(p1_color, p2_color);
 
     exiting_level = false;
 
@@ -640,7 +640,7 @@ void game_loop() {
 
             if (state.dead && state.death_timer <= 0.f) {
                 state.death_timer = (quickRetry ? 0.5f : 1.f);
-                handle_death();
+                handle_death((state.current_player == 1) ? &state.player2 : &state.player);
             }
 
             if (state.death_timer > 0.f) {

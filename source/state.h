@@ -139,7 +139,7 @@ void first_load_init_variables();
 void init_variables();
 void run_camera();
 
-void handle_death();
+void handle_death(Player *player);
 
 void start_bg_flash();
 void handle_bg_flash();

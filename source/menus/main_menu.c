@@ -34,18 +34,10 @@
 #include "particles/circles.h"
 
 #define DEATH_WAITING_TIME 0.5f
+#define OFFSCREEN_BUFFER 60
 
 static Player title_screen_player;
 static bool title_screen_player_hold = false;
-
-static Color saved_p1;
-
-static int saved_cube;
-static int saved_ship;
-static int saved_ball;
-static int saved_ufo;
-static int saved_wave;
-static bool saved_glow;
 
 static bool pressing = false;
 static bool old_pressing = false;
@@ -200,26 +192,7 @@ void handle_title_screen_player(Player *player) {
 
 void reset_players() {
     death_wait_timer = 0;
-    Color p1 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
-    Color p2 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
-    Color glow = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
 
-    set_player_colors(p1, p2, glow);
-
-    Color used_p1 = (random_int(0, 1) ? p1_color : p2_color);
-    wave_trail_p1.color = used_p1;
-    wave_trail_p1.blending = random_int(0, 1);
-    wave_trail_p1.opacity = 1.f;
-
-    selected_cube = random_int(1, ICON_COUNT_PLAYER - 1);
-    selected_ship = random_int(1, ICON_COUNT_SHIP - 1);
-    selected_ball = random_int(1, ICON_COUNT_PLAYER_BALL - 1);
-    selected_ufo  = random_int(1, ICON_COUNT_BIRD - 1);
-    selected_wave = random_int(1, ICON_COUNT_DART - 1);
-    player_glow_enabled = false;
-
-    init_particles();
-    init_trails();
     init_state();
     level_info.wall_x = 9999999999999999999.f;
     level_info.wall_y = 0;
@@ -231,8 +204,30 @@ void reset_players() {
     set_gamemode(&title_screen_player, random_int(0, GAMEMODE_COUNT - 1));
     set_mini(&title_screen_player, random_int(0,1));
 
+    title_screen_player.player_icons.cube = random_int(1, ICON_COUNT_PLAYER - 1);
+    title_screen_player.player_icons.ship = random_int(1, ICON_COUNT_SHIP - 1);
+    title_screen_player.player_icons.ball = random_int(1, ICON_COUNT_PLAYER_BALL - 1);
+    title_screen_player.player_icons.ufo  = random_int(1, ICON_COUNT_BIRD - 1);
+    title_screen_player.player_icons.wave = random_int(1, ICON_COUNT_DART - 1);
+    title_screen_player.player_icons.glow = false;
+
     title_screen_player_hold = random_int(0,1);
     title_screen_player.y = title_screen_player.height / 2;
+    
+    Color p1 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
+    Color p2 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
+
+    title_screen_player.player_icons.p1_color = p1;
+    title_screen_player.player_icons.p2_color = p2;
+    
+    init_particles(p1, p2);
+    init_trails();
+    
+    trail_p1.color = (random_int(0, 1) ? p1 : p2);
+    
+    wave_trail_p1.color = (random_int(0, 1) ? p1 : p2);
+    wave_trail_p1.blending = true;
+    wave_trail_p1.opacity = 1.f;
 }
 
 static void handle_input() {
@@ -273,36 +268,19 @@ static void handle_players() {
     state.old_player = title_screen_player;
     handle_title_screen_player(&title_screen_player);
 
-    if ((title_screen_player.gamemode == GAMEMODE_DART ? wave_trail_p1.opacity <= 0.f : title_screen_player.x >= SCREEN_WIDTH_AREA + 60)) {
+    bool wtrail_opacity_is_zero = (title_screen_player.gamemode == GAMEMODE_DART ? wave_trail_p1.opacity <= 0.f : true);
+    
+    // Wave trail needs to be invisible in order to despawn this player
+    if (wtrail_opacity_is_zero && title_screen_player.x >= SCREEN_WIDTH_AREA + OFFSCREEN_BUFFER) {
         MotionTrail_UpdateWaveTrail(&wave_trail_p1, 1.f/60);
         reset_players();
     }
 
+    // Force the player go down by disabling control
     if (title_screen_player.y >= SCREEN_HEIGHT_AREA * 2 - 90) {
         pressing = false;
         title_screen_player_hold = false;
     }
-}
-
-static void title_screen_death() {
-    play_sfx(&explode_sound, 1);
-
-    UseEffect *effect = add_use_effect(title_screen_player.x, title_screen_player.y, USE_EFFECT_OBJ_NOTHING, &death_effect, GFX_TOP);
-    if (effect) {
-        Color color_not_white = get_white_if_black(p1_color);
-
-        effect->def.colorR = color_not_white.r / 255.f;
-        effect->def.colorG = color_not_white.g / 255.f;
-        effect->def.colorB = color_not_white.b / 255.f;
-
-        effect->def.end_rad *= (title_screen_player.mini ? 0.6 : 1.0f);
-        effect->def.start_rad *= (title_screen_player.mini ? 0.6 : 1.0f);
-    }
-
-    explosion_particles[0].emitterX = title_screen_player.x;
-    explosion_particles[0].emitterY = title_screen_player.y;
-    explosion_particles[0].scale = (title_screen_player.mini ? 0.6 : 1.0f);
-    spawnMultipleParticles(&explosion_particles[0], 90);
 }
 
 void main_menu_loop() {
@@ -341,19 +319,10 @@ void main_menu_loop() {
         playing_menu_loop = true;
     }
 
-    // Temporarily save here
-    saved_cube = selected_cube;
-    saved_ship = selected_ship;
-    saved_ball = selected_ball;
-    saved_ufo = selected_ufo;
-    saved_wave = selected_wave;
-    saved_glow = player_glow_enabled;
-
     get_buffer(CHANNEL_BG)->active = false;
     get_buffer(CHANNEL_GROUND)->active = false;
     get_buffer(CHANNEL_LINE)->active = false;
 
-    saved_p1 = p1_color;
     allocate_particles();
     init_variables();
     reset_players();
@@ -452,7 +421,7 @@ void main_menu_loop() {
         // Ded
         if (kill && !state.dead) {
             state.dead = true;
-            title_screen_death();
+            handle_death(&title_screen_player);
             death_wait_timer = DEATH_WAITING_TIME;
         } 
 
@@ -487,10 +456,7 @@ void main_menu_loop() {
         if (!in_settings && !in_credits && !in_statistics && !in_first_boot_disclaimer && !in_info_card) ui_screen_update(&screen, &touch);
         ui_screen_update(&screen_top, &touch);
         do {
-            Color p1 = p1_color;
-            p1_color = saved_p1;
             update_touch_effect(DT);
-            p1_color = p1;
             
             bg_scroll += 5.19300155f;
             C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -539,26 +505,7 @@ void main_menu_loop() {
             if (in_settings) {
                 int returned = settings_loop();
                 if (returned) {
-                    int temp_cube = selected_cube;
-                    int temp_ship = selected_ship;
-                    int temp_ball = selected_ball;
-                    int temp_ufo = selected_ufo;
-                    int temp_wave = selected_wave;
-                    
-                    selected_cube = saved_cube;
-                    selected_ship = saved_ship;
-                    selected_ball = saved_ball;
-                    selected_ufo = saved_ufo;
-                    selected_wave = saved_wave;
-                    player_glow_enabled = saved_glow;
                     cfg_save();
-                    selected_cube = temp_cube;
-                    selected_ship = temp_ship;
-                    selected_ball = temp_ball;
-                    selected_ufo  = temp_ufo;
-                    selected_wave = temp_wave;
-                    player_glow_enabled = false;
-                    
                     in_settings = false;
                 }
             }
@@ -601,14 +548,6 @@ void main_menu_loop() {
         } while (handle_fading());
 
         if (new_state) {
-            // Restore here
-            selected_cube = saved_cube;
-            selected_ship = saved_ship;
-            selected_ball = saved_ball;
-            selected_ufo = saved_ufo;
-            selected_wave = saved_wave;
-            player_glow_enabled = saved_glow;
-
             game_state = new_state;
             free_particles();
             break;

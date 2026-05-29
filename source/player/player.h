@@ -64,6 +64,20 @@ typedef struct {
 } P1Trail;
 
 typedef struct {
+    int cube;
+    int ship;
+    int ball;
+    int ufo;
+    int wave;
+
+    Color p1_color;
+    Color p2_color;
+    Color glow_color;
+
+    bool glow;
+} IconsDrawing;
+
+typedef struct {
     float x;
     float y;
     
@@ -136,6 +150,8 @@ typedef struct {
     
     int p1_trail_pos;
     P1Trail p1_trail_data[P1_TRAIL_LENGTH];
+
+    IconsDrawing player_icons;
 } Player;
 
 typedef struct {

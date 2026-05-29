@@ -4,6 +4,7 @@
 #include "wav_player.h"
 
 #include "particles/particles.h"
+#include "color_channels.h"
 
 
 #define CAM_SPEED 5.19300155f
@@ -83,7 +84,7 @@ extern SFX end_sound;
 
 void allocate_particles();
 void free_particles();
-void init_particles();
+void init_particles(Color p1_color, Color p2_color);
 void update_player_effects(float delta);
 
 int output_log(const char *fmt, ...);
