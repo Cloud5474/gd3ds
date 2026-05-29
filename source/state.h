@@ -43,6 +43,9 @@ typedef struct {
 
 typedef struct {
     int attempts;
+    int jumps;
+    float time_start;
+    float time_end;
 } StateLevelData;
 
 typedef struct {

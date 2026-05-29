@@ -43,9 +43,38 @@ static UIElement *attempt_text;
 static UIElement *jumps_text;
 static UIElement *time_text;
 
+static UIElement *completion_text;
+
+char *completion_texts[] = {
+    "Not 1 attempt",
+    "That was kinda sloppy",
+    "Well done... now beat it in the PC version",
+    "Good, now beat it with your eyes closed",
+    "!evisserpmI",
+    "CBF detected, loser!",
+    "Hacked. This level is clearly impossible",
+    "Noclip Accuracy: 0.01%",
+    "Would be better if it was a harder level",
+    "Would be better if it was an easier level",
+    "You beat this instead of Story Madness...",
+    "Auto Safe Mode cheat detected: Using a 3DS",
+    "Auto Safe Mode cheat detected:<p>Noclipped through the end wall",
+    "I lied, you got 99%",
+    "I have no words.... oh wait",
+    "we really doing anything now"
+};
+
+#define NUM_COMPLETION_TEXTS (sizeof(completion_texts) / sizeof(char *))
+
+
 static void exit_level_complete(UIElement* e) {
-    play_sfx(&quit_sound, 1);
-    yes_exit = true;
+    if (!animating_up) {
+        play_sfx(&quit_sound, 1);
+        yes_exit = true;
+        animating_up = true;
+        animating_down = false;
+        anim_time = 0;
+    }
 }
 
 static void restart_level(UIElement* e) {
@@ -81,7 +110,7 @@ static void run_start_animation(float delta) {
 }
 
 // This runs the animation that happens when you press "restart"
-static void run_restart_animation(float delta) {
+static void run_end_animation(float delta) {
     float fade_value = easeValue(QUAD_IN, up_y_start, 0, anim_time, RESTART_ANIM_DURATION, 1.f);
     window_y_pos = -120 + fade_value;
 
@@ -98,19 +127,33 @@ static void run_restart_animation(float delta) {
     anim_time += delta;
 }
 
+#define COMPLETION_TEXT_MAX_WIDTH 250.f
 
 void level_complete_init() {
     init = true;
     ui_load_screen(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete_top.txt");
     ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete.txt");
 
+    state.current_data.time_end = svcGetSystemTick() / (CPU_TICKS_PER_MSEC * 1000);
+
     char attempts[64];
     char jumps[64];
     char time[64];
 
     snprintf(attempts, sizeof(attempts), "Attempts: %d", state.current_data.attempts);
-    snprintf(jumps, sizeof(jumps), "Jumps: %d", 0);
-    snprintf(time, sizeof(time), "Time: %02d:%02d", 0, 0);
+    snprintf(jumps, sizeof(jumps), "Jumps: %d", state.current_data.jumps);
+
+    float timer = state.current_data.time_end - state.current_data.time_start;
+
+    int hours   = (int)(timer) / (60 * 60);
+    int minutes = (int)(timer / 60) % 60;
+    int seconds = (int)(timer) % 60;
+
+    if (hours) {
+        snprintf(time, sizeof(time), "Time: %d:%02d:%02d", hours, minutes, seconds);
+    } else {
+        snprintf(time, sizeof(time), "Time: %02d:%02d", minutes, seconds);
+    }
 
     attempt_text = ui_get_element_by_tag(&screen_top, "attempts");
     if (attempt_text) ui_label_set_text(attempt_text, attempts);
@@ -127,6 +170,43 @@ void level_complete_init() {
     animating_up = false;
     anim_time = 0;
     window_y_pos = 0;
+    
+    if(state.custom_level == true){
+        ui_run_func_on_tag(&screen_top, "coin1", ui_disable_element);
+        ui_run_func_on_tag(&screen_top, "coin2", ui_disable_element);
+        ui_run_func_on_tag(&screen_top, "coin3", ui_disable_element);
+
+        // Set completion text
+        completion_text = ui_get_element_by_tag(&screen_top, "funnytext");
+    
+        
+        int start_index = 0;
+
+        // Skip the "Not 1 attempt" line
+        if (state.current_data.attempts == 1) start_index++;
+
+        int text_index = random_int(start_index, NUM_COMPLETION_TEXTS - 1);
+
+        char *text = completion_texts[text_index];
+
+        ui_label_set_text(completion_text, text);
+
+        float text_scale;
+        float scale = completion_text->label.scale;
+
+        // Get text length in pixels
+        float length = get_longest_line_length(&bigFont_fontCharset, scale, text);
+    
+        if (COMPLETION_TEXT_MAX_WIDTH < length) {
+            text_scale = scale * (COMPLETION_TEXT_MAX_WIDTH / length);
+        } else {
+            text_scale = scale;
+        }
+
+        completion_text->label.scale = text_scale;
+    } else {
+        ui_run_func_on_tag(&screen_top, "funnytext", ui_disable_element);
+    }
 }
 
 int level_complete_loop(float delta) {
@@ -135,7 +215,7 @@ int level_complete_loop(float delta) {
     u32 kDown = hidKeysDown();
 
     if (animating_down) run_start_animation(delta);
-    if (animating_up) run_restart_animation(delta);
+    if (animating_up) run_end_animation(delta);
 
     if (yes_exit || (kDown & KEY_B)) {
         return 1;
@@ -163,11 +243,19 @@ void level_complete_destroy() {
 
 void draw_level_complete() {
     if (init) {
+        if (get_fade_status()) {
+            level_complete_loop(1.f/60);
+        }
+
         ui_screen_draw(&screen);
     }
 }
 void draw_level_complete_top() {
     if (init) {
+        if (get_fade_status()) {
+            level_complete_loop(1.f/60);
+        }
+        
         ui_screen_draw(&screen_top);
     }
 }

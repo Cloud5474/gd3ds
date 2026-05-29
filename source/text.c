@@ -182,6 +182,52 @@ float get_line_length(const Charset *font, const float zoom_x, const char *text,
     return text_length;
 }
 
+float get_longest_line_length(const Charset *font, const float zoom_x, const char *text) {
+    float longest = 0.0f;
+
+    int start = 0;
+    int i = 0;
+    while (true) {
+        if (text[i] == '<' || text[i] == '\0') {
+            bool newline = false;
+
+            // Read tags
+            if (text[i] == '<') {
+                char tag[64];
+
+                int temp = i;
+                if (read_tag(text, &temp, tag, sizeof(tag))) {
+                    if (strcmp(tag, "p") == 0) {
+                        newline = true;
+                        i = temp;
+                    }
+                }
+            }
+
+            // Measure line
+            if (newline || text[i] == '\0') {
+                float length = get_line_length(font, zoom_x, text, start);
+
+                // Set if longer than last saved line
+                if (length > longest) {
+                    longest = length;
+                }
+
+                start = i + 1;
+            }
+        }
+
+        // Break if end of text
+        if (text[i] == '\0') {
+            break;
+        }
+
+        i++;
+    }
+
+    return longest;
+}
+
 float get_text_length(const Charset *font, const float zoom_x, const char *text) {
     float text_length = 0;
     int size = strlen(text);

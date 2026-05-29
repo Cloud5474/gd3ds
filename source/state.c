@@ -278,6 +278,8 @@ void first_load_init_variables() {
     current_fading_effect = FADE_NONE;
 
     init_variables();
+    
+    state.current_data.time_start = svcGetSystemTick() / (CPU_TICKS_PER_MSEC * 1000);
 }
 
 void init_variables() {

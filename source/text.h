@@ -24,3 +24,4 @@ typedef struct {
 
 void draw_text(const Charset *font, C2D_SpriteSheet *sheet, const float x, const float y, const float scale, float alignment, const char *text, ...);
 float get_text_length(const Charset *font, const float zoom_x, const char *text);
+float get_longest_line_length(const Charset *font, const float zoom_x, const char *text);

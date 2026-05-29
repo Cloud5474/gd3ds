@@ -382,6 +382,8 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->buffering_state = BUFFER_END;
                 update_rotation_direction(player);
                 
+                state.current_data.jumps++;
+                
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &orb_use_effect, GFX_TOP);
                 if (effect) {
                     effect->def.colorR = 255 / 255.f;
@@ -407,6 +409,8 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->buffering_state = BUFFER_END;
                 update_rotation_direction(player);
 
+                state.current_data.jumps++;
+
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &orb_use_effect, GFX_TOP);
                 if (effect) {
                     effect->def.colorR = 255 / 255.f;
@@ -429,6 +433,8 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->upside_down ^= 1;
 
                 flip_other_player(state.current_player);
+                
+                state.current_data.jumps++;
                 
                 player->ball_rotation_speed = -BALL_SLOW_ROTATION;
                 

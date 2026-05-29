@@ -193,6 +193,8 @@ void cube_gamemode(Player *player) {
     
         player->on_ground = false;
         player->consecutive_jumps++;
+        
+        state.current_data.jumps++;
     
         if (!(state.input.pressedJump)) {
             // This prevents drag particles on succesive jumps
@@ -397,6 +399,8 @@ void ball_gamemode(Player *player) {
             player->vel_y -= player->gravity * STEPS_DT;
 
         player->buffering_state = BUFFER_END;
+        
+        state.current_data.jumps++;
         
         player->ball_rotation_speed = -BALL_SLOW_ROTATION;
 
