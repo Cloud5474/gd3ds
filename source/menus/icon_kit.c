@@ -219,6 +219,7 @@ void icon_kit_loop() {
 
     set_cube_page(ui_get_element_by_tag(&screen, "cube"));
 
+    update_player_colors();
     set_fade_status(FADE_STATUS_IN);
 
     if (!playing_menu_loop) {

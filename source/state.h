@@ -145,4 +145,9 @@ void start_bg_flash();
 void handle_bg_flash();
 void clear_bg_flash();
 
+void init_player(Player *player);
+void init_state();
+void init_trails();
+void init_wave_trails();
+
 extern bool disableHitboxesAfterRespawn;

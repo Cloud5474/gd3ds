@@ -1,5 +1,8 @@
 #include <3ds.h>
 #include <citro2d.h>
+
+#include <stdlib.h>
+
 #include "menus/components/ui_element.h"
 #include "menus/components/ui_screen.h"
 #include "math_helpers.h"
@@ -7,6 +10,7 @@
 #include "menus/components/ui_window.h"
 #include "menus/components/ui_textbox.h"
 #include "menus/components/ui_image.h"
+#include "menus/palette_kit.h"
 #include "fonts/bigFont.h"
 #include "fonts/chatFont.h"
 #include "main.h"
@@ -24,6 +28,29 @@
 #include "external_levels.h"
 #include "first_boot_disclaimer.h"
 #include "info_card.h"
+#include "state.h"
+#include "particles/object_particles.h"
+#include "save/config.h"
+#include "particles/circles.h"
+
+#define DEATH_WAITING_TIME 0.5f
+
+static Player title_screen_player;
+static bool title_screen_player_hold = false;
+
+static int saved_cube;
+static int saved_ship;
+static int saved_ball;
+static int saved_ufo;
+static int saved_wave;
+
+static bool pressing = false;
+static bool old_pressing = false;
+
+static bool started = false;
+static bool holding = false;
+
+static float death_wait_timer = 0;
 
 static UIScreen screen_top;
 static UIScreen screen;
@@ -140,7 +167,130 @@ static UIAction actions_top[] = {
 
 };
 
+void handle_title_screen_player(Player *player) {
+    player->on_ground = false;
+    player->on_ceiling = false;
 
+    player->velocity_override = false;
+
+    player->gravObj_id = -1;
+    player->potentialSlope_id = -1;
+    
+    player->timeElapsed += STEPS_DT;
+
+    player->upside_down = false;
+
+    player->vel_x = player_speeds[state.speed]; 
+    player->x += player->vel_x * STEPS_DT;
+    player->y += player->vel_y * STEPS_DT;
+
+    run_player(player);
+}
+
+void reset_players() {
+    death_wait_timer = 0;
+    Color p1 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
+    Color p2 = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
+    Color glow = get_color_abgr8(colors[random_int(0, NUM_COLORS - 1)]);
+
+    set_player_colors(p1, p2, glow);
+
+    Color used_p1 = (random_int(0, 1) ? p1_color : p2_color);
+    wave_trail_p1.color = used_p1;
+    wave_trail_p1.blending = random_int(0, 1);
+    wave_trail_p1.opacity = 1.f;
+
+    selected_cube = random_int(1, ICON_COUNT_PLAYER - 1);
+    selected_ship = random_int(1, ICON_COUNT_SHIP - 1);
+    selected_ball = random_int(1, ICON_COUNT_PLAYER_BALL - 1);
+    selected_ufo  = random_int(1, ICON_COUNT_BIRD - 1);
+    selected_wave = random_int(1, ICON_COUNT_DART - 1);
+
+    init_trails();
+    init_state();
+    level_info.wall_x = 9999999999999999999.f;
+    level_info.wall_y = 0;
+    init_player(&title_screen_player);
+    title_screen_player.x = -60;
+    title_screen_player.upside_down = false;
+    state.speed = random_int(0, SPEED_COUNT - 1);
+    title_screen_player.rotation = 0;
+    set_gamemode(&title_screen_player, random_int(0, GAMEMODE_COUNT - 1));
+    set_mini(&title_screen_player, random_int(0,1));
+
+    title_screen_player_hold = random_int(0,1);
+    title_screen_player.y = title_screen_player.height / 2;
+}
+
+static void handle_input() {
+    old_pressing = pressing;
+    pressing = false;
+    switch (title_screen_player.gamemode) {
+        case GAMEMODE_PLAYER:
+            // Press A 1/16 of time
+            if (!(rand() & 0b1111)) pressing = true;
+            break;
+        case GAMEMODE_BIRD:
+            // Press A 1/16 of time
+            if (!(rand() & 0b1111)) pressing = true;
+            break;
+        case GAMEMODE_DART:
+            // Switch holding A 1/16 of time
+            if (!(rand() & 0b1111)) title_screen_player_hold ^= 1;
+
+            if (title_screen_player_hold) {
+                pressing = true;
+            }
+            break;
+        case GAMEMODE_SHIP:
+            // Switch holding A 1/16 of time
+            if (!(rand() & 0b1111)) title_screen_player_hold ^= 1;
+
+            if (title_screen_player_hold) {
+                pressing = true;
+            }
+            break;
+    }
+
+    started = !old_pressing && pressing;
+    holding = pressing;
+}
+
+static void handle_players() {
+    state.old_player = title_screen_player;
+    handle_title_screen_player(&title_screen_player);
+
+    if ((title_screen_player.gamemode == GAMEMODE_DART ? wave_trail_p1.opacity <= 0.f : title_screen_player.x >= SCREEN_WIDTH_AREA + 60)) {
+        MotionTrail_UpdateWaveTrail(&wave_trail_p1, 1.f/60);
+        reset_players();
+    }
+
+    if (title_screen_player.y >= SCREEN_HEIGHT_AREA * 2 - 90) {
+        pressing = false;
+        title_screen_player_hold = false;
+    }
+}
+
+static void title_screen_death() {
+    play_sfx(&explode_sound, 1);
+
+    UseEffect *effect = add_use_effect(title_screen_player.x, title_screen_player.y, USE_EFFECT_OBJ_NOTHING, &death_effect, GFX_TOP);
+    if (effect) {
+        Color color_not_white = get_white_if_black(p1_color);
+
+        effect->def.colorR = color_not_white.r / 255.f;
+        effect->def.colorG = color_not_white.g / 255.f;
+        effect->def.colorB = color_not_white.b / 255.f;
+
+        effect->def.end_rad *= (title_screen_player.mini ? 0.6 : 1.0f);
+        effect->def.start_rad *= (title_screen_player.mini ? 0.6 : 1.0f);
+    }
+
+    explosion_particles[0].emitterX = title_screen_player.x;
+    explosion_particles[0].emitterY = title_screen_player.y;
+    explosion_particles[0].scale = (title_screen_player.mini ? 0.6 : 1.0f);
+    spawnMultipleParticles(&explosion_particles[0], 90);
+}
 
 void main_menu_loop() {
     exit_flag = false;
@@ -178,9 +328,23 @@ void main_menu_loop() {
         playing_menu_loop = true;
     }
 
+    // Temporarily save here
+    saved_cube = selected_cube;
+    saved_ship = selected_ship;
+    saved_ball = selected_ball;
+    saved_ufo = selected_ufo;
+    saved_wave = selected_wave;
+
     get_buffer(CHANNEL_BG)->active = false;
     get_buffer(CHANNEL_GROUND)->active = false;
     get_buffer(CHANNEL_LINE)->active = false;
+    init_variables();
+    init_particles();
+    reset_players();
+
+    state.current_player = 0;
+    trail = &trail_p1;
+    wave_trail = &wave_trail_p1;
 
     bool old_wide = wideEnabled;
     
@@ -190,6 +354,7 @@ void main_menu_loop() {
     }
 
     while (aptMainLoop()) {
+        float delta = 1/60.f;
         hidScanInput();
         u32 kDown = hidKeysDown();
 
@@ -203,12 +368,87 @@ void main_menu_loop() {
             action_open_level_select(NULL);
         }
 
+
+        state.old_input = state.input;
+        state.input.pressedJump = (started) == true;
+        state.input.holdJump = (state.input.pressedJump || holding) == true;
+
+        for (int i = 0; i < 2; i++) {
+            drag_particles[i].emitting = false;
+            drag_particles_2[i].stationary = true;
+            drag_particles_2[i].emitting = false;
+            ship_fire_particles[i].emitting = false;
+            secondary_particles[i].emitting = false;
+            ship_secondary_particles[i].emitting = false;
+            burst_particles[i].emitting = false;
+            land_particles[i].emitting = false;
+        }
+        
+        brick_destroy_particles.emitting = false;
+        slow_speed_particles_bottom.emitting = false;
+        normal_speed_particles_bottom.emitting = false;
+        fast_speed_particles_bottom.emitting = false;
+        faster_speed_particles_bottom.emitting = false;
+
+        p1_trail = false;
+
+        handle_input();
+
+        if (!state.dead) {
+            for (int i = 0; i < 4; i++) {
+                handle_players();
+            }
+        }
+        
+        glitter_particles.emitting = false;
+        glitter_particles_bottom.emitting = false;
+
+        // Fade wave trail
+        if (title_screen_player.gamemode == GAMEMODE_DART && (state.dead || title_screen_player.x >= SCREEN_WIDTH_AREA)) {
+            if (wave_trail->opacity > 0) wave_trail->opacity -= 0.08f;
+            
+            if (wave_trail->opacity <= 0) {
+                wave_trail->opacity = 0;
+                wave_trail->nuPoints = 0;
+            }
+        }
+    
+        MotionTrail_Update(&trail_p1, delta);
+        MotionTrail_UpdateWaveTrail(&wave_trail_p1, delta);
+        update_player_effects(delta);
+        update_use_effects(delta, GFX_TOP);
+
         UIInput touch;
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
         touch.did_something = false;
         touch.interacted = false;
+
+        float touch_x = touchPos.px/SCALE;
+        float touch_y = SCREEN_HEIGHT - touchPos.py/SCALE;
+
+        bool kill = (hidKeysDown() & KEY_TOUCH) && intersect(
+            title_screen_player.x, title_screen_player.y, title_screen_player.width, title_screen_player.height, 0,
+            touch_x, touch_y, 9, 9, 0
+        );
+
+        // Ded
+        if (kill && !state.dead) {
+            state.dead = true;
+            title_screen_death();
+            death_wait_timer = DEATH_WAITING_TIME;
+        } 
+
+        // Wait to reset the player
+        if (death_wait_timer) {
+            death_wait_timer -= delta;
+            if (death_wait_timer <= 0) {
+                reset_players();
+                death_wait_timer = 0;
+                state.dead = false;
+            }
+        }
 
         handle_col_channel(CHANNEL_BG);
         handle_col_channel(CHANNEL_GROUND);
@@ -241,6 +481,17 @@ void main_menu_loop() {
             draw_fade();
 
             draw_background(-40 + (bg_scroll / 8), 0);
+            C2D_ViewScale(SCALE, SCALE);
+            state.camera_y = SCREEN_HEIGHT_AREA;
+
+            draw_player_effects();
+            change_blending(true);
+            draw_use_effects(GFX_TOP);
+
+            change_blending(false);
+            draw_player(&title_screen_player);
+
+            C2D_ViewScale(1/SCALE, 1/SCALE);
             ui_screen_draw(&screen_top);
 
             // Bottom Screen
@@ -249,6 +500,15 @@ void main_menu_loop() {
 
             draw_background(bg_scroll / 8, SCREEN_HEIGHT);
             C2D_ViewScale(SCALE, SCALE);
+            state.camera_y = 0;
+            draw_player_effects();
+            change_blending(true);
+            draw_use_effects(GFX_TOP);
+
+            change_blending(false);
+            draw_player(&title_screen_player);
+            
+            draw_post_player_effects();
             draw_ground(bg_scroll, 0, 0, false, 320);
 
             C2D_ViewScale(1/SCALE, 1/SCALE);
@@ -257,6 +517,24 @@ void main_menu_loop() {
             if (in_settings) {
                 int returned = settings_loop();
                 if (returned) {
+                    int temp_cube = selected_cube;
+                    int temp_ship = selected_ship;
+                    int temp_ball = selected_ball;
+                    int temp_ufo = selected_ufo;
+                    int temp_wave = selected_wave;
+                    
+                    selected_cube = saved_cube;
+                    selected_ship = saved_ship;
+                    selected_ball = saved_ball;
+                    selected_ufo = saved_ufo;
+                    selected_wave = saved_wave;
+                    cfg_save();
+                    selected_cube = temp_cube;
+                    selected_ship = temp_ship;
+                    selected_ball = temp_ball;
+                    selected_ufo  = temp_ufo;
+                    selected_wave = temp_wave;
+                    
                     in_settings = false;
                 }
             }
@@ -299,6 +577,13 @@ void main_menu_loop() {
         } while (handle_fading());
 
         if (new_state) {
+            // Restore here
+            selected_cube = saved_cube;
+            selected_ship = saved_ship;
+            selected_ball = saved_ball;
+            selected_ufo = saved_ufo;
+            selected_wave = saved_wave;
+
             game_state = new_state;
             break;
         }

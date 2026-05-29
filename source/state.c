@@ -282,9 +282,16 @@ void first_load_init_variables() {
     state.current_data.time_start = svcGetSystemTick() / (CPU_TICKS_PER_MSEC * 1000);
 }
 
-void init_variables() {
-    level_frame = 0;
+void init_wave_trails() {
+    C2D_Image img = C2D_SpriteSheetGetImage(trailSheet, 0);
+    Color used_p1 = (switchWaveTrailColor ? p1_color : p2_color);
+    Color used_p2 = (switchWaveTrailColor ? p2_color : p1_color);
     
+    MotionTrail_Init(&wave_trail_p1, 3.f, 3, 10.0f, true, (used_p1.r | used_p1.g | used_p1.b && !solidWaveTrail), used_p1, img);
+    MotionTrail_Init(&wave_trail_p2, 3.f, 3, 10.0f, true, (used_p2.r | used_p2.g | used_p2.b && !solidWaveTrail), used_p2, img);
+}
+
+void init_trails() {
     C2D_Image img = C2D_SpriteSheetGetImage(trailSheet, 0);
 
     Color used_p1 = (switchTrailColor ? p1_color : p2_color);
@@ -294,13 +301,15 @@ void init_variables() {
     MotionTrail_Init(&trail_p1, 0.3f, 3, 10.0f, false, true, used_p1, img);
     MotionTrail_Init(&trail_p2, 0.3f, 3, 10.0f, false, true, used_p2, img);
 
-    used_p1 = (switchWaveTrailColor ? p1_color : p2_color);
-    used_p2 = (switchWaveTrailColor ? p2_color : p1_color);
-    
-    MotionTrail_Init(&wave_trail_p1, 3.f, 3, 10.0f, true, (used_p1.r | used_p1.g | used_p1.b && !solidWaveTrail), used_p1, img);
-    MotionTrail_Init(&wave_trail_p2, 3.f, 3, 10.0f, true, (used_p2.r | used_p2.g | used_p2.b && !solidWaveTrail), used_p2, img);
     MotionTrail_StopStroke(&trail_p1);
     MotionTrail_StopStroke(&trail_p2);
+}
+
+void init_variables() {
+    level_frame = 0;
+   
+    init_trails();
+    init_wave_trails();
 
     clear_use_effects(GFX_TOP);
 

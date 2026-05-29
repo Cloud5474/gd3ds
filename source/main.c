@@ -178,59 +178,27 @@ bool exiting_level = false;
 
 bool song_loaded;
 
-void game_loop() {
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-    C2D_SceneBegin(top);
-    C2D_TargetClear(top, C2D_Color32(0, 0, 0, 255));
-    C2D_Fade(0);
-    draw_text(&bigFont_fontCharset, &bigFont_sheet, SCREEN_WIDTH - 10, SCREEN_HEIGHT - 10, 0.5f, 1.0f, "Loading...");
-    C3D_FrameEnd(0);
-    
-    char *path;
-
-    if (state.custom_level) {
-        path = state.custom_level_path;
-    } else {
-        path = main_levels[curr_level_id].gmd_path;
+void update_player_effects(float delta) {
+    for (int i = 0; i < 2; i++) {
+        updateParticleSystem(&drag_particles[i], delta);
+        updateParticleSystem(&drag_particles_2[i], delta);
+        updateParticleSystem(&ship_fire_particles[i], delta);
+        updateParticleSystem(&ship_secondary_particles[i], delta);
+        updateParticleSystem(&secondary_particles[i], delta);
+        updateParticleSystem(&burst_particles[i], delta);
+        updateParticleSystem(&land_particles[i], delta);
+        updateParticleSystem(&explosion_particles[i], delta);
     }
+    updateParticleSystem(&brick_destroy_particles, delta);
+    updateParticleSystem(&glitter_particles, delta);
+    updateParticleSystem(&slow_speed_particles, delta);
+    updateParticleSystem(&normal_speed_particles, delta);
+    updateParticleSystem(&fast_speed_particles, delta);
+    updateParticleSystem(&faster_speed_particles, delta);
+    updateParticleSystem(&coin_pickup_particles, delta);
+}
 
-    int returned = load_level(path);
-    if (returned) {
-        printf("\x1b[9;1HFailed %d", returned);
-        game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
-        return;
-    }
-
-    if (!state.custom_level) {
-        level_info.level_name = main_levels[curr_level_id].level_name;
-    }
-    
-
-    if (level_info.custom_song_id > 0) {
-        char full_path[273];
-        snprintf(full_path, sizeof(full_path), "%s/%d.mp3", USER_SONGS_DIR, level_info.custom_song_id);
-        song_loaded = play_mp3(full_path, false, level_info.song_offset);
-    } else {
-        if (state.custom_level) {
-            song_loaded = play_mp3(main_levels[level_info.song_id].song_path, false, level_info.song_offset);
-        } else {
-            song_loaded = play_mp3(main_levels[curr_level_id].song_path, false, 0);
-        }
-    }
-
-    if (song_loaded) pause_playback_mp3();
-
-    set_fade_status(FADE_STATUS_IN);
-
-    bool being_faded = true;
-
-    first_load_init_variables();
-
-    init_op_system();
-
-    gameplay_screen_init();
-    
-    // Particle
+void init_particles() {
     initParticleSystem(&drag_particles[0], &drag_effect);
     initParticleSystem(&drag_particles[1], &drag_effect);
 
@@ -425,6 +393,63 @@ void game_loop() {
     level_complete_effect_p2.cfg.finishColorRed   = p2_not_white.r / 255.f;
     level_complete_effect_p2.cfg.finishColorGreen = p2_not_white.g / 255.f;
     level_complete_effect_p2.cfg.finishColorBlue  = p2_not_white.b / 255.f;
+}
+
+void game_loop() {
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+    C2D_SceneBegin(top);
+    C2D_TargetClear(top, C2D_Color32(0, 0, 0, 255));
+    C2D_Fade(0);
+    draw_text(&bigFont_fontCharset, &bigFont_sheet, SCREEN_WIDTH - 10, SCREEN_HEIGHT - 10, 0.5f, 1.0f, "Loading...");
+    C3D_FrameEnd(0);
+    
+    char *path;
+
+    if (state.custom_level) {
+        path = state.custom_level_path;
+    } else {
+        path = main_levels[curr_level_id].gmd_path;
+    }
+
+    int returned = load_level(path);
+    if (returned) {
+        printf("\x1b[9;1HFailed %d", returned);
+        game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
+        return;
+    }
+
+    if (!state.custom_level) {
+        level_info.level_name = main_levels[curr_level_id].level_name;
+    }
+    
+
+    if (level_info.custom_song_id > 0) {
+        char full_path[273];
+        snprintf(full_path, sizeof(full_path), "%s/%d.mp3", USER_SONGS_DIR, level_info.custom_song_id);
+        song_loaded = play_mp3(full_path, false, level_info.song_offset);
+    } else {
+        if (state.custom_level) {
+            song_loaded = play_mp3(main_levels[level_info.song_id].song_path, false, level_info.song_offset);
+        } else {
+            song_loaded = play_mp3(main_levels[curr_level_id].song_path, false, 0);
+        }
+    }
+
+    if (song_loaded) pause_playback_mp3();
+
+    set_fade_status(FADE_STATUS_IN);
+
+    bool being_faded = true;
+
+    update_player_colors();
+    first_load_init_variables();
+
+    init_op_system();
+
+    gameplay_screen_init();
+    
+    // Particle
+    init_particles();
 
     exiting_level = false;
 
@@ -636,23 +661,7 @@ void game_loop() {
             sprite_drawing_time = ticks_obj / CPU_TICKS_PER_MSEC;
 
             u64 start_part = svcGetSystemTick();
-            for (int i = 0; i < 2; i++) {
-                updateParticleSystem(&drag_particles[i], delta);
-                updateParticleSystem(&drag_particles_2[i], delta);
-                updateParticleSystem(&ship_fire_particles[i], delta);
-                updateParticleSystem(&ship_secondary_particles[i], delta);
-                updateParticleSystem(&secondary_particles[i], delta);
-                updateParticleSystem(&burst_particles[i], delta);
-                updateParticleSystem(&land_particles[i], delta);
-                updateParticleSystem(&explosion_particles[i], delta);
-            }
-            updateParticleSystem(&brick_destroy_particles, delta);
-            updateParticleSystem(&glitter_particles, delta);
-            updateParticleSystem(&slow_speed_particles, delta);
-            updateParticleSystem(&normal_speed_particles, delta);
-            updateParticleSystem(&fast_speed_particles, delta);
-            updateParticleSystem(&faster_speed_particles, delta);
-            updateParticleSystem(&coin_pickup_particles, delta);
+            update_player_effects(delta);
 
             // End wall particles
             if (level_info.wall_y > 0) {

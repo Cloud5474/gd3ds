@@ -1283,6 +1283,64 @@ void create_objects() {
     }
 }
 
+void draw_player_effects() {
+    change_blending(true);
+    for (int i = 0; i < 2; i++) {
+        drawParticleSystem(&drag_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&ship_fire_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&ship_secondary_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&secondary_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&burst_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&land_particles[i], 0, 0, 1.f);
+        drawParticleSystem(&explosion_particles[i], 0, 0, 1.f);
+    }
+    drawParticleSystem(&brick_destroy_particles, 0, 0, 1.f);
+    drawParticleSystem(&coin_pickup_particles, 0, 0, 1.f);
+    drawParticleSystem(&glitter_particles, 0, 0, 1.f);
+    draw_p1_trail(&state.player, 0);
+    if (!noPlayerTrail) MotionTrail_Draw(&trail_p1);
+    MotionTrail_DrawWaveTrail(&wave_trail_p1);
+}
+
+void draw_post_player_effects() {
+    change_blending(true);
+    for (int i = 0; i < 2; i++) {
+        drawParticleSystem(&drag_particles_2[i], 0, 0, 1.f);
+    }
+    change_blending(false);
+}
+
+void draw_player_graphics() {
+    change_blending(false);
+    
+    draw_collect_effect();
+
+    change_blending(true);
+    draw_use_effects(GFX_TOP);
+    if (level_info.wall_y > 0) {
+        drawParticleSystem(&end_wall_particles, 0, 0, 1);
+        // Render rays
+        draw_rays(delta);
+    }
+    draw_object_particles();
+    draw_player_effects();
+
+    draw_p1_trail(&state.player2, 1);
+    
+    if (!noPlayerTrail) MotionTrail_Draw(&trail_p2);
+    MotionTrail_DrawWaveTrail(&wave_trail_p2);
+    change_blending(false);
+    state.current_player = 0;
+    draw_player(&state.player);
+    
+    if (state.dual) {
+        state.current_player = 1;
+        draw_player(&state.player2);
+    }  
+
+    draw_post_player_effects();
+}
+
 void draw_objects() {
     u64 start = svcGetSystemTick();
     // Draw
@@ -1310,52 +1368,7 @@ void draw_objects() {
             
             C2D_DrawSpriteTinted(&obj->spr, &obj->tint);
         } else {   
-            change_blending(false);
-            
-            draw_collect_effect();
-
-            change_blending(true);
-            draw_use_effects(GFX_TOP);
-            if (level_info.wall_y > 0) {
-                drawParticleSystem(&end_wall_particles, 0, 0, 1);
-                // Render rays
-                draw_rays(delta);
-            }
-            draw_object_particles();
-            for (int i = 0; i < 2; i++) {
-                drawParticleSystem(&drag_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&ship_fire_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&ship_secondary_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&secondary_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&burst_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&land_particles[i], 0, 0, 1.f);
-                drawParticleSystem(&explosion_particles[i], 0, 0, 1.f);
-            }
-            drawParticleSystem(&brick_destroy_particles, 0, 0, 1.f);
-            drawParticleSystem(&coin_pickup_particles, 0, 0, 1.f);
-            drawParticleSystem(&glitter_particles, 0, 0, 1.f);
-            draw_p1_trail(&state.player, 0);
-            if (!noPlayerTrail) MotionTrail_Draw(&trail_p1);
-            MotionTrail_DrawWaveTrail(&wave_trail_p1);
-
-            draw_p1_trail(&state.player2, 1);
-            
-            if (!noPlayerTrail) MotionTrail_Draw(&trail_p2);
-            MotionTrail_DrawWaveTrail(&wave_trail_p2);
-            change_blending(false);
-            state.current_player = 0;
-            draw_player(&state.player);
-            
-            if (state.dual) {
-                state.current_player = 1;
-                draw_player(&state.player2);
-            }  
-                    
-            change_blending(true);
-            for (int i = 0; i < 2; i++) {
-                drawParticleSystem(&drag_particles_2[i], 0, 0, 1.f);
-            }
-            change_blending(false);
+            draw_player_graphics();
         }
     }
 

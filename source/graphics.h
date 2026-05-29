@@ -159,8 +159,13 @@ void spawn_glow_layer_at(
     u32 glow_color
 );
 
+Color get_color_abgr8(u32 color);
+
 void handle_mirror_transition();
 
+void draw_player_effects();
+void draw_post_player_effects();
+void draw_player_graphics();
 int get_coin_texture(int tex, int ticks);
 
 void make_opacity_lut();

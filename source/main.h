@@ -81,6 +81,9 @@ extern SFX quit_sound;
 extern SFX explode_sound;
 extern SFX end_sound;
 
+void init_particles();
+void update_player_effects(float delta);
+
 int output_log(const char *fmt, ...);
 
 bool is_citra();

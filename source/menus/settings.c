@@ -334,7 +334,6 @@ int settings_loop() {
     u32 kDown = hidKeysDown();
 
     if (yes_exit || (kDown & KEY_B)) {
-        cfg_save();
         return true;
     }
 
