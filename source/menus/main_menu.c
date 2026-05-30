@@ -505,7 +505,6 @@ void main_menu_loop() {
             if (in_settings) {
                 int returned = settings_loop();
                 if (returned) {
-                    cfg_save();
                     in_settings = false;
                 }
             }
