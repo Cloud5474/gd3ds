@@ -19,6 +19,7 @@ typedef struct {
 // like this "<red>red text wohoo</>"
 // or this "<#ff0000>also red text wohoo</>"
 // you can also do this "<green>i am green <#ff0000>and i am red</>"
+// now you can also put it in decimal like "<255,0,0>red</>" and also include opacity "<255,255,255,127>half</>""
 // </> ALWAYS resets to white and doesn't care if there is a tag before, its just so it looks like html
 // <p> makes a new line
 
@@ -43,21 +44,33 @@ static bool parse_named_color_tag(const char *tag, u32 *out) {
 }
 
 static bool parse_hex_color(const char *str, u32 *out) {
-    // Please are you a valid color yes or no
-    if (strlen(str) != 7 || str[0] != '#') {
+    unsigned int r, g, b, a;
+
+    // #RRGGBB
+    if (str[0] == '#') {
+        unsigned int r, g, b;
+
+        if (sscanf(str + 1, "%02x%02x%02x", &r, &g, &b) == 3 && strlen(str) == 7) {
+            *out = ABGR8(r, g, b, 255);
+            return true;
+        }
+
         return false;
     }
 
-    unsigned int r, g, b;
-
-    // Parse hex
-    if (sscanf(str + 1, "%02x%02x%02x", &r, &g, &b) != 3) {
-        return false;
+    // r,g,b,a
+    if (sscanf(str, "%d,%d,%d,%d", &r, &g, &b, &a) == 4) {
+        *out = ABGR8(r, g, b, a);
+        return true;
     }
 
-    *out = ABGR8(r, g, b, 255);
+    // r,g,b
+    if (sscanf(str, "%d,%d,%d", &r, &g, &b) == 3) {
+        *out = ABGR8(r, g, b, 255);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 static bool parse_color_tag(const char *tag, u32 *out) {
@@ -71,8 +84,8 @@ static bool parse_color_tag(const char *tag, u32 *out) {
     }
 
     // Hex color
-    if (tag[0] == '#') {
-        return parse_hex_color(tag, out);
+    if (parse_hex_color(tag, out)) {
+        return true;
     }
 
     return false;
