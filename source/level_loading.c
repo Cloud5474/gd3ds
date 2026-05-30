@@ -308,15 +308,15 @@ char *get_metadata_value(const char *levelString, const char *key) {
 
 char *decompress_level(char *data) {
     printf("Loading level data...\n");
-
-    const char *semicolon = strchr(data, ';');
-    if (semicolon) return data; // Rare uncompressed gmd found
     
     char *b64 = extract_gmd_key((const char *) data, "k4", "s");
     if (!b64) {
         // Empty level
         return data;
     }
+
+    const char *semicolon = strchr(b64, ';');
+    if (semicolon) return b64; // Rare uncompressed gmd found
 
     fix_base64_url(b64);
 
