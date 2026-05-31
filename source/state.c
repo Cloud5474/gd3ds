@@ -340,9 +340,9 @@ void init_variables() {
     clear_bg_flash();
 }
 
-void handle_death(Player *player) {
+void handle_death(Player *player, bool pause_song) {
     play_sfx(&explode_sound, 1);
-    if (song_loaded) {
+    if (song_loaded && pause_song) {
         pause_playback_mp3();
         seek_mp3(level_info.song_offset);
     }

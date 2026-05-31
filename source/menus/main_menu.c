@@ -421,7 +421,7 @@ void main_menu_loop() {
         // Ded
         if (kill && !state.dead) {
             state.dead = true;
-            handle_death(&title_screen_player);
+            handle_death(&title_screen_player, false);
             death_wait_timer = DEATH_WAITING_TIME;
         } 
 

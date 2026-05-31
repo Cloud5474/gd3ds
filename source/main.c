@@ -640,7 +640,7 @@ void game_loop() {
 
             if (state.dead && state.death_timer <= 0.f) {
                 state.death_timer = (quickRetry ? 0.5f : 1.f);
-                handle_death((state.current_player == 1) ? &state.player2 : &state.player);
+                handle_death((state.current_player == 1) ? &state.player2 : &state.player, true);
             }
 
             if (state.death_timer > 0.f) {
