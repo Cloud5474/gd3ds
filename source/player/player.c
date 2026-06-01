@@ -173,12 +173,12 @@ void cube_gamemode(Player *player) {
         slope_data = player->coyote_slope;
     }
 
-    if ((slope_data.slope_id >= 0 || player->on_ground) && jump) {
+    if (((slope_data.slope_id >= 0 && grav_slope_orient(slope_data.slope_id, player) < ORIENT_UD_DOWN) || player->on_ground) && jump) {
         // If on slope, the player jumps depending on time on slope
         if (slope_data.slope_id >= 0) {
             // Slope jump
             int orient = grav_slope_orient(slope_data.slope_id, player);
-            if (orient == ORIENT_NORMAL_UP || orient == ORIENT_UD_UP) {
+            if (orient == ORIENT_NORMAL_UP) {
                 float time = clampf(10 * (player->timeElapsed - slope_data.elapsed), 0.4f, 1.0f);
                 set_p_velocity(player, 0.25f * time * slopeHeights[state.speed] + cube_jump_heights[state.speed], false);
             } else {
