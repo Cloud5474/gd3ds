@@ -98,6 +98,9 @@ void level_card_move_left(UIElement *e) {
 }
 
 void update_level_progress(int level, int card) {
+    if (level < 0) level = MAIN_LEVELS_NUM-1;
+    if (level >= MAIN_LEVELS_NUM) level = 0;
+    
     LevelData *data = &main_level_data[level]; 
 
     char attempts[256];
