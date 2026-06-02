@@ -168,6 +168,9 @@ int handle_wall_cutscene(float delta) {
             } else {
                 state.current_data.max_normal = 100;
                 level_data_sel->normal_progress = 100;
+                level_data_sel->coin1 |= state.current_data.coin1;
+                level_data_sel->coin2 |= state.current_data.coin2;
+                level_data_sel->coin3 |= state.current_data.coin3;
             }
             // Exiting
             if (status == 1) {

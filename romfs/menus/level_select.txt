@@ -36,9 +36,9 @@ label x=160 y=80 text="" align=CENTER tag="level_card_2,level_title_2"
 image x=260 y=50 id=408 tag="level_card_2"
 label x=250 y=51 text="" align=RIGHT scale=0.40 tag="level_card_2,level_stars_2"
 
-image x=218 y=108 id=34 tag="level_card_2,coin_1" scale=0.75
-image x=238 y=108 id=34 tag="level_card_2,coin_2" scale=0.75
-image x=258 y=108 id=34 tag="level_card_2,coin_3" scale=0.75
+image x=218 y=108 id=34 tag="level_card_2,coin_1_2" scale=0.75
+image x=238 y=108 id=34 tag="level_card_2,coin_2_2" scale=0.75
+image x=258 y=108 id=34 tag="level_card_2,coin_3_2" scale=0.75
 
 # duplicate progress bar
  

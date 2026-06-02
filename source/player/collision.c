@@ -933,6 +933,19 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 
                 start_collect_effect(objects.x[obj], objects.y[obj]);
                 
+                int coin_id = objects.coin_id[obj];
+                switch (coin_id) {
+                    case 0:
+                        state.current_data.coin1 = true;
+                        break;
+                    case 1:
+                        state.current_data.coin2 = true;
+                        break;
+                    case 2:
+                        state.current_data.coin3 = true;
+                        break;
+                }
+
                 objects.toggled[obj] = true;
             }
             break;

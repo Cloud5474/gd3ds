@@ -20,6 +20,8 @@
 #include "level/main_levels.h"
 #include "save/saving.h"
 
+#include "menus/gameplay.h"
+
 #include "state.h"
 
 static UIScreen screen_top;
@@ -61,6 +63,15 @@ static UIElement *level_card_practice_progress_val = NULL;
 static UIElement *level_card_2_practice_progress = NULL;
 static UIElement *level_card_2_practice_progress_val = NULL;
 
+static UIElement *level_card_coin_1 = NULL;
+static UIElement *level_card_coin_2 = NULL;
+static UIElement *level_card_coin_3 = NULL;
+static UIElement *level_card_2_coin_1 = NULL;
+static UIElement *level_card_2_coin_2 = NULL;
+static UIElement *level_card_2_coin_3 = NULL;
+
+
+
 #define ANIM_DURATION 0.8f
 #define COLOR_FADE_DURATION 0.1f
 
@@ -100,7 +111,7 @@ void level_card_move_left(UIElement *e) {
 void update_level_progress(int level, int card) {
     if (level < 0) level = MAIN_LEVELS_NUM-1;
     if (level >= MAIN_LEVELS_NUM) level = 0;
-    
+
     LevelData *data = &main_level_data[level]; 
 
     char attempts[256];
@@ -125,6 +136,10 @@ void update_level_progress(int level, int card) {
     UIElement *normal_progval = (card) ? level_card_2_normal_progress_val : level_card_normal_progress_val;
     UIElement *practice_progval = (card) ? level_card_2_practice_progress_val : level_card_practice_progress_val;
 
+    UIElement *coin_1 = (card) ? level_card_2_coin_1 : level_card_coin_1;
+    UIElement *coin_2 = (card) ? level_card_2_coin_2 : level_card_coin_2;
+    UIElement *coin_3 = (card) ? level_card_2_coin_3 : level_card_coin_3;
+
     normal_prog->progress_bar.value = data->normal_progress;
     practice_prog->progress_bar.value = data->practice_progress;
 
@@ -133,6 +148,10 @@ void update_level_progress(int level, int card) {
 
     ui_label_set_text(normal_progval, normal);
     ui_label_set_text(practice_progval, practice);
+    
+    ui_image_set_image(coin_1, (data->coin1 ? MENU_COIN_FILLED_ID : MENU_COIN_UNFILLED_ID), 0);
+    ui_image_set_image(coin_2, (data->coin2 ? MENU_COIN_FILLED_ID : MENU_COIN_UNFILLED_ID), 0);
+    ui_image_set_image(coin_3, (data->coin3 ? MENU_COIN_FILLED_ID : MENU_COIN_UNFILLED_ID), 0);
 }
 
 void update_level_name(int level, int card) {
@@ -308,6 +327,14 @@ void level_select_loop() {
     level_card_practice_progress_val = ui_get_element_by_tag(&screen, "practiceprogressvalue");
     level_card_2_practice_progress = ui_get_element_by_tag(&screen, "practiceprogress_2");
     level_card_2_practice_progress_val = ui_get_element_by_tag(&screen, "practiceprogressvalue_2");
+    
+    level_card_coin_1 = ui_get_element_by_tag(&screen, "coin_1");
+    level_card_coin_2 = ui_get_element_by_tag(&screen, "coin_2");
+    level_card_coin_3 = ui_get_element_by_tag(&screen, "coin_3");
+    level_card_2_coin_1 = ui_get_element_by_tag(&screen, "coin_1_2");
+    level_card_2_coin_2 = ui_get_element_by_tag(&screen, "coin_2_2");
+    level_card_2_coin_3 = ui_get_element_by_tag(&screen, "coin_3_2");
+
     
     ui_progress_bar_set_tint(level_card_normal_progress, C2D_Color32(0, 255, 0, 255));
     ui_progress_bar_set_tint(level_card_2_normal_progress, C2D_Color32(0, 255, 0, 255));

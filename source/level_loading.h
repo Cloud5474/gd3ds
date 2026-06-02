@@ -47,7 +47,10 @@ typedef struct {
     bool *tintGround;
     bool *p1_color, *p2_color;
     bool *blending;
-    bool *touch_triggered;
+    union {
+        bool *touch_triggered;
+        u8 *coin_id;
+    };
     bool *flippedH, *flippedV;
     bool *toggled;
 

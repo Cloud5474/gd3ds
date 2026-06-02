@@ -242,6 +242,9 @@ void init_state() {
     state.p1_trail_pos[1] = 0;
 
     state.current_data.attempts++;
+    state.current_data.coin1 = false;
+    state.current_data.coin2 = false;
+    state.current_data.coin3 = false;
 }
 
 void init_level_bounds() {

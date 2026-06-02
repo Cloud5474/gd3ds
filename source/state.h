@@ -48,6 +48,9 @@ typedef struct {
     float time_end;
     int max_normal;
     int max_practice;
+    bool coin1;
+    bool coin2;
+    bool coin3;
 } StateLevelData;
 
 typedef struct {

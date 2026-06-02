@@ -21,6 +21,9 @@ Section empty_section = { 0 };
 
 Section *section_hash[SECTION_HASH_SIZE] = {0};
 
+static int coin_count;
+static int coin_ids[3];
+
 int channelCount = 0;
 GDColorChannel *colorChannels = NULL;
 
@@ -652,38 +655,6 @@ GDValueType get_value_type_for_key(int key) {
         case 23: return GD_VAL_INT;    // (Color trigger) Target color ID
         case 24: return GD_VAL_INT;    // Zlayer
         case 25: return GD_VAL_INT;    // Zorder
-//        case 28: return GD_VAL_INT;    // (Move trigger) Offset X
-//        case 29: return GD_VAL_INT;    // (Move trigger) Offset Y
-//        case 30: return GD_VAL_INT;    // (Various) Easing
-//        case 31: return GD_VAL_STRING; // (Text obj) Text
-//        case 32: return GD_VAL_FLOAT;  // Scale
-//        case 35: return GD_VAL_FLOAT;  // (Color trigger) Opacity
-//        case 41: return GD_VAL_BOOL;   // Main col HSV enabled
-//        case 42: return GD_VAL_BOOL;   // Detail col HSV enabled
-//        case 43: return GD_VAL_HSV;    // Main col HSV
-//        case 44: return GD_VAL_HSV;    // Detail col HSV
-//        case 45: return GD_VAL_FLOAT;  // (Pulse trigger) Fade in
-//        case 46: return GD_VAL_FLOAT;  // (Pulse trigger) Hold
-//        case 47: return GD_VAL_FLOAT;  // (Pulse trigger) Fade out
-//        case 48: return GD_VAL_INT;    // (Pulse trigger) Pulse mode
-//        case 49: return GD_VAL_HSV;    // (Color/Pulse trigger) Copy color HSV
-//        case 50: return GD_VAL_INT;    // (Color/Pulse trigger) Copy color id
-//        case 51: return GD_VAL_INT;    // (Triggers) Target group id
-//        case 52: return GD_VAL_INT;    // (Pulse trigger) Pulse target type
-//        case 54: return GD_VAL_FLOAT;  // (Teleport portal) Y offset
-//        case 56: return GD_VAL_BOOL;   // (Toggle trigger) Activate trigger
-//        case 57: return GD_VAL_INT_ARRAY; // Groups
-//        case 58: return GD_VAL_BOOL;   // (Move trigger) Lock to player x
-//        case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
-//        case 62: return GD_VAL_BOOL;   // (Triggers) Spawn triggered
-//        case 63: return GD_VAL_FLOAT;  // (Spawn trigger) Spawn delay
-//        case 64: return GD_VAL_BOOL;   // Don't fade
-//        case 65: return GD_VAL_BOOL;   // (Pulse trigger) Main only
-//        case 66: return GD_VAL_BOOL;   // (Pulse trigger) Detail only
-//        case 67: return GD_VAL_BOOL;   // Don't enter
-//        case 87: return GD_VAL_BOOL;   // (Triggers) Multi triggered
-//        case 128: return GD_VAL_FLOAT; // Scale x
-//        case 129: return GD_VAL_FLOAT; // Scale y
         default:
             return GD_VAL_INT; // Default fallback
     }
@@ -929,6 +900,13 @@ int parse_gd_object(const char *objStr, int obj) {
     int obj_id = objects.id[obj];
     
     if (is_valid_object(obj_id)) {
+        // Get coins
+        if (obj_id == SECRET_COIN) {
+            if (coin_count < 3) {
+                coin_ids[coin_count++] = obj;
+            }
+        }
+        
         const GameObject *game_object = &game_objects[objects.id[obj]];
 
         // Get proper color channels
@@ -1153,6 +1131,16 @@ bool init_arrays(int count) {
     return true;
 }
 
+int compare_coins(const void *a, const void *b) {
+    const int *c1 = (const int *)a;
+    const int *c2 = (const int *)b;
+
+    if (objects.x[*c1] < objects.x[*c2]) return -1;
+    if (objects.x[*c1] > objects.x[*c2]) return 1;
+
+    return 0;
+}
+
 bool parse_string(const char *levelString) {
     int sectionCount = 0;
 
@@ -1188,6 +1176,14 @@ bool parse_string(const char *levelString) {
         }
 
         assign_object_to_section(i);
+    }
+
+    qsort(coin_ids, 3, sizeof(int), compare_coins);
+
+    // Set IDs here
+    for (int i = 0; i < 3; i++) {
+        objects.coin_id[coin_ids[i]] = i;
+        //output_log("Le coin %d on objeto %d\n", i, coin_ids[i]);
     }
     
     level_info.last_obj_x += (11 * 30.f);

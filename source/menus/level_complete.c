@@ -1,5 +1,8 @@
 #include <3ds.h>
 #include <citro2d.h>
+
+#include "level_complete.h"
+
 #include "menus/components/ui_element.h"
 #include "menus/components/ui_screen.h"
 #include "math_helpers.h"
@@ -21,6 +24,8 @@
 #include "info_card.h"
 #include "state.h"
 #include "endwall.h"
+
+#include "save/saving.h"
 
 #define ANIM_DURATION 1.f
 #define RESTART_ANIM_DURATION 0.5f
@@ -45,6 +50,10 @@ static UIElement *jumps_text;
 static UIElement *time_text;
 
 static UIElement *completion_text;
+
+static UIElement *coin_1;
+static UIElement *coin_2;
+static UIElement *coin_3;
 
 char *practice_completion_text = "Well done... Now try to complete it<p>without any checkpoints!";
 
@@ -174,10 +183,14 @@ void level_complete_init() {
     anim_time = 0;
     window_y_pos = 0;
 
+    coin_1 = ui_get_element_by_tag(&screen_top, "coin1");
+    coin_2 = ui_get_element_by_tag(&screen_top, "coin2");
+    coin_3 = ui_get_element_by_tag(&screen_top, "coin3");
+
     // Set completion text
     completion_text = ui_get_element_by_tag(&screen_top, "funnytext");
     
-    if(state.custom_level == true) {
+    if(state.custom_level == true || state.practice_mode) {
         ui_run_func_on_tag(&screen_top, "coin1", ui_disable_element);
         ui_run_func_on_tag(&screen_top, "coin2", ui_disable_element);
         ui_run_func_on_tag(&screen_top, "coin3", ui_disable_element);
@@ -208,6 +221,12 @@ void level_complete_init() {
         completion_text->label.scale = text_scale;
     } else {
         ui_run_func_on_tag(&screen_top, "funnytext", ui_disable_element);
+        
+        LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
+
+        ui_image_set_image(coin_1, (state.current_data.coin1 | level_data_sel->coin1 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
+        ui_image_set_image(coin_2, (state.current_data.coin2 | level_data_sel->coin2 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
+        ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
     }
 
     if (state.practice_mode) {

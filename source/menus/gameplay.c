@@ -47,6 +47,14 @@ static UIElement *normal_progress_val;
 static UIElement *practice_progress;
 static UIElement *practice_progress_val;
 
+static UIElement *coin_1;
+static UIElement *coin_2;
+static UIElement *coin_3;
+
+static UIElement *coin_1_top;
+static UIElement *coin_2_top;
+static UIElement *coin_3_top;
+
 int decimal;
 
 static void update_progress_bars() {
@@ -62,6 +70,10 @@ static void update_progress_bars() {
 
     ui_label_set_text(normal_progress_val, normal);
     ui_label_set_text(practice_progress_val, practice);
+
+    ui_image_set_image(coin_1_top, (level_data_sel->coin1 ? PAUSE_COIN_FILLED_ID : PAUSE_COIN_UNFILLED_ID), 0);
+    ui_image_set_image(coin_2_top, (level_data_sel->coin2 ? PAUSE_COIN_FILLED_ID : PAUSE_COIN_UNFILLED_ID), 0);
+    ui_image_set_image(coin_3_top, (level_data_sel->coin3 ? PAUSE_COIN_FILLED_ID : PAUSE_COIN_UNFILLED_ID), 0);
 }
 
 void pause_game() {
@@ -212,6 +224,13 @@ void gameplay_screen_init() {
     ui_run_func_on_tag(&screen_top, "pause_menu", ui_disable_element);
     ui_run_func_on_tag(&screen, "paused", ui_disable_element);
     ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
+
+    coin_1 = ui_get_element_by_tag(&screen, "coin_1");
+    coin_2 = ui_get_element_by_tag(&screen, "coin_2");
+    coin_3 = ui_get_element_by_tag(&screen, "coin_3");
+    coin_1_top = ui_get_element_by_tag(&screen_top, "coin_1");
+    coin_2_top = ui_get_element_by_tag(&screen_top, "coin_2");
+    coin_3_top = ui_get_element_by_tag(&screen_top, "coin_3");
 }
 
 int gameplay_screen_top_loop() { 
@@ -267,6 +286,13 @@ int gameplay_screen_bot_loop() {
     } else {
         ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
     }
+
+    LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
+
+    ui_image_set_image(coin_1, (state.current_data.coin1 | level_data_sel->coin1 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
+    ui_image_set_image(coin_2, (state.current_data.coin2 | level_data_sel->coin2 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
+    ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
+
 
     touch.touchPosition = touchPos;
     touch.did_something = false;
