@@ -125,8 +125,7 @@ bool mp3_init(void *file) {
     return 1;
 }
 
-u32 decode_mp3(void* buffer)
-{
+u32 decode_mp3(void* buffer) {
     size_t done = 0;
     mpg123_read(mh, (unsigned char *)(buffer), buffSize, &done);
     return done / (sizeof(int16_t));
@@ -292,6 +291,8 @@ int play_mp3(char *path, bool loop, float seek) {
 void seek(u32 location) {
     if (location <= mpg123_length(mh)) {
         mpg123_seek(mh, location, SEEK_SET);
+    } else {
+        mpg123_seek(mh, 0, SEEK_SET);
     }
 }
 
