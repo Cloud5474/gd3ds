@@ -8,8 +8,11 @@
 #include "color_channels.h"
 #include "main.h"
 
+#include "icons.h"
+
 #define MAX_TRAIL_POINTS 128
 #define TRAIL_CLEAR_DISTANCE 30.f
+#define STATIONARY_TRAIL_CHUNK_SIZE 64.f
 
 typedef struct {
     float u, v;
@@ -29,7 +32,12 @@ typedef struct {
     float opacity;
     float fadeDelta;
     float minSeg;
+
+    float width;
+
     float stroke;
+
+    float uvOffset;
 
     Vec2D positionR;
     Color color;
@@ -47,9 +55,21 @@ typedef struct {
     Vec2D lastStopPosition;
     bool wasStopped;
     bool blending;
+    bool alwaysOn;
+    bool stationary;
 } MotionTrail;
 
-void MotionTrail_Init(MotionTrail* trail, float fade, float minSeg, float stroke, bool waveTrail, bool blending, Color color, C2D_Image tex);
+typedef struct {
+    float fade;
+    float width;
+    bool always_on;
+    bool colored;
+    bool stationary;
+} MotionTrailConfig;
+
+extern const MotionTrailConfig trail_properties[TRAIL_COUNT];
+
+void MotionTrail_Init(MotionTrail* trail, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex);
 void MotionTrail_UpdateWaveTrail(MotionTrail *trail, float delta);
 void MotionTrail_Update(MotionTrail* trail, float delta);
 void MotionTrail_ResumeStroke(MotionTrail* trail);

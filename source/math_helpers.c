@@ -203,3 +203,19 @@ float random_float(float min, float max) {
 int random_int(int min, int max) {
     return rand() % (max + 1 - min) + min;
 }
+
+float reflect(float x, float min, float max) {
+    float L = max - min;
+    if (L <= 0.0f) return min;
+
+    float t = x - min;
+
+    float period = 2.0f * L;
+    float r = fmodf(t, period);
+    if (r < 0.0f) r += period;
+
+    if (r > L)
+        r = period - r;
+
+    return min + r;
+}

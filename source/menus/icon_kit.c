@@ -43,6 +43,8 @@ static int current_ufo_page  = 0;
 static int current_wave_page = 0;
 static int current_trail_page = 0;
 
+static int last_displayed_gamemode = 0;
+
 int selected_cube = 1;
 int selected_ship = 1;
 int selected_ball = 1;
@@ -56,16 +58,16 @@ int selected_glow = 0;
 
 bool player_glow_enabled = false;
 
-static const int gamemode_icon_count[GAMEMODE_COUNT] = {
+static const int gamemode_icon_count[GAMEMODE_COUNT + 1] = {
     ICON_COUNT_PLAYER,
     ICON_COUNT_SHIP,
     ICON_COUNT_PLAYER_BALL,
     ICON_COUNT_BIRD,
     ICON_COUNT_DART,
-    ICON_COUNT_TRAIL
+    TRAIL_COUNT
 };
 
-static int *current_pages[GAMEMODE_COUNT] = {
+static int *current_pages[GAMEMODE_COUNT + 1] = {
     &current_cube_page,
     &current_ship_page,
     &current_ball_page,
@@ -74,7 +76,7 @@ static int *current_pages[GAMEMODE_COUNT] = {
     &current_trail_page
 };
 
-int *current_icons[GAMEMODE_COUNT] = {
+int *current_icons[GAMEMODE_COUNT + 1] = {
     &selected_cube,
     &selected_ship,
     &selected_ball,
@@ -113,8 +115,19 @@ static void set_icon_index(UIElement *e) {
     }
 }
 
+static void set_trail_index(UIElement *e) {
+    int new_index = icon_counter;
+    if (new_index < gamemode_icon_count[gamemode_page]) {
+        e->enabled = true;
+        ui_icon_set_gamemode_index(e, gamemode_page, new_index);
+        icon_counter++;
+    } else {
+        e->enabled = false;
+    }
+}
+
 static void disable_all_icon_buttons() {
-    icon_counter = 1;
+    icon_counter = (gamemode_page == TRAIL ? 0 : 1);
     ui_button_set_image(ui_get_element_by_tag(&screen, "cube"), button_images[0], 0);
     ui_button_set_image(ui_get_element_by_tag(&screen, "ship"), button_images[1], 0);
     ui_button_set_image(ui_get_element_by_tag(&screen, "ball"), button_images[2], 0);
@@ -124,45 +137,50 @@ static void disable_all_icon_buttons() {
 }
 
 static void set_cube_page(UIElement *e) {
+    gamemode_page = 0;
+    last_displayed_gamemode = 0;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[0] + 1, 0);
-    gamemode_page = 0;
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void set_ship_page(UIElement *e) {
+    gamemode_page = 1;
+    last_displayed_gamemode = 1;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[1] + 1, 0);
-    gamemode_page = 1;
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void set_ball_page(UIElement *e) {
+    gamemode_page = 2;
+    last_displayed_gamemode = 2;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[2] + 1, 0);
-    gamemode_page = 2;
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void set_ufo_page(UIElement *e) {
+    gamemode_page = 3;
+    last_displayed_gamemode = 3;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[3] + 1, 0);
-    gamemode_page = 3;
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void set_wave_page(UIElement *e) {
+    gamemode_page = 4;
+    last_displayed_gamemode = 4;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[4] + 1, 0);
-    gamemode_page = 4;
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void set_trail_page(UIElement *e) {
+    gamemode_page = 5;
     disable_all_icon_buttons();
     ui_button_set_image(e, button_images[5] + 1, 0);
-    gamemode_page = 5;
-    ui_run_func_on_tag(&screen, "wave", set_icon_index); 
+    ui_run_func_on_tag(&screen, "icon", set_trail_index); 
 }
 
 static void action_exit(UIElement* e) {
@@ -175,7 +193,7 @@ static void move_index_left(UIElement* e) {
     if (*current_pages[gamemode_page] < 0) {
         *current_pages[gamemode_page] = (gamemode_icon_count[gamemode_page] - 2) / ICONS_PER_PAGE;
     }
-    icon_counter = 1;
+    icon_counter = (gamemode_page == TRAIL ? 0 : 1);
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
@@ -184,13 +202,13 @@ static void move_index_right(UIElement* e) {
     if ((*current_pages[gamemode_page] * ICONS_PER_PAGE) + 1 >= gamemode_icon_count[gamemode_page]) {
         *current_pages[gamemode_page] = 0;
     }
-    icon_counter = 1;
+    icon_counter = (gamemode_page == TRAIL ? 0 : 1);
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
 static void action_icon_selected(UIElement *e) {
     *current_icons[e->icon.gamemode] = e->icon.index;
-    icon_counter = 1;
+    icon_counter = (gamemode_page == TRAIL ? 0 : 1);
     ui_run_func_on_tag(&screen, "icon", set_icon_index); 
 }
 
@@ -287,8 +305,9 @@ void icon_kit_loop() {
             C2D_SceneBegin(top);
 
             ui_screen_draw(&screen_top);
+
             spawn_icon_at(
-                gamemode_page, *current_icons[gamemode_page], glow_enabled, 200, 120, 0, 0, 0, 2.f,
+                last_displayed_gamemode, *current_icons[last_displayed_gamemode], glow_enabled, 200, 120, 0, 0, 0, 2.f,
                 C2D_Color32(p1_color.r, p1_color.g, p1_color.b, 255),
                 C2D_Color32(p2_color.r, p2_color.g, p2_color.b, 255),
                 C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)

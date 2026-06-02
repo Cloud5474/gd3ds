@@ -570,7 +570,7 @@ void clamp_player_ground(Player *player) {
 }
 void run_player(Player *player) {
     float scale = (player->mini) ? 0.6f : 1.f;
-    trail->stroke = 10.f * scale;
+    trail->stroke = trail->width * scale;
     wave_trail->stroke = 18.f * map_range(amplitude, 0.f, 1.f, 0.1f, 1.f) * scale;
 
     if (!player->left_ground) {

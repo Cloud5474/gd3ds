@@ -156,7 +156,7 @@ void clear_bg_flash();
 
 void init_player(Player *player);
 void init_state();
-void init_trails();
+void init_trails(int trail);
 void init_wave_trails();
 
 void play_level_song();

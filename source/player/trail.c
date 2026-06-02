@@ -15,6 +15,18 @@
 #include "math_helpers.h"
 #include "utils/gfx.h"
 
+const MotionTrailConfig trail_properties[TRAIL_COUNT] = {
+    {. fade = 0.3f, .width = 10.f, .always_on = false, .colored = true,  .stationary = false},
+    {. fade = 0.3f, .width = 15.f, .always_on = false, .colored = false, .stationary = false},
+    {. fade = 0.3f, .width = 10.f, .always_on = false, .colored = false, .stationary = false},
+    {. fade = 0.4f, .width = 10.f, .always_on = false, .colored = false, .stationary = false},
+    {. fade = 0.5f, .width = 10.f, .always_on = true,  .colored = false, .stationary = false},
+    {. fade = 0.8f, .width = 3.f,  .always_on = true,  .colored = false, .stationary = true },
+    {. fade = 0.3f, .width = 10.f, .always_on = false, .colored = false, .stationary = false},
+};  
+
+void MotionTrail_UpdateStationaryUVs(MotionTrail* trail, float offset);
+
 // Adds "thickness" to a line strip by generating a triangle strip
 void ccVertexLineToPolygon(const Vec2D* points, float stroke, Vec2D* outVerts, int offset, int count) {
     if (count < 2) return;
@@ -126,19 +138,22 @@ void MotionTrail_Clear(MotionTrail *trail) {
     trail->previousNuPoints = 0;
 }
 
-void MotionTrail_Init(MotionTrail* trail, float fade, float minSeg, float stroke, bool waveTrail, bool blending, Color color, C2D_Image tex) {
+void MotionTrail_Init(MotionTrail* trail, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex) {
     memset(trail, 0, sizeof(MotionTrail));
     trail->image = tex;  
     trail->maxPoints = MAX_TRAIL_POINTS;
     trail->fadeDelta = 1.0f / fade;
-    trail->minSeg = minSeg * minSeg;  // Compare squared distance
-    trail->stroke = stroke;
+    trail->minSeg = 9;  // Compare squared distance
+    trail->width = stroke;
     trail->color = color;
     trail->waveTrail = waveTrail;
     trail->nuPoints = 0;
     trail->previousNuPoints = 0;
     trail->blending = blending;
     trail->opacity = 1.f;
+    trail->alwaysOn = always_on;
+    trail->uvOffset = 0;
+    trail->stationary = stationary;
     if (!waveTrail) trail->appendNewPoints = true;
 }
 
@@ -178,6 +193,14 @@ void MotionTrail_Update(MotionTrail* trail, float delta) {
     if (trail->waveTrail) return;
     if (!trail->startingPositionInitialized) return;
 
+    if (trail->alwaysOn) {
+        if (state.mirroring) {
+            MotionTrail_StopStroke(trail);
+        } else {
+            MotionTrail_ResumeStroke(trail);
+        }
+    }
+
     delta *= trail->fadeDelta;
 
     unsigned int newIdx, newIdx2, i, i2;
@@ -188,6 +211,14 @@ void MotionTrail_Update(MotionTrail* trail, float delta) {
         trail->pointState[i] -= delta;
         if (trail->pointState[i] <= 0) {
             mov++;
+            if (trail->stationary && i < trail->nuPoints - 1) {         
+                trail->uvOffset += len_vec(
+                    sub_vec(
+                        trail->pointVertexes[i],
+                        trail->pointVertexes[i + 1]
+                    )
+                );
+            }
         } else {
             newIdx = i - mov;
             if (mov > 0) {
@@ -246,16 +277,46 @@ void MotionTrail_Update(MotionTrail* trail, float delta) {
 
     // Update tex coords
     if (trail->nuPoints && trail->previousNuPoints != trail->nuPoints) {
-        float texDelta = 1.0f / trail->nuPoints;
-        for (i = 0; i < trail->nuPoints; i++) {
-            trail->texCoords[i * 2].u = 0;
-            trail->texCoords[i * 2].v = texDelta * i;
-            trail->texCoords[i * 2 + 1].u = 1;
-            trail->texCoords[i * 2 + 1].v = texDelta * i;
+        if (trail->stationary) {
+            MotionTrail_UpdateStationaryUVs(trail, 0);
+        } else {
+            float texDelta = 1.0f / trail->nuPoints;
+            for (i = 0; i < trail->nuPoints; i++) {
+                trail->texCoords[i * 2].u = 0;
+                trail->texCoords[i * 2].v = texDelta * i;
+                trail->texCoords[i * 2 + 1].u = 1;
+                trail->texCoords[i * 2 + 1].v = texDelta * i;
+            }
         }
         trail->previousNuPoints = trail->nuPoints;
+    } else if (trail->stationary) {
+        MotionTrail_UpdateStationaryUVs(trail, trail->uvOffset);
     }
 }
+
+void MotionTrail_UpdateStationaryUVs(MotionTrail* trail, float offset) {
+    float distance = 0.0f;
+
+    for (int i = 0; i < trail->nuPoints; i++) {
+        if (i > 0) {
+            Vec2D d = sub_vec(
+                trail->pointVertexes[i],
+                trail->pointVertexes[i - 1]
+            );
+
+            distance += len_vec(d);
+        }
+
+        float v = reflect((trail->uvOffset + distance) / STATIONARY_TRAIL_CHUNK_SIZE, 0.f, 1.f);
+
+        trail->texCoords[i * 2].u = 0.0f;
+        trail->texCoords[i * 2].v = v;
+
+        trail->texCoords[i * 2 + 1].u = 1.0f;
+        trail->texCoords[i * 2 + 1].v = v;
+    }
+}
+
 void MotionTrail_UpdateWaveTrail(MotionTrail* trail, float delta) {
     if (!trail->waveTrail) return;
     if (!trail->startingPositionInitialized) return;

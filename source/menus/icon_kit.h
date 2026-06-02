@@ -19,6 +19,6 @@ extern int selected_glow;
 
 extern bool player_glow_enabled;
 
-extern int *current_icons[GAMEMODE_COUNT];
+extern int *current_icons[GAMEMODE_COUNT + 1];
 extern int *current_colors[3];
 

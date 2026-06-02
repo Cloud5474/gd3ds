@@ -221,7 +221,7 @@ void reset_players() {
     title_screen_player.player_icons.p2_color = p2;
     
     init_particles(p1, p2);
-    init_trails();
+    init_trails(0);
     
     trail_p1.color = (random_int(0, 1) ? p1 : p2);
     
