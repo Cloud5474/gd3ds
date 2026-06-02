@@ -161,6 +161,14 @@ int handle_wall_cutscene(float delta) {
         // Handle level complete menu
         int status = level_complete_loop(delta);
         if (status) {
+            LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
+            if (state.practice_mode) {
+                state.current_data.max_practice = 100;
+                level_data_sel->practice_progress = 100;
+            } else {
+                state.current_data.max_normal = 100;
+                level_data_sel->normal_progress = 100;
+            }
             // Exiting
             if (status == 1) {
                 stop_mp3();
@@ -180,14 +188,6 @@ int handle_wall_cutscene(float delta) {
             level_complete_initialized = false;
             completion_timer = 0.0f;
             circunference_timer = 0.0f;
-            LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
-            if (state.practice_mode) {
-                state.current_data.max_practice = 100;
-                level_data_sel->practice_progress = 100;
-            } else {
-                state.current_data.max_normal = 100;
-                level_data_sel->normal_progress = 100;
-            }
             return status;
         }
     }
