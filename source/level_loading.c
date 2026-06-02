@@ -1135,10 +1135,7 @@ int compare_coins(const void *a, const void *b) {
     const int *c1 = (const int *)a;
     const int *c2 = (const int *)b;
 
-    if (objects.x[*c1] < objects.x[*c2]) return -1;
-    if (objects.x[*c1] > objects.x[*c2]) return 1;
-
-    return 0;
+    return objects.x[*c1] - objects.x[*c2];
 }
 
 bool parse_string(const char *levelString) {
