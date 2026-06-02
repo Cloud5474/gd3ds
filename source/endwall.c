@@ -74,7 +74,7 @@ int handle_wall_cutscene(float delta) {
     }
 
     // Make circunferences
-    if (circunference_timer >= (circunferences_spawned * CIRCUNFERENCE_SPAWN_DELAY) && circunferences_spawned < CIRCUNFERENCE_COUNT && completion_timer < FIREWORK_SPAWN_TIME) {        
+    if (circunference_timer >= (circunferences_spawned * CIRCUNFERENCE_SPAWN_DELAY) && circunferences_spawned < CIRCUNFERENCE_COUNT && !state.practice_mode) {        
         UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_circunference, GFX_TOP);
         if (effect) {
             Color p1_white = get_white_if_black(p1_color);
