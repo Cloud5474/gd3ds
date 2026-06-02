@@ -15,6 +15,8 @@
 #include "math_helpers.h"
 #include "utils/gfx.h"
 
+#include "menus/settings.h"
+
 const MotionTrailConfig trail_properties[TRAIL_COUNT] = {
     {. fade = 0.3f, .width = 10.f, .always_on = false, .colored = true,  .stationary = false},
     {. fade = 0.3f, .width = 15.f, .always_on = false, .colored = false, .stationary = false},
@@ -138,7 +140,7 @@ void MotionTrail_Clear(MotionTrail *trail) {
     trail->previousNuPoints = 0;
 }
 
-void MotionTrail_Init(MotionTrail* trail, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex) {
+void MotionTrail_Init(MotionTrail* trail, int player, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex) {
     memset(trail, 0, sizeof(MotionTrail));
     trail->image = tex;  
     trail->maxPoints = MAX_TRAIL_POINTS;
@@ -154,6 +156,7 @@ void MotionTrail_Init(MotionTrail* trail, float fade, bool always_on, float stro
     trail->alwaysOn = always_on;
     trail->uvOffset = 0;
     trail->stationary = stationary;
+    trail->player = player;
     if (!waveTrail) trail->appendNewPoints = true;
 }
 
@@ -194,7 +197,9 @@ void MotionTrail_Update(MotionTrail* trail, float delta) {
     if (!trail->startingPositionInitialized) return;
 
     if (trail->alwaysOn) {
-        if (state.mirroring) {
+        Player *player = (trail->player ? &state.player2 : &state.player);
+
+        if (state.mirroring || (player->gamemode == GAMEMODE_DART && noWaveTrailBehind)) {
             MotionTrail_StopStroke(trail);
         } else {
             MotionTrail_ResumeStroke(trail);

@@ -314,8 +314,8 @@ void init_wave_trails() {
     Color used_p1 = (switchWaveTrailColor ? p1_color : p2_color);
     Color used_p2 = (switchWaveTrailColor ? p2_color : p1_color);
     
-    MotionTrail_Init(&wave_trail_p1, 3.f, true, 10.0f, true, (used_p1.r | used_p1.g | used_p1.b && !solidWaveTrail), false, used_p1, img);
-    MotionTrail_Init(&wave_trail_p2, 3.f, true, 10.0f, true, (used_p2.r | used_p2.g | used_p2.b && !solidWaveTrail), false, used_p2, img);
+    MotionTrail_Init(&wave_trail_p1, 0, 3.f, true, 10.0f, true, (used_p1.r | used_p1.g | used_p1.b && !solidWaveTrail), false, used_p1, img);
+    MotionTrail_Init(&wave_trail_p2, 1, 3.f, true, 10.0f, true, (used_p2.r | used_p2.g | used_p2.b && !solidWaveTrail), false, used_p2, img);
 }
 
 void init_trails(int trail) {
@@ -332,8 +332,8 @@ void init_trails(int trail) {
     }
 
     C3D_TexSetFilter(img.tex, GPU_LINEAR, GPU_LINEAR);
-    MotionTrail_Init(&trail_p1, config->fade, config->always_on, config->width, false, true, config->stationary, used_p1, img);
-    MotionTrail_Init(&trail_p2, config->fade, config->always_on, config->width, false, true, config->stationary, used_p2, img);
+    MotionTrail_Init(&trail_p1, 0, config->fade, config->always_on, config->width, false, true, config->stationary, used_p1, img);
+    MotionTrail_Init(&trail_p2, 1, config->fade, config->always_on, config->width, false, true, config->stationary, used_p2, img);
 
     MotionTrail_StopStroke(&trail_p1);
     MotionTrail_StopStroke(&trail_p2);

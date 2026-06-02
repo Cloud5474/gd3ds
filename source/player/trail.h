@@ -53,6 +53,9 @@ typedef struct {
     Vec2D centerVertices[MAX_TRAIL_POINTS * 2];
 
     Vec2D lastStopPosition;
+
+    int player;
+
     bool wasStopped;
     bool blending;
     bool alwaysOn;
@@ -69,7 +72,7 @@ typedef struct {
 
 extern const MotionTrailConfig trail_properties[TRAIL_COUNT];
 
-void MotionTrail_Init(MotionTrail* trail, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex);
+void MotionTrail_Init(MotionTrail* trail, int player, float fade, bool always_on, float stroke, bool waveTrail, bool blending, bool stationary, Color color, C2D_Image tex);
 void MotionTrail_UpdateWaveTrail(MotionTrail *trail, float delta);
 void MotionTrail_Update(MotionTrail* trail, float delta);
 void MotionTrail_ResumeStroke(MotionTrail* trail);
