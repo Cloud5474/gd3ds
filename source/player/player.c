@@ -209,11 +209,11 @@ void cube_gamemode(Player *player) {
 
     if (player->slope_data.slope_id >= 0) {
         float base = RadToDeg(slope_snap_angle(player->slope_data.slope_id, player));
-        player->cube_target_rotation = convert_to_closest_rotation(player->cube_target_rotation, base);
+        player->cube_target_rotation = convert_to_closest_rotation(player->rotation, base);
     }
     if (player->slope_slide_coyote_time) {
         float base = RadToDeg(slope_snap_angle(player->coyote_slope.slope_id, player));
-        player->cube_target_rotation = convert_to_closest_rotation(player->cube_target_rotation, base);
+        player->cube_target_rotation = convert_to_closest_rotation(player->rotation, base);
     }
 }
 
