@@ -94,7 +94,7 @@ static void ui_window_button_draw(UIElement* e) {
     }
     
 
-    draw_text(font->charset, font->sheet, e->x, e->y, text_scale, 0.5f, 0.5f, "%s", e->window_button.text);
+    draw_text(font->charset, font->sheet, e->x, e->y, text_scale, text_scale, 0.5f, "%s", e->window_button.text);
 }
 
 void ui_window_button_set_style(UIElement *e, int style) {
