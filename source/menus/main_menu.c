@@ -422,8 +422,10 @@ void main_menu_loop() {
             touch_x, touch_y, 9, 9, 0
         );
 
+        bool in_menu = in_settings || in_first_boot_disclaimer || in_statistics || in_credits || in_info_card;
+
         // Ded
-        if (kill && !state.dead) {
+        if (kill && !state.dead && !in_menu) {
             state.dead = true;
             handle_death(&title_screen_player, false);
             death_wait_timer = DEATH_WAITING_TIME;
