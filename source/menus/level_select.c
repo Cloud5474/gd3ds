@@ -89,6 +89,38 @@ const u32 default_lvl_colors[] = {
     C2D_Color32Const(0, 112, 229, 255),
 };
 
+#define DOTS_SCALE 0.75f
+
+#define DOTS_X (SCREEN_WIDTH / 2)
+#define DOTS_Y 232
+#define DOTS_WIDTH 8
+#define DOTS_MARGIN 8
+
+static void draw_dots(int level_id) {
+    C2D_Sprite spr = { 0 };
+    C2D_SpriteFromSheet(&spr, ui_sheet, 421);
+    C3D_TexSetFilter(spr.image.tex, GPU_LINEAR, GPU_LINEAR);
+    C2D_SpriteSetCenter(&spr, 0.5f, 0.5f);
+    C2D_SpriteSetScale(&spr, DOTS_SCALE, DOTS_SCALE);
+    
+    C2D_ImageTint tint = {0};
+
+    C2D_PlainImageTint(&tint, C2D_Color32(125, 125, 125, 255), 1.f);
+
+    int left_side = DOTS_X - ((DOTS_WIDTH * MAIN_LEVELS_NUM) + (DOTS_MARGIN * (MAIN_LEVELS_NUM - 1))) * DOTS_SCALE / 2;
+
+    for (int i = 0; i < MAIN_LEVELS_NUM; i++) {
+        C2D_SpriteSetPos(&spr, left_side + i * (DOTS_WIDTH + DOTS_MARGIN) * DOTS_SCALE, DOTS_Y);
+        
+        // Do not tint if current level
+        if (i == level_id) {
+            C2D_DrawSprite(&spr);
+        } else {
+            C2D_DrawSpriteTinted(&spr, &tint);
+        }
+    }
+}
+
 void update_level_name(int level, int card);
 void update_level_stars(int level, int card);
 
@@ -425,6 +457,7 @@ void level_select_loop() {
             C2D_SceneBegin(top);
 
             ui_screen_draw(&screen_top);
+            draw_dots(curr_level_id);
 
             C2D_ViewReset();
             C3D_FrameEnd(0);
