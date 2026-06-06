@@ -661,7 +661,7 @@ void game_loop() {
 
             if (state.dead && state.death_timer <= 0.f) {
                 state.death_timer = (quickRetry ? 0.5f : 1.f);
-                
+                bool had_new_best = false;
                 if (!cheated) {
                     LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
                     // Save new best
@@ -674,11 +674,15 @@ void game_loop() {
                     } else {
                         if (state.current_data.max_normal < progress) {
                             init_new_best_popup(progress);
+                            had_new_best = true;
                             state.current_data.max_normal = progress;
                             level_data_sel->normal_progress = progress;
                         }
                     }
                 }
+
+                // New best makes the respawn timer a bit longer
+                if (had_new_best) state.death_timer = 1.4f;
 
                 handle_death((state.current_player == 1) ? &state.player2 : &state.player, true);
                 delta = DT;
