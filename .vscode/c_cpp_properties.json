@@ -4,11 +4,16 @@
             "name": "3DS",
             "includePath": [
                 "${workspaceFolder}/source",
+                "/opt/devkitpro/libctru/include",
+                "/opt/devkitpro/devkitARM/arm-none-eabi/include",
+                "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/*/include",
+                "/opt/devkitpro/portlibs/3ds/include",
+                "${workspaceFolder}/libraries",
+                //Hi my name is cloud54 and these are my include paths thank you for coming
                 "C:/devkitPro/libctru/include",
                 "C:/devkitPro/devkitARM/arm-none-eabi/include",
                 "C:/devkitpro/devkitARM/lib/gcc/arm-none-eabi/*/include",
-                "C:/devkitpro/portlibs/3ds/include",
-                "${workspaceFolder}/libraries"
+                "C:/devkitpro/portlibs/3ds/include"
             ],
             "defines": [
                 "__3DS__"

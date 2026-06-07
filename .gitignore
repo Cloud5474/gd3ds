@@ -87,5 +87,4 @@ fabric.properties
 
 # Debug files
 *.dSYM/
-.vscode/c_cpp_properties.json
 .gitignore
