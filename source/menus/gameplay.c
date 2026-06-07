@@ -289,7 +289,7 @@ int gameplay_screen_bot_loop() {
     ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
 
     if (state.practice_mode) {
-        if(!in_settings){
+        if(!game_paused){
             ui_run_func_on_tag(&screen, "practice_buttons", ui_enable_element);
         } else{
             ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
