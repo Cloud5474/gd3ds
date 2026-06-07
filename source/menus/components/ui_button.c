@@ -13,9 +13,6 @@
 
 #include "main.h"
 
-//if a button has been pressed with a keybind, no other button should be pressed after
-static int pressedKey;
-
 static void ui_button_update(UIElement* e, UIInput* touch) {
     //Keybinds logic
     u32 validKeybinds = e->button.keyBinds;
@@ -23,14 +20,12 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     if(enableDebugBindings){
         validKeybinds &= ~(KEY_X | KEY_L | KEY_R);
     }
-    //validKeybinds &= ~hidKeysDownRepeat();
 
     if((hidKeysDown() & validKeybinds) > 0){
         e->button.pressed = true;
         e->button.hovered = true;
         e->button.hoverTimer = 0.2f;
         e->button.keyPressTimer = 45;
-        pressedKey = true;
     }
 
     if(e->button.keyPressTimer > 0){
@@ -45,12 +40,12 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
         }
     }
 
+    //Touch input logic
     bool pressedTouch = hidKeysDown() & KEY_TOUCH;
     bool releasedTouch = hidKeysUp() & KEY_TOUCH;
 
     bool inside = touch->touchPosition.px >= e->x - (e->w / 2) && touch->touchPosition.px < e->x + (e->w / 2) &&
-                  touch->touchPosition.py >= e->y - (e->h / 2) && touch->touchPosition.py < e->y + (e->h / 2) && 
-                  !pressedKey;
+                  touch->touchPosition.py >= e->y - (e->h / 2) && touch->touchPosition.py < e->y + (e->h / 2);
 
     // Check if pressed the button
     if (inside && pressedTouch && !touch->did_something) {
@@ -64,7 +59,7 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     }
     
     // If released on button, do its action
-    if (e->button.hovered && releasedTouch && !pressedKey) {
+    if (e->button.hovered && releasedTouch) {
         e->button.pressed = false;
         e->button.hovered = false;
         e->button.hoverTimer = 0.f;
@@ -181,8 +176,6 @@ UIElement ui_create_button(
     e.button.textScale = textScale;
 
     e.button.keyBinds = keyBinds;
-
-    pressedKey = false;
 
     return e;
 }
