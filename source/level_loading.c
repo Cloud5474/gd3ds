@@ -1176,10 +1176,10 @@ int parse_string(const char *levelString) {
         assign_object_to_section(i);
     }
 
-    qsort(coin_ids, 3, sizeof(int), compare_coins);
+    qsort(coin_ids, coin_count, sizeof(int), compare_coins);
 
     // Set IDs here
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < coin_count; i++) {
         objects.coin_id[coin_ids[i]] = i;
         //output_log("Le coin %d on objeto %d\n", i, coin_ids[i]);
     }
