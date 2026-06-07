@@ -2,9 +2,9 @@ darken opacity=0.4
 
 window x=160 y=120 w=280 h=200 style=0
 
-button x=24 y=25 id=31 action="exit"
+button x=24 y=25 id=31 action="exit" keyBinds="B"
 
-button x=160 y=80 id=139 sheet=0 scale=1 action="play"
+button x=160 y=80 id=139 sheet=0 scale=1 action="play" keyBinds="A,START"
 
 button x=295 y=25 id=90 sheet=0 scale=1 action="info"
 

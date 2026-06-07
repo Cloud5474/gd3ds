@@ -107,7 +107,6 @@ void creator_menu_loop() {
 
     while (aptMainLoop()) {
         hidScanInput();
-        u32 kDown = hidKeysDown();
 
         UIInput touch;
         touchPosition touchPos;
@@ -117,12 +116,7 @@ void creator_menu_loop() {
         touch.interacted = false;
         if (!in_disclaimer) {
             ui_screen_update(&screen, &touch);
-            if (kDown & KEY_B) {
-                action_exit(NULL);
-            }
         }
-
-        
 
         do {
             update_touch_effect(DT);

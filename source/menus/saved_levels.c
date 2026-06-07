@@ -73,10 +73,6 @@ void saved_levels_loop() {
 
     while (aptMainLoop()) {
         hidScanInput();
-        u32 kDown = hidKeysDown();
-        if (kDown & KEY_B) {
-            action_exit(NULL);
-        }
 
         UIInput touch;
         touchPosition touchPos;

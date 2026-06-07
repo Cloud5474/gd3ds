@@ -9,10 +9,27 @@
 #include "easing.h"
 #include "math_helpers.h"
 #include "ui_screen.h"
+#include "menus/settings.h"
 
 #include "main.h"
 
 static void ui_button_update(UIElement* e, UIInput* touch) {
+    //Keybinds logic
+    u32 validKeybinds = e->button.keyBinds;
+
+    if(enableDebugBindings){
+        validKeybinds &= ~(KEY_X | KEY_L | KEY_R);
+    }
+
+    if((hidKeysDown() & validKeybinds) > 0){
+        e->button.pressed = false;
+        e->button.hovered = false;
+        if (e->action){
+            e->action(e);
+        }
+        e->button.hoverTimer = 0.15f;
+    }
+
     bool pressedTouch = hidKeysDown() & KEY_TOUCH;
     bool releasedTouch = hidKeysUp() & KEY_TOUCH;
 
@@ -26,25 +43,10 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     }
 
     // If previously pressed on it, hover
-    if (inside && e->button.pressed) {
+    if (inside) {
         e->button.hovered = true;
     }
     
-    EaseTypes bounce_type;
-    // Animation
-    if (e->button.hovered) {
-        e->button.hoverTimer += DT;
-        bounce_type = BOUNCE_OUT;
-    } else {
-        e->button.hoverTimer -= DT;
-        // As the animation plays in reverse, we just use bounce in
-        bounce_type = BOUNCE_IN;
-    }
-
-    e->button.hoverTimer = clampf(e->button.hoverTimer, 0.f, BUTTON_HOVER_ANIM_TIME);
-    e->button.hoverScale = easeValue(bounce_type, 1.0f, BUTTON_HOVER_SCALE, e->button.hoverTimer, BUTTON_HOVER_ANIM_TIME, 0);
-
-
     // If released on button, do its action
     if (e->button.hovered && releasedTouch) {
         e->button.pressed = false;
@@ -59,7 +61,7 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     if (!inside) {
         e->button.hovered = false;
     }
-    
+
     // Mask background elements
     if (inside) {
         touch->interacted = true;
@@ -68,6 +70,20 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
 }
 
 static void ui_button_draw(UIElement* e) {
+    EaseTypes bounce_type;
+    // Animation
+    if (e->button.hovered) {
+        e->button.hoverTimer += DT;
+        bounce_type = BOUNCE_OUT;
+    } else {
+        e->button.hoverTimer -= DT;
+        // As the animation plays in reverse, we just use bounce in
+        bounce_type = BOUNCE_IN;
+    }
+
+    e->button.hoverTimer = clampf(e->button.hoverTimer, 0.f, BUTTON_HOVER_ANIM_TIME);
+    e->button.hoverScale = easeValue(bounce_type, 1.0f, BUTTON_HOVER_SCALE, e->button.hoverTimer, BUTTON_HOVER_ANIM_TIME, 0);
+
     int font_id = e->button.font;
 
     // Set to pusab if invalid
@@ -118,7 +134,8 @@ UIElement ui_create_button(
     char *text,
     int font,
     char (*tag)[TAG_LENGTH],
-    float textScale
+    float textScale,
+    u32 keyBinds
 ) {
     UIElement e = {
         .type = UI_BUTTON,
@@ -146,6 +163,8 @@ UIElement ui_create_button(
 
     e.button.font = font;
     e.button.textScale = textScale;
+
+    e.button.keyBinds = keyBinds;
 
     return e;
 }

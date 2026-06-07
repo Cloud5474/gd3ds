@@ -75,9 +75,7 @@ void statistics_init() {
 }
 
 int statistics_loop() {
-    u32 kDown = hidKeysDown();
-
-    if (yes_exit || (kDown & KEY_B)) {
+    if (yes_exit) {
         return true;
     }
 

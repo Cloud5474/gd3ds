@@ -2,7 +2,7 @@ darken opacity=0.4
 
 window x=160 y=120 w=260 h=170 style=1 tag=window
 
-button x=35 y=40 id=31 scale=0.8 action="exit"
+button x=35 y=40 id=31 scale=0.8 action="exit" keyBinds="B"
 
 # Labelling
 

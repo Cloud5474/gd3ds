@@ -56,8 +56,8 @@ label x=160 y=183 text="0%" scale=0.4 align=CENTER tag="level_card_2,practicepro
 
 actionarea x=160 y=80 w=220 h=80 action="open_level"
 
-button x=20 y=120 id=376 action="move_left" sx=-1.0
-button x=300 y=120 id=376 action="move_right"
+button x=20 y=120 id=376 action="move_left" sx=-1.0 keyBinds="L,ZL,LEFT,CSLEFT,CPLEFT"
+button x=300 y=120 id=376 action="move_right" keyBinds="R,ZR,RIGHT,CSRIGHT,CPRIGHT"
 
 image x=66 y=258 id=1 sy=0.727272 sheet=6 tag="ground" sx=0.727272 
 image x=160 y=258 id=1 sy=0.727272 sheet=6 tag="ground" sx=0.727272
@@ -68,4 +68,4 @@ image x=160 y=211 id=0 sheet=6 sx=0.727272 sy=0.727272
 image x=36 y=205 id=178
 image x=284 y=205 id=178 sx=-1.0
 
-button x=24 y=28 id=6 action="exit"
+button x=24 y=28 id=6 action="exit" keyBinds="B"

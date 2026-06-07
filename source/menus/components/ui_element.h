@@ -49,6 +49,8 @@ typedef struct {
     char text[64];
 
     float textScale;
+
+    u32 keyBinds;
 } UIButtonData;
 
 typedef struct {

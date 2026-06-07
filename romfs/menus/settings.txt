@@ -1,11 +1,11 @@
 darken opacity=0.4
 window x=160 y=120 w=220 h=180 style=0
-button x=53 y=33 id=31 scale=0.8 action="exit"
+button x=53 y=33 id=31 scale=0.8 action="exit" keyBinds="B"
 
 # Page switch
 
-button x=80 y=50 id=8 scale=0.7 action="left_page"
-button x=240 y=50 id=8 sx=-0.7 sy=0.7 action="right_page"
+button x=80 y=50 id=8 scale=0.7 action="left_page" keyBinds="L,ZL"
+button x=240 y=50 id=8 sx=-0.7 sy=0.7 action="right_page"="R,ZR"
 
 # Checkboxes
 

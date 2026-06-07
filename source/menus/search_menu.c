@@ -54,10 +54,6 @@ void search_menu_loop() {
 
     while (aptMainLoop()) {
         hidScanInput();
-        u32 kDown = hidKeysDown();
-        if (kDown & KEY_B) {
-            action_exit(NULL);
-        }
 
         UIInput touch;
         touchPosition touchPos;

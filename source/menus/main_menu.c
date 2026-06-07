@@ -355,11 +355,6 @@ void main_menu_loop() {
             break; // break in order to return to hbmenu
         }
 
-        if (kDown & KEY_START) {
-            action_open_level_select(NULL);
-        }
-
-
         state.old_input = state.input;
         state.input.pressedJump = (started) == true;
         state.input.holdJump = (state.input.pressedJump || holding) == true;

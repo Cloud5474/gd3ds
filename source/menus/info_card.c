@@ -44,9 +44,7 @@ void info_card_init() {
 }
 
 int info_card_loop() {
-    u32 kDown = hidKeysDown();
-
-    if (yes_exit || (kDown & KEY_B)) {
+    if (yes_exit) {
         return true;
     }
 

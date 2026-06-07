@@ -12,5 +12,6 @@ UIElement ui_create_button(
     char *text,
     int font,
     char (*tag)[TAG_LENGTH],
-    float textScale
+    float textScale,
+    u32 keyBinds
 );

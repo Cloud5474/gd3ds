@@ -1,6 +1,6 @@
 bggradient tag="gradient"
 
-button x=24 y=28 id=6 action="exit"
+button x=24 y=28 id=6 action="exit" keyBinds="B"
 
 image x=36 y=205 id=178
 image x=284 y=205 id=178 sx=-1.0

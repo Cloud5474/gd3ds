@@ -116,9 +116,11 @@ void unpause_game() {
 }
 
 static void exit_level() {
-    play_sfx(&quit_sound, 1);
-    exiting_level = true;
-    set_fade_status(FADE_STATUS_OUT);
+    if (!exiting_level && game_paused){
+        play_sfx(&quit_sound, 1);
+        exiting_level = true;
+        set_fade_status(FADE_STATUS_OUT);
+    }
 }
 
 static void restart_level() {
@@ -267,8 +269,6 @@ int gameplay_screen_top_loop() {
 }
 
 int gameplay_screen_bot_loop() {
-    u32 kDown = hidKeysDown();
-
     UIInput touch;
     touchPosition touchPos;
     hidTouchRead(&touchPos);
@@ -281,7 +281,7 @@ int gameplay_screen_bot_loop() {
 
     ui_image_set_tint(bg_gradient, C2D_Color32(color.r, color.g, color.b, 255));
 
-    if (state.practice_mode) {
+    if (state.practice_mode && !in_settings) {
         ui_run_func_on_tag(&screen, "practice_buttons", ui_enable_element);
     } else {
         ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
@@ -299,10 +299,6 @@ int gameplay_screen_bot_loop() {
     touch.interacted = false;
     if (!in_settings && !in_disclaimer && !in_info_card) {
         ui_screen_update(&screen, &touch);
-        
-        if ((kDown & KEY_B) && !exiting_level && game_paused) {
-            exit_level();
-        }
     }
 
     ui_screen_draw(&screen);

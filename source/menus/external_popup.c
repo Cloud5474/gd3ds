@@ -330,14 +330,9 @@ void external_popup_init() {
 }
 
 int external_popup_loop() {
-    u32 kDown = hidKeysDown();
-    if (yes_exit || ((kDown & KEY_B) && !in_info_card && !in_infobox)) {
+    if (yes_exit) {
         free_level_progress();
         return true;
-    }
-
-    if (kDown & KEY_START) {
-        open_level(NULL);
     }
 
     set_progress();

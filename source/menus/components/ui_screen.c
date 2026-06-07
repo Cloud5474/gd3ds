@@ -334,6 +334,8 @@ void ui_load_screen(UIScreen* screen,
 
         float textScale = 0;
 
+        u32 keyBinds = 0;
+
         // Parse element parameters
         while ((token = next_token(&cursor)) != NULL) {
             char* equal = strchr(token, '=');
@@ -409,6 +411,58 @@ void ui_load_screen(UIScreen* screen,
                 font = atoi(value);
             } else if (strcmp(key, "textScale") == 0) {
                 textScale = atof(value);
+            } else if (strcmp(key, "keyBinds") == 0) {
+                strip_quotes(value);
+                char* keyBind = strtok(value, ",");
+                while(keyBind != NULL){
+                    if(strcmp(keyBind, "A") == 0){
+                       keyBinds |= KEY_A;
+                    } else if(strcmp(keyBind, "B") == 0){
+                       keyBinds |= KEY_B;
+                    } else if(strcmp(keyBind, "X") == 0){
+                       keyBinds |= KEY_X;
+                    } else if(strcmp(keyBind, "Y") == 0){
+                       keyBinds |= KEY_Y;
+                    } else if(strcmp(keyBind, "L") == 0){
+                       keyBinds |= KEY_L;
+                    } else if(strcmp(keyBind, "R") == 0){
+                       keyBinds |= KEY_R;
+                    } else if(strcmp(keyBind, "ZL") == 0){
+                       keyBinds |= KEY_ZL;
+                    } else if(strcmp(keyBind, "ZR") == 0){
+                       keyBinds |= KEY_ZR;
+                    } else if(strcmp(keyBind, "DUP") == 0){
+                       keyBinds |= KEY_DUP;
+                    } else if(strcmp(keyBind, "DDOWN") == 0){
+                       keyBinds |= KEY_DDOWN;
+                    } else if(strcmp(keyBind, "DLEFT") == 0){
+                       keyBinds |= KEY_DLEFT;
+                    } else if(strcmp(keyBind, "DRIGHT") == 0){
+                       keyBinds |= KEY_DRIGHT;
+                    } else if(strcmp(keyBind, "START") == 0){
+                       keyBinds |= KEY_START;
+                    } else if(strcmp(keyBind, "SELECT") == 0){
+                       keyBinds |= KEY_SELECT;
+                    } else if(strcmp(keyBind, "CSUP") == 0){
+                       keyBinds |= KEY_CSTICK_UP;
+                    } else if(strcmp(keyBind, "CSDOWN") == 0){
+                       keyBinds |= KEY_CSTICK_DOWN;
+                    } else if(strcmp(keyBind, "CSLEFT") == 0){
+                       keyBinds |= KEY_CSTICK_LEFT;
+                    } else if(strcmp(keyBind, "CSRIGHT") == 0){
+                       keyBinds |= KEY_CSTICK_RIGHT;
+                    } else if(strcmp(keyBind, "CPUP") == 0){
+                        keyBinds |= KEY_CPAD_UP;
+                    } else if(strcmp(keyBind, "CPDOWN") == 0){
+                        keyBinds |= KEY_CPAD_DOWN;
+                    } else if(strcmp(keyBind, "CPLEFT") == 0){
+                        keyBinds |= KEY_CPAD_LEFT;
+                    } else if(strcmp(keyBind, "CPRIGHT") == 0){
+                        keyBinds |= KEY_CPAD_RIGHT;
+                    }
+
+                    keyBind = strtok(NULL, ",");
+                }
             }
         }
 
@@ -425,7 +479,8 @@ void ui_load_screen(UIScreen* screen,
                     text,
                     font,
                     tag,
-                    textScale
+                    textScale,
+                    keyBinds
                 );
         } else if (strcmp(type, "image") == 0) {
             screen->elements[screen->count++] =

@@ -509,6 +509,8 @@ void game_loop() {
         // Respond to user input
         u32 kDown = hidKeysDown();
         u32 kHeld = hidKeysHeld();
+        u32 kUp = hidKeysUp();
+        static u32 kHeldPaused;
 
         if (kDown & KEY_START) {
             if (game_paused) {
@@ -558,6 +560,11 @@ void game_loop() {
 
         bool in_bounds = !((touchPos.px > 320 - 30 && touchPos.py < 30) || (state.practice_mode && (touchPos.px > 92 && touchPos.px < 222 && touchPos.py > 175 && touchPos.py < 222)));
         
+        kHeldPaused &= kUp;
+        if(!game_paused){
+            kHeld &= kHeldPaused;
+        }
+
         bool buttonPressed = (yJump ? (kDown & KEY_Y) : (kDown & KEY_A)) || (kDown & KEY_UP);
         bool buttonHeld = (yJump ? (kHeld & KEY_Y) : (kHeld & KEY_A)) || (kHeld & KEY_UP);
 
@@ -840,6 +847,8 @@ void game_loop() {
                     }
                 }
             }
+        } else{
+            kHeldPaused = kHeld;
         }
         
         // If the wide settings has been changed, reinitialize screens

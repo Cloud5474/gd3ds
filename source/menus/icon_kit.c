@@ -273,11 +273,6 @@ void icon_kit_loop() {
 
     while (aptMainLoop()) {
         hidScanInput();
-        u32 kDown = hidKeysDown();
-
-        if ((kDown & KEY_B) && !in_palette_kit) {
-            action_exit(NULL);
-        }
 
         UIInput touch;
         touchPosition touchPos;

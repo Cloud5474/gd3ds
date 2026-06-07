@@ -292,14 +292,8 @@ void level_complete_init() {
 int level_complete_loop(float delta) {
     if (!init) return 0;
 
-    u32 kDown = hidKeysDown();
-
     if (animating_down) run_start_animation(delta);
     if (animating_up) run_end_animation(delta);
-
-    if (kDown & KEY_B) {
-        exit_level_complete(NULL);
-    }
 
     if (yes_exit) {
         return 1;

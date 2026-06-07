@@ -6,13 +6,13 @@ image x=20 y=20 id=16 sheet=1 tag="coin_1" scale=0.65
 image x=55 y=20 id=16 sheet=1 tag="coin_2" scale=0.65
 image x=90 y=20 id=16 sheet=1 tag="coin_3" scale=0.65
 
-button x=130 y=200 id=29 tag="practice_buttons" action="add_check"
-button x=200 y=200 id=154 tag="practice_buttons" action="remove_check"
+button x=130 y=200 id=29 tag="practice_buttons" action="add_check" keyBinds="LEFT,X"
+button x=200 y=200 id=154 tag="practice_buttons" action="remove_check" keyBinds="RIGHT,B"
 
 darken opacity=0.5 tag="paused"
-button x=45 y=60 id=127 scale=1 tag="paused" action="settings"
+button x=45 y=60 id=127 scale=1 tag="paused" action="settings" keyBinds="SELECT"
 
-button x=260 y=180 id=139 scale=1.15 tag="paused" action="unpause"
-button x=178 y=180 id=111 scale=0.90 tag="paused" action="exit"
-button x=112 y=180 id=155 scale=0.90 tag="paused" action="restart"
-button x=45 y=180 id=146 scale=0.90 tag="paused" action="practice"
+button x=260 y=180 id=139 scale=1.15 tag="paused" action="unpause" keyBinds="A,START"
+button x=178 y=180 id=111 scale=0.90 tag="paused" action="exit" keyBinds="B"
+button x=112 y=180 id=155 scale=0.90 tag="paused" action="restart" keyBinds="X"
+button x=45 y=180 id=146 scale=0.90 tag="paused" action="practice" keyBinds="Y"
