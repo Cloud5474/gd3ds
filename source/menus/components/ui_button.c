@@ -41,6 +41,10 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
         }
     }
 
+    if(e->button.keyPressTimer > 0){
+        return;
+    }
+
     bool pressedTouch = hidKeysDown() & KEY_TOUCH;
     bool releasedTouch = hidKeysUp() & KEY_TOUCH;
 
