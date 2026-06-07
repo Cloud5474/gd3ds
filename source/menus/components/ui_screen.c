@@ -431,13 +431,13 @@ void ui_load_screen(UIScreen* screen,
                        keyBinds |= KEY_ZL;
                     } else if(strcmp(keyBind, "ZR") == 0){
                        keyBinds |= KEY_ZR;
-                    } else if(strcmp(keyBind, "DUP") == 0){
+                    } else if(strcmp(keyBind, "UP") == 0){
                        keyBinds |= KEY_DUP;
-                    } else if(strcmp(keyBind, "DDOWN") == 0){
+                    } else if(strcmp(keyBind, "DOWN") == 0){
                        keyBinds |= KEY_DDOWN;
-                    } else if(strcmp(keyBind, "DLEFT") == 0){
+                    } else if(strcmp(keyBind, "LEFT") == 0){
                        keyBinds |= KEY_DLEFT;
-                    } else if(strcmp(keyBind, "DRIGHT") == 0){
+                    } else if(strcmp(keyBind, "RIGHT") == 0){
                        keyBinds |= KEY_DRIGHT;
                     } else if(strcmp(keyBind, "START") == 0){
                        keyBinds |= KEY_START;

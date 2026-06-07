@@ -512,14 +512,6 @@ void game_loop() {
         u32 kUp = hidKeysUp();
         static u32 kHeldPaused;
 
-        if (kDown & KEY_START) {
-            if (game_paused) {
-                unpause_game();
-            } else {
-                pause_game();
-            }
-        }
-
         state.hitbox_display = 0;
 
         if (kDown & KEY_X && enableDebugBindings) {
@@ -560,9 +552,9 @@ void game_loop() {
 
         bool in_bounds = !((touchPos.px > 320 - 30 && touchPos.py < 30) || (state.practice_mode && (touchPos.px > 92 && touchPos.px < 222 && touchPos.py > 175 && touchPos.py < 222)));
         
-        kHeldPaused &= kUp;
+        kHeldPaused &= ~kUp;
         if(!game_paused){
-            kHeld &= kHeldPaused;
+            kHeld &= ~kHeldPaused;
         }
 
         bool buttonPressed = (yJump ? (kDown & KEY_Y) : (kDown & KEY_A)) || (kDown & KEY_UP);

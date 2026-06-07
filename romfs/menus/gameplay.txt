@@ -1,6 +1,6 @@
 bggradient tag="gradient"
 
-button x=300 y=20 id=17 sheet=1 action="pause" tag="not_paused" scale=0.65 opacity=0.4
+button x=300 y=20 id=17 sheet=1 action="pause" tag="not_paused" scale=0.65 opacity=0.4 keyBinds="START"
 
 image x=20 y=20 id=16 sheet=1 tag="coin_1" scale=0.65
 image x=55 y=20 id=16 sheet=1 tag="coin_2" scale=0.65
@@ -15,4 +15,4 @@ button x=45 y=60 id=127 scale=1 tag="paused" action="settings" keyBinds="SELECT"
 button x=260 y=180 id=139 scale=1.15 tag="paused" action="unpause" keyBinds="A,START"
 button x=178 y=180 id=111 scale=0.90 tag="paused" action="exit" keyBinds="B"
 button x=112 y=180 id=155 scale=0.90 tag="paused" action="restart" keyBinds="X"
-button x=45 y=180 id=146 scale=0.90 tag="paused" action="practice" keyBinds="Y"
+button x=45 y=180 id=146 scale=0.90 tag="paused,practice_mode" action="practice" keyBinds="Y"

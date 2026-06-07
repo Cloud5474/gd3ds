@@ -51,6 +51,7 @@ typedef struct {
     float textScale;
 
     u32 keyBinds;
+    int keyPressTimer;
 } UIButtonData;
 
 typedef struct {

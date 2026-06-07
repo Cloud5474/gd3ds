@@ -10,6 +10,7 @@
 #include "menus/components/ui_window.h"
 #include "menus/components/ui_textbox.h"
 #include "menus/components/ui_image.h"
+#include "menus/components/ui_button.h"
 #include "menus/palette_kit.h"
 #include "fonts/bigFont.h"
 #include "fonts/chatFont.h"

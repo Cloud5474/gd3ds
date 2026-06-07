@@ -4,8 +4,8 @@ button x=53 y=33 id=31 scale=0.8 action="exit" keyBinds="B"
 
 # Page switch
 
-button x=80 y=50 id=8 scale=0.7 action="left_page" keyBinds="L,ZL"
-button x=240 y=50 id=8 sx=-0.7 sy=0.7 action="right_page"="R,ZR"
+button x=80 y=50 id=8 scale=0.7 action="left_page" keyBinds="LEFT,L,ZL"
+button x=240 y=50 id=8 sx=-0.7 sy=0.7 action="right_page" keyBinds="RIGHT,R,ZR"
 
 # Checkboxes
 

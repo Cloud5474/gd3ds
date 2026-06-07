@@ -20,14 +20,25 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     if(enableDebugBindings){
         validKeybinds &= ~(KEY_X | KEY_L | KEY_R);
     }
+    //validKeybinds &= ~hidKeysDownRepeat();
 
     if((hidKeysDown() & validKeybinds) > 0){
-        e->button.pressed = false;
-        e->button.hovered = false;
-        if (e->action){
-            e->action(e);
+        e->button.pressed = true;
+        e->button.hovered = true;
+        e->button.hoverTimer = 0.2f;
+        e->button.keyPressTimer = 45;
+    }
+
+    if(e->button.keyPressTimer > 0){
+        if(e->button.keyPressTimer == 44){
+            if (e->action){
+                e->action(e);
+            }
         }
-        e->button.hoverTimer = 0.15f;
+        if(--(e->button.keyPressTimer) == 0){
+            e->button.pressed = false;
+            e->button.hovered = false;
+        }
     }
 
     bool pressedTouch = hidKeysDown() & KEY_TOUCH;
@@ -73,8 +84,8 @@ static void ui_button_draw(UIElement* e) {
     EaseTypes bounce_type;
     // Animation
     if (e->button.hovered) {
-        e->button.hoverTimer += DT;
-        bounce_type = BOUNCE_OUT;
+        e->button.hoverTimer += DT * (e->button.keyPressTimer > 0 ? 2 : 1);
+        bounce_type = (e->button.keyPressTimer > 0 ? EASE_OUT : BOUNCE_OUT);
     } else {
         e->button.hoverTimer -= DT;
         // As the animation plays in reverse, we just use bounce in

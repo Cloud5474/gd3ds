@@ -9,6 +9,7 @@
 #include "menus/components/ui_image.h"
 #include "menus/components/ui_progress_bar.h"
 #include "menus/components/ui_label.h"
+#include "menus/components/ui_button.h"
 #include "fonts/bigFont.h"
 #include "main.h"
 #include "easing.h"
@@ -281,18 +282,23 @@ int gameplay_screen_bot_loop() {
 
     ui_image_set_tint(bg_gradient, C2D_Color32(color.r, color.g, color.b, 255));
 
-    if (state.practice_mode && !in_settings) {
-        ui_run_func_on_tag(&screen, "practice_buttons", ui_enable_element);
-    } else {
-        ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
-    }
-
     LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
 
     ui_image_set_image(coin_1, (state.current_data.coin1 | level_data_sel->coin1 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
     ui_image_set_image(coin_2, (state.current_data.coin2 | level_data_sel->coin2 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
     ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
 
+    if (state.practice_mode) {
+        if(!in_settings){
+            ui_run_func_on_tag(&screen, "practice_buttons", ui_enable_element);
+        } else{
+            ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
+        }
+        ui_button_set_image(ui_get_element_by_tag(&screen, "practice_mode"), 124, 0);
+    } else {
+        ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
+        ui_button_set_image(ui_get_element_by_tag(&screen, "practice_mode"), 146, 0);
+    }
 
     touch.touchPosition = touchPos;
     touch.did_something = false;
