@@ -35,8 +35,6 @@ int curr_level_id = 0;
 
 s8 scroll_dir = 0;
 
-float scrolled = 0;
-
 float anim_time = 0;
 
 static bool dragging;
@@ -248,6 +246,7 @@ void recenter(){
     update_level_name(curr_level_id, 0);
     update_level_stars(curr_level_id, 0);
     update_level_progress(curr_level_id, 0);
+    ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
 }
 
 void handle_card_movement() {
@@ -270,6 +269,7 @@ void handle_card_movement() {
         float end = (scroll_dir == 0) ? 0 : 320;
 
         float fade_value = easeValue(ELASTIC_OUT, start, end, anim_time, ANIM_DURATION, 0.6f);
+
         float value = (scroll_dir == 0) ? 160 + fade_value : 160 + fade_value * scroll_dir;
         anim_time += 0.016666f;
 
@@ -281,7 +281,6 @@ void handle_card_movement() {
 void action_move_right(UIElement* e) { 
     curr_level_id++;
     scroll_dir = -1;
-    scrolled = 0;
     anim_time = 0;
     
     if (curr_level_id >= MAIN_LEVELS_NUM) curr_level_id = 0;
@@ -307,7 +306,6 @@ void action_move_right(UIElement* e) {
 void action_move_left(UIElement* e) { 
     curr_level_id--;
     scroll_dir = 1;
-    scrolled = 0;
     anim_time = 0;
 
     if (curr_level_id < 0) curr_level_id = MAIN_LEVELS_NUM-1;
@@ -447,6 +445,7 @@ void level_select_loop() {
     ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
 
     u32 color = default_lvl_colors[curr_level_id % NUM_MENU_COLORS];
+    upload_color_to_buffer(0, color, 0);
 
     channels[0].color.r = GET_R(color);
     channels[0].color.g = GET_G(color);
@@ -494,18 +493,20 @@ void level_select_loop() {
             dragStartX = touch.touchPosition.px;
             dragDistance = 0;
             dragDir = 0;
+            dragging = false;
+            scroll_dir = 0;
             recenter();
         }
         if((kHeld & KEY_TOUCH)){
             if(dragging){
                 int delta = touch.touchPosition.px - lastTouchX;
-                lastTouchX = touch.touchPosition.px;
                 dragDistance += delta;
 
-                if(dragDistance > 20){
+                //This is to make sure that the second panel never overlaps with the first one
+                if(dragDistance > 15){
                     dragDir = -1;
                     peek_left();
-                } else if(dragDistance < -20){
+                } else if(dragDistance < -15){
                     dragDir = 1;
                     peek_right();
                 } else{
@@ -514,14 +515,16 @@ void level_select_loop() {
                 }
 
                 ui_set_pos_on_tag(&screen, 160 + dragDistance, LEVEL_CARD_Y_POS, "level_card");
-                ui_set_pos_on_tag(&screen, 160 + dragDistance + dragDir * 320, LEVEL_CARD_Y_POS, "level_card_2");
-            } else{
+                ui_set_pos_on_tag(&screen, 160 + dragDistance + (dragDir * 320), LEVEL_CARD_Y_POS, "level_card_2");
+            } else {
+                dragDir = 0;
+
                 int dragXDiff = touch.touchPosition.px - dragStartX;
                 if(abs(dragXDiff) > 10){
                     dragging = true;
                 }
-                lastTouchX = touch.touchPosition.px;
             }
+            lastTouchX = touch.touchPosition.px;
         }
         if((kUp & KEY_TOUCH)){
             if(dragging){
@@ -539,6 +542,12 @@ void level_select_loop() {
         }
 
         handle_card_movement();
+
+        //Buttons can't be tapped while dragging
+        if(dragging){
+            touch.touchPosition.px = -99;
+            touch.touchPosition.py = -99;
+        }
 
         ui_screen_update(&screen, &touch);
         ui_screen_update(&screen_top, &touch);

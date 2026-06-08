@@ -20,10 +20,9 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     //Keybinds logic
     u32 validKeybinds = e->button.keyBinds;
 
-    if(enableDebugBindings){
-        validKeybinds &= ~(KEY_X | KEY_L | KEY_R);
+    if(enableDebugBindings && game_state == STATE_GAME){
+        validKeybinds &= ~(KEY_B | KEY_X | KEY_L | KEY_R);
     }
-    //validKeybinds &= ~hidKeysDownRepeat();
 
     if((hidKeysDown() & validKeybinds) > 0){
         e->button.pressed = true;

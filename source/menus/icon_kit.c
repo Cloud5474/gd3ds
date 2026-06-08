@@ -78,6 +78,8 @@ static int *current_pages[GAMEMODE_COUNT + 1] = {
     &current_trail_page
 };
 
+static UIElement *gamemode_btns[GAMEMODE_COUNT + 1];
+
 int *current_icons[GAMEMODE_COUNT + 1] = {
     &selected_cube,
     &selected_ship,
@@ -271,6 +273,13 @@ void icon_kit_loop() {
         playing_menu_loop = true;
     }
 
+    gamemode_btns[0] = ui_get_element_by_tag(&screen, "cube");
+    gamemode_btns[1] = ui_get_element_by_tag(&screen, "ship");
+    gamemode_btns[2] = ui_get_element_by_tag(&screen, "ball");
+    gamemode_btns[3] = ui_get_element_by_tag(&screen, "ufo");
+    gamemode_btns[4] = ui_get_element_by_tag(&screen, "dart");
+    gamemode_btns[5] = ui_get_element_by_tag(&screen, "trail");
+
     while (aptMainLoop()) {
         hidScanInput();
 
@@ -280,6 +289,15 @@ void icon_kit_loop() {
         touch.touchPosition = touchPos;
         touch.did_something = false;
         touch.interacted = false;
+
+        for(int i = 0; i < GAMEMODE_COUNT + 1; i++){
+            gamemode_btns[i]->button.keyBinds = 0;
+            if(i == gamemode_page - 1){
+                gamemode_btns[i]->button.keyBinds |= KEY_L | KEY_ZL;
+            } else if(i == gamemode_page + 1){
+                gamemode_btns[i]->button.keyBinds |= KEY_R | KEY_ZR;
+            } 
+        }
 
         if (!in_palette_kit) ui_screen_update(&screen, &touch);
         ui_screen_update(&screen_top, &touch);
