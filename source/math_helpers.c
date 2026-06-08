@@ -70,6 +70,20 @@ Color color_lerp(Color color1, Color color2, float fraction) {
 
     return returned;
 }
+u32 color_lerp_u32(u32 color1, u32 color2, float fraction) {
+    unsigned char r1 = GET_R(color1);
+    unsigned char r2 = GET_R(color2);
+    unsigned char g1 = GET_G(color1);
+    unsigned char g2 = GET_G(color2);
+    unsigned char b1 = GET_B(color1);
+    unsigned char b2 = GET_B(color2);
+
+    unsigned char r = (r2 - r1) * fraction + r1;
+    unsigned char g = (g2 - g1) * fraction + g1;
+    unsigned char b = (b2 - b1) * fraction + b1;
+
+    return RGB8(r, g, b);
+}
 
 // Generic easing out function, not from GD
 float ease_out(float current, float target, float smoothing) {

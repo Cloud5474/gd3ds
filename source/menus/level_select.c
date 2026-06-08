@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "menus/components/ui_element.h"
@@ -38,6 +39,12 @@ float scrolled = 0;
 
 float anim_time = 0;
 
+static bool dragging;
+static int dragStartX;
+static int lastTouchX;
+static int dragDistance;
+static int dragDir;
+
 static UIElement *bg_gradient = NULL;
 static UIElement *bg_gradient_top = NULL;
 static UIElement *level_card_window = NULL;
@@ -69,8 +76,6 @@ static UIElement *level_card_coin_3 = NULL;
 static UIElement *level_card_2_coin_1 = NULL;
 static UIElement *level_card_2_coin_2 = NULL;
 static UIElement *level_card_2_coin_3 = NULL;
-
-
 
 #define ANIM_DURATION 0.8f
 #define COLOR_FADE_DURATION 0.1f
@@ -146,22 +151,11 @@ void update_level_progress(int level, int card) {
 
     LevelData *data = &main_level_data[level]; 
 
-    char attempts[256];
-    snprintf(attempts, sizeof(attempts), "<#40e348>Total Attempts</>: %d", data->attempts);
-    
-    char jumps[256];
-    snprintf(jumps, sizeof(jumps), "<#60abef>Total Jumps</>: %d", data->jumps);
-    
     char normal[256];
     snprintf(normal, sizeof(normal), "<#ff00ff>Normal</>: %d%%", data->normal_progress);
     
     char practice[256];
     snprintf(practice, sizeof(practice), "<#ffa54b>Practice</>: %d%%", data->practice_progress);
-
-    ui_label_set_text(ui_get_element_by_tag(&screen_top, "totalattempts"), attempts);
-    ui_label_set_text(ui_get_element_by_tag(&screen_top, "totaljumps"), jumps);
-    ui_label_set_text(ui_get_element_by_tag(&screen_top, "normalprogress"), normal);
-    ui_label_set_text(ui_get_element_by_tag(&screen_top, "practiceprogress"), practice);
 
     UIElement *normal_prog = (card) ? level_card_2_normal_progress : level_card_normal_progress;
     UIElement *practice_prog = (card) ? level_card_2_practice_progress : level_card_practice_progress;
@@ -204,7 +198,6 @@ void update_level_name(int level, int card) {
     e->label.scale = txt_scale;
 
     ui_label_set_text(e, main_levels[level].level_name);
-    ui_label_set_text(level_card_title_top, main_levels[level].level_name);
 }
 
 void update_level_stars(int level, int card) {
@@ -223,15 +216,42 @@ void update_level_face(int level) {
 
     ui_image_set_image(level_card_face, 239 + main_levels[level].difficulty, 0);
 }
+void update_level_top(int level){
+    LevelData *data = &main_level_data[level]; 
+
+    char attempts[256];
+    snprintf(attempts, sizeof(attempts), "<#40e348>Total Attempts</>: %d", data->attempts);
+    
+    char jumps[256];
+    snprintf(jumps, sizeof(jumps), "<#60abef>Total Jumps</>: %d", data->jumps);
+
+    char normal[256];
+    snprintf(normal, sizeof(normal), "<#ff00ff>Normal</>: %d%%", data->normal_progress);
+    
+    char practice[256];
+    snprintf(practice, sizeof(practice), "<#ffa54b>Practice</>: %d%%", data->practice_progress);
+
+    ui_label_set_text(level_card_title_top, main_levels[level].level_name);
+    ui_label_set_text(ui_get_element_by_tag(&screen_top, "totalattempts"), attempts);
+    ui_label_set_text(ui_get_element_by_tag(&screen_top, "totaljumps"), jumps);
+    ui_label_set_text(ui_get_element_by_tag(&screen_top, "normalprogress"), normal);
+    ui_label_set_text(ui_get_element_by_tag(&screen_top, "practiceprogress"), practice);
+}
 
 void action_open_level(UIElement* e) { 
     play_sfx(&play_sound, 1);
     set_fade_status(FADE_STATUS_OUT);
     start_level = true; 
-};
+}
+
+void recenter(){
+    update_level_name(curr_level_id, 0);
+    update_level_stars(curr_level_id, 0);
+    update_level_progress(curr_level_id, 0);
+}
 
 void handle_card_movement() {
-    if (scroll_dir != 0) {
+    if (!dragging) {
         if (anim_time > ANIM_DURATION) {
             update_level_name(curr_level_id, 0);
             update_level_stars(curr_level_id, 0);
@@ -241,11 +261,16 @@ void handle_card_movement() {
             ui_set_pos_on_tag(&screen, 160, LEVEL_CARD_Y_POS, "level_card");
             ui_set_pos_on_tag(&screen, 160, LEVEL_CARD_Y_POS, "level_card_2");
             scroll_dir = 0;
+            dragDistance = 0;
+
             return;
         }
 
-        float fade_value = easeValue(ELASTIC_OUT, 0, 320, anim_time, ANIM_DURATION, 0.6f);
-        float value = 160 + (fade_value) * scroll_dir;
+        float start = (scroll_dir == 0) ? dragDistance : dragDistance * scroll_dir;
+        float end = (scroll_dir == 0) ? 0 : 320;
+
+        float fade_value = easeValue(ELASTIC_OUT, start, end, anim_time, ANIM_DURATION, 0.6f);
+        float value = (scroll_dir == 0) ? 160 + fade_value : 160 + fade_value * scroll_dir;
         anim_time += 0.016666f;
 
         ui_set_pos_on_tag(&screen, value, LEVEL_CARD_Y_POS, "level_card");
@@ -272,6 +297,7 @@ void action_move_right(UIElement* e) {
     update_level_progress(curr_level_id - 1, 0);
     
     update_level_face(curr_level_id);
+    update_level_top(curr_level_id);
 
     update_level_name(curr_level_id, 1);
     update_level_stars(curr_level_id, 1);
@@ -297,11 +323,47 @@ void action_move_left(UIElement* e) {
     update_level_progress(curr_level_id + 1, 0);
     
     update_level_face(curr_level_id);
+    update_level_top(curr_level_id);
 
     update_level_name(curr_level_id, 1);
     update_level_stars(curr_level_id, 1);
     update_level_progress(curr_level_id, 1);
-};
+}
+
+void lerp_level_colors(u32 color1, u32 color2){
+    float frac = abs(dragDistance) / 320.f;
+    frac = clampf(frac, 0.f, 1.f);
+    u32 lerpCol = color_lerp_u32(color1, color2, frac);
+    upload_color_to_buffer(0, lerpCol, 0);
+}
+
+void peek_right(){
+    ui_run_func_on_tag(&screen, "level_card_2", enable_card_2);
+
+    int card2id = (curr_level_id + 1) % MAIN_LEVELS_NUM;
+
+    update_level_name(card2id, 1);
+    update_level_stars(card2id, 1);
+    update_level_progress(card2id, 1);
+
+    u32 col1 = default_lvl_colors[curr_level_id % NUM_MENU_COLORS];
+    u32 col2 = default_lvl_colors[card2id % NUM_MENU_COLORS];
+    lerp_level_colors(col1, col2);
+}
+
+void peek_left(){
+    ui_run_func_on_tag(&screen, "level_card_2", enable_card_2);
+
+    int card2id = (curr_level_id - 1) % MAIN_LEVELS_NUM;
+
+    update_level_name(card2id, 1);
+    update_level_stars(card2id, 1);
+    update_level_progress(card2id, 1);
+
+    u32 col1 = default_lvl_colors[curr_level_id % NUM_MENU_COLORS];
+    u32 col2 = default_lvl_colors[card2id % NUM_MENU_COLORS];
+    lerp_level_colors(col1, col2);
+}
 
 void action_exit(UIElement* e) {
     exit_flag = true;
@@ -367,7 +429,6 @@ void level_select_loop() {
     level_card_2_coin_2 = ui_get_element_by_tag(&screen, "coin_2_2");
     level_card_2_coin_3 = ui_get_element_by_tag(&screen, "coin_3_2");
 
-    
     ui_progress_bar_set_tint(level_card_normal_progress, C2D_Color32(0, 255, 0, 255));
     ui_progress_bar_set_tint(level_card_2_normal_progress, C2D_Color32(0, 255, 0, 255));
 
@@ -377,6 +438,7 @@ void level_select_loop() {
     update_level_name(curr_level_id, 0);
     update_level_stars(curr_level_id, 0);
     update_level_face(curr_level_id);
+    update_level_top(curr_level_id);
     update_level_progress(curr_level_id, 0);
     
     ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
@@ -403,6 +465,9 @@ void level_select_loop() {
     while (aptMainLoop()) {
         hidScanInput();
         u32 kDown = hidKeysDown();
+        u32 kHeld = hidKeysHeld();
+        u32 kUp = hidKeysUp();
+
         if (kDown & (KEY_START | KEY_A)) {
             action_open_level(NULL);
         }
@@ -421,6 +486,54 @@ void level_select_loop() {
         ui_image_set_tint(bg_gradient, C2D_Color32(channel.color.r, channel.color.g, channel.color.b, 255));
         ui_image_set_tint(bg_gradient_top, C2D_Color32(channel.color.r, channel.color.g, channel.color.b, 255));
         ui_run_func_on_tag(&screen, "ground", tint_ground);
+
+        if((kDown & KEY_TOUCH)){
+            dragStartX = touch.touchPosition.px;
+            dragDistance = 0;
+            dragDir = 0;
+            recenter();
+        }
+        if((kHeld & KEY_TOUCH)){
+            if(dragging){
+                int delta = touch.touchPosition.px - lastTouchX;
+                lastTouchX = touch.touchPosition.px;
+                dragDistance += delta;
+
+                if(dragDistance > 20){
+                    dragDir = -1;
+                    peek_left();
+                } else if(dragDistance < -20){
+                    dragDir = 1;
+                    peek_right();
+                } else{
+                    dragDir = 0;
+                    ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
+                }
+
+                ui_set_pos_on_tag(&screen, 160 + dragDistance, LEVEL_CARD_Y_POS, "level_card");
+                ui_set_pos_on_tag(&screen, 160 + dragDistance + dragDir * 320, LEVEL_CARD_Y_POS, "level_card_2");
+            } else{
+                int dragXDiff = touch.touchPosition.px - dragStartX;
+                if(abs(dragXDiff) > 10){
+                    dragging = true;
+                }
+                lastTouchX = touch.touchPosition.px;
+            }
+        }
+        if((kUp & KEY_TOUCH)){
+            if(dragging){
+                if(dragDir == -1){
+                    action_move_left(NULL);
+                } else if(dragDir == 1){
+                    action_move_right(NULL);
+                } else{
+                    scroll_dir = 0;
+                    anim_time = 0.f;
+                }
+            }
+            dragging = false;
+            dragDir = 0;
+        }
 
         handle_card_movement();
 
