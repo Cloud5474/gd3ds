@@ -25,12 +25,12 @@ typedef struct {
 
 static CoinCollectEffect collected_effect[NUM_COINS] = { 0 };
 
-void start_collect_effect(float x, float y) {
+void start_collect_effect(float x, float y, bool outline) {
     for (int i = 0; i < NUM_COINS; i++) {
         CoinCollectEffect *data = &collected_effect[i];
 
         if (!data->active) {
-            data->already_collected = false; // TODO: coin saving
+            data->already_collected = outline;
             data->elapsed = 0;
             data->x = x;
             data->y = y;
@@ -82,7 +82,7 @@ void draw_collect_effect() {
 
             C2D_PlainImageTint(&tint, C2D_Color32f(1, 1, 1, data->opacity), 1.f);
 
-            int index = get_coin_texture(game_objects[SECRET_COIN].texture, 12) - SPRITESHEET2_START;
+            int index = get_coin_texture(game_objects[SECRET_COIN].texture + (data->already_collected ? 12 : 0), 12) - SPRITESHEET2_START;
             
             float calc_x = (data->x - state.camera_x);
             float calc_y = SCREEN_HEIGHT - ((data->y - state.camera_y));  

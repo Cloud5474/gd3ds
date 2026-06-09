@@ -14,6 +14,8 @@
 #include "particles/object_particles.h"
 #include "particles/circles.h"
 #include "particles/coin_effect.h"
+#include "save/saving.h"
+#include "menus/level_select.h"
 
 Player *player_1 = &state.player;
 Player *player_2 = &state.player2;
@@ -912,6 +914,8 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
             if (!GET_ACTIVATED(obj)) {
                 SET_ACTIVATED(obj, true);
 
+                bool is_collected = is_coin_collected(obj);
+
                 if (state.practice_mode) break;
 
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &coin_use_effect, GFX_TOP);
@@ -930,8 +934,9 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 coin_pickup_particles.emitterX = objects.x[obj];
                 coin_pickup_particles.emitterY = objects.y[obj];
                 spawnMultipleParticles(&coin_pickup_particles, 40);
+
                 
-                start_collect_effect(objects.x[obj], objects.y[obj]);
+                start_collect_effect(objects.x[obj], objects.y[obj], is_collected);
                 
                 int coin_id = objects.coin_id[obj];
                 switch (coin_id) {

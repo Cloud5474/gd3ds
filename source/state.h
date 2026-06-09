@@ -162,4 +162,6 @@ void init_wave_trails();
 void play_level_song();
 void update_attempt_text_pos();
 
+bool is_coin_collected(int obj);
+
 extern bool disableHitboxesAfterRespawn;
