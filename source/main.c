@@ -665,7 +665,6 @@ void game_loop() {
                     LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
                     // Save new best
                     int progress = (int)state.level_progress;
-                            init_new_best_popup(progress);
                     if (state.practice_mode) {
                         if (state.current_data.max_practice < progress) {
                             state.current_data.max_practice = progress;
@@ -673,6 +672,7 @@ void game_loop() {
                         }
                     } else {
                         if (state.current_data.max_normal < progress) {
+                            init_new_best_popup(progress);
                             had_new_best = true;
                             state.current_data.max_normal = progress;
                             level_data_sel->normal_progress = progress;

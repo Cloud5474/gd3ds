@@ -86,7 +86,7 @@ void init_new_best_popup(int progress) {
     }
 
     // Cycles impossible timing
-    if (progress == 42 && !state.custom_level && curr_level_id == 8) {
+    if (progress == 42 && !state.custom_level && curr_level_id == 8 && state.player.y > 140) {
         new_best_popup.text_id = 1;
     }
 
