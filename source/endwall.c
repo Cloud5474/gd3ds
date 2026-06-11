@@ -16,9 +16,9 @@
 
 static int fireworks_spawned = 0;
 static int circunferences_spawned = 0;
-static float completion_timer = 0.0f;
 static float circunference_timer = 0.0f;
 static bool level_complete_initialized = false;
+static float completion_timer = 0.0f;
 
 #include "save/saving.h"
 

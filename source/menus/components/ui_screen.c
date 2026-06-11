@@ -15,6 +15,8 @@
 #include "ui_color_button.h"
 #include "ui_window_button.h"
 #include "ui_progress_bar.h"
+#include "ui_particle.h"
+#include "particles/particle_definitions.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +39,9 @@ C2D_SpriteSheet chatFont_sheet;
 C2D_SpriteSheet goldFont_sheet;
 C2D_SpriteSheet bg_gradient_sheet;
 C2D_SpriteSheet bar_sheet;
+
+ParticleSystem *uiParticleSystems[UI_MAX_PARTICLE_SYSTEMS];
+int uiParticleSystemCount = 0;
 
 const LabelFont fonts[NUM_FONTS] = {
     {
@@ -280,7 +285,20 @@ static void split_tags(char *input, char tag[][TAG_LENGTH]) {
     }
 }
 
-// Load an screen from its file, needs a pointer to the actions table and the action count
+void add_ui_particle_system(ParticleSystem *particle){
+    uiParticleSystems[uiParticleSystemCount++] = particle;
+}
+
+void free_ui_particle_systems(){
+    for (int i = 0; i < uiParticleSystemCount; i++)
+    {
+        freeParticleData(&uiParticleSystems[i]->data);
+    }
+
+    uiParticleSystemCount = 0;
+}
+
+// Load a screen from its file, needs a pointer to the actions table and the action count
 void ui_load_screen(UIScreen* screen,
                     const UIAction* actions,
                     size_t actionCount,
@@ -333,6 +351,11 @@ void ui_load_screen(UIScreen* screen,
         char tag[TAGS_PER_ELEMENT][TAG_LENGTH] = {0};
 
         float textScale = 0;
+
+        float r = -1.f;
+        float g = -1.f; 
+        float b = -1.f;
+        const ParticleDefinition *particleDef = &firework;
 
         u32 keyBinds = 0;
 
@@ -463,6 +486,19 @@ void ui_load_screen(UIScreen* screen,
 
                     keyBind = strtok(NULL, ",");
                 }
+            } else if(strcmp(key, "r") == 0){
+                r = atof(value);
+            } else if(strcmp(key, "g") == 0){
+                g = atof(value);
+            } else if(strcmp(key, "b") == 0){
+                b = atof(value);
+            } else if(strcmp(key, "particleDef") == 0){
+                strip_quotes(value);
+                for(int i = 0; i < PARTICLE_DEF_COUNT; i++){
+                    if(strcmp(particleDefNames[i].name, value) == 0){
+                        particleDef = particleDefNames[i].def;
+                    }
+                }
             }
         }
 
@@ -565,6 +601,11 @@ void ui_load_screen(UIScreen* screen,
                 ui_create_progress_bar(
                     x, y, style, scale, max_value,
                     tag
+                );
+        } else if (strcmp(type, "particle") == 0) {
+            screen->elements[screen->count++] = 
+                ui_create_particle(
+                    x, y, scale, r, g, b, particleDef, tag
                 );
         }
     }

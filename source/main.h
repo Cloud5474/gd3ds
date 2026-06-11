@@ -91,6 +91,7 @@ extern SFX quit_sound;
 extern SFX explode_sound;
 extern SFX end_sound;
 extern SFX honk;
+extern SFX coin_sound;
 
 extern int level_result;
 

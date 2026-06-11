@@ -2,6 +2,8 @@
 
 #include <3ds.h>
 
+#define PARTICLE_DEF_COUNT (28)
+
 typedef enum {
     TEXTURE_SQUARE_PNG,
     TEXTURE_CIRCLE_PNG,
@@ -61,6 +63,13 @@ typedef struct {
     float tangentialAcceleration;
     TextureFileName textureFileName;
 } ParticleDefinition;
+
+typedef struct {
+    char *name;
+    const ParticleDefinition *def;
+} ParticleDefenitionName;
+
+extern const ParticleDefenitionName particleDefNames[];
 
 extern const ParticleDefinition drag_effect;
 extern const ParticleDefinition ring_effect;

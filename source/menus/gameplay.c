@@ -19,6 +19,8 @@
 #include "main_menu.h"
 #include "level_select.h"
 #include "state.h"
+#include "endwall.h"
+#include "menus/components/ui_darken.h"
 
 #include "settings.h"
 #include "generic_disclaimer.h"
@@ -132,6 +134,9 @@ static void restart_level() {
             restore_checkpoint();
         }
     } else if (song_loaded) seek_mp3(level_info.song_offset);
+
+    ui_get_element_by_tag(&screen, "endDarken")->opacity = 0.f;
+
     unpause_game();
 }
 
@@ -234,6 +239,8 @@ void gameplay_screen_init() {
     coin_1_top = ui_get_element_by_tag(&screen_top, "coin_1");
     coin_2_top = ui_get_element_by_tag(&screen_top, "coin_2");
     coin_3_top = ui_get_element_by_tag(&screen_top, "coin_3");
+
+    ui_get_element_by_tag(&screen, "endDarken")->opacity = 0.f;
 }
 
 int gameplay_screen_top_loop() { 
@@ -288,12 +295,25 @@ int gameplay_screen_bot_loop() {
     ui_image_set_image(coin_2, (state.current_data.coin2 | level_data_sel->coin2 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
     ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
 
+
+    //level end buttons retraction animation
+    float cutscene_timer = state.player.cutscene_timer;
+    float complete_y_offset = easeValue(EASE_IN, 20.f, -20.f, cutscene_timer, 0.3f, 1.3f);
+    float complete_y_offset_practice = easeValue(EASE_IN, 200.f, 270.f, cutscene_timer, 0.3f, 1.8f);
+
+    coin_1->y = complete_y_offset;
+    coin_2->y = complete_y_offset;
+    coin_3->y = complete_y_offset;
+
+    UIElement *pause_btn = ui_get_element_by_tag(&screen, "pause_btn");
+    pause_btn->y = complete_y_offset;
+    
+    UIElement *add_checkpoint = ui_get_element_by_tag(&screen, "add_checkpoint");
+    UIElement *remove_checkpoint = ui_get_element_by_tag(&screen, "remove_checkpoint");
+    add_checkpoint->y = complete_y_offset_practice;
+    remove_checkpoint->y = complete_y_offset_practice;
+
     if (state.practice_mode) {
-        if(!game_paused){
-            ui_run_func_on_tag(&screen, "practice_buttons", ui_enable_element);
-        } else{
-            ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);
-        }
         ui_button_set_image(ui_get_element_by_tag(&screen, "practice_mode"), 124, 0);
     } else {
         ui_run_func_on_tag(&screen, "practice_buttons", ui_disable_element);

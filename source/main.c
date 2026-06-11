@@ -80,6 +80,7 @@ SFX quit_sound;
 SFX explode_sound;
 SFX end_sound;
 SFX honk;
+SFX coin_sound;
 
 ParticleSystem touch_drag_particles;
 ParticleSystem touch_explosion_particles;
@@ -278,6 +279,8 @@ void free_particles() {
     freeParticleData(&end_wall_firework.data);
     freeParticleData(&level_complete_effect_p1.data);
     freeParticleData(&level_complete_effect_p2.data);
+
+    free_ui_particle_systems();
 }
 
 void init_particles(Color p1_color, Color p2_color) {    
@@ -1070,6 +1073,7 @@ void load_sfx() {
     load_wav("romfs:/sfx/explode_11.wav", &explode_sound);
     load_wav("romfs:/sfx/endStart_02.wav", &end_sound);
     load_wav("romfs:/sfx/honk.wav", &honk);
+    load_wav("romfs:/sfx/highscoreGet02.wav", &coin_sound);
 }
 
 int main(int argc, char* argv[]) {

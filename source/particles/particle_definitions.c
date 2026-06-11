@@ -1,5 +1,36 @@
 #include "particle_definitions.h"
 
+const ParticleDefenitionName particleDefNames[PARTICLE_DEF_COUNT] = {
+    { "drag_effect", &drag_effect },
+    { "ring_effect", &ring_effect },
+    { "portal_effect_01", &portal_effect_01 },
+    { "bump_effect", &bump_effect },
+    { "portal_effect_08", &portal_effect_08 },
+    { "land_effect", &land_effect },
+    { "glass_destroy_01", &glass_destroy_01 },
+    { "glitter_effect", &glitter_effect },
+    { "level_complete_01", &level_complete_01 },
+    { "ship_drag_effect", &ship_drag_effect },
+    { "speed_effect_fast", &speed_effect_fast },
+    { "speed_effect_normal", &speed_effect_normal },
+    { "speed_effect_slow", &speed_effect_slow },
+    { "speed_effect_vfast", &speed_effect_vfast },
+    { "firework", &firework },
+    { "explode_effect", &explode_effect },
+    { "coin_effect", &coin_effect },
+    { "coin_pickup_effect", &coin_pickup_effect },
+    { "burst_effect", &burst_effect },
+    { "boost_01_effect", &boost_01_effect },
+    { "boost_02_effect", &boost_02_effect },
+    { "boost_03_effect", &boost_03_effect },
+    { "boost_04_effect", &boost_04_effect },
+    { "end_effect_portal", &end_effect_portal },
+    { "ship_effect", &ship_effect },
+    { "ship_fire_effect", &ship_fire_effect },
+    { "touch_explosion_effect", &touch_explosion_effect },
+    { "touch_drag_effect", &touch_drag_effect }
+};
+
 const ParticleDefinition drag_effect = {
     .angle = 90,
     .angleVariance = 45,

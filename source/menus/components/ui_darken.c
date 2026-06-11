@@ -16,6 +16,10 @@ static void ui_darken_draw(UIElement* e) {
     C2D_DrawSpriteTinted(&e->darken.sprite, &e->darken.tint);
 }
 
+void ui_darken_reset_opacity(UIElement* e){
+    C2D_PlainImageTint(&e->darken.tint, C2D_Color32f(0, 0, 0, e->opacity), 1.0f);
+}
+
 UIElement ui_create_darken(float x, float y, float width, float height, float opacity, char (*tag)[TAG_LENGTH]) {
     UIElement e = {0};
 

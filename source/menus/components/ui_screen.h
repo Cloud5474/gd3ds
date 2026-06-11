@@ -3,6 +3,7 @@
 #include "text.h"
 
 #define UI_MAX_ELEMENTS 128
+#define UI_MAX_PARTICLE_SYSTEMS 32
 
 typedef struct {
     UIElement elements[UI_MAX_ELEMENTS];
@@ -57,3 +58,6 @@ void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag);
 
 void ui_enable_element(UIElement *e);
 void ui_disable_element(UIElement *e);
+
+void add_ui_particle_system(ParticleSystem *particle);
+void free_ui_particle_systems();

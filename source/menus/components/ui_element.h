@@ -23,6 +23,7 @@ typedef enum {
     UI_PROGRESS_BAR,
     UI_EXTERNAL_LEVEL_CARD,
     UI_STATISTIC_CARD,
+    UI_PARTICLE
 } UIElementType;
 
 typedef struct {
@@ -210,6 +211,11 @@ typedef struct {
     bool dragging;
 } UIList;
 
+typedef struct {
+    ParticleSystem particle;
+} UIParticleData;
+
+
 typedef void (*UIActionFn)(UIElement* e);
 
 struct UIElement {
@@ -240,6 +246,7 @@ struct UIElement {
         UIProgressBarData progress_bar;
         UIExternalLevelCardData external_level_card;
         UIStatisticCardData statistic_card;
+        UIParticleData particle;
     };
 
     char tag[TAGS_PER_ELEMENT][TAG_LENGTH];

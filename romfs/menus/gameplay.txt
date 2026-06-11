@@ -1,13 +1,13 @@
 bggradient tag="gradient"
 
-button x=300 y=20 id=17 sheet=1 action="pause" tag="not_paused" scale=0.65 opacity=0.4 keyBinds="START"
+button x=300 y=20 id=17 sheet=1 action="pause" tag="not_paused,pause_btn" scale=0.65 opacity=0.4 keyBinds="START"
 
 image x=20 y=20 id=16 sheet=1 tag="coin_1" scale=0.65
 image x=55 y=20 id=16 sheet=1 tag="coin_2" scale=0.65
 image x=90 y=20 id=16 sheet=1 tag="coin_3" scale=0.65
 
-button x=130 y=200 id=29 tag="practice_buttons" action="add_check" keyBinds="LEFT,X"
-button x=200 y=200 id=154 tag="practice_buttons" action="remove_check" keyBinds="RIGHT,B"
+button x=130 y=200 id=29 tag="practice_buttons,add_checkpoint,not_paused" action="add_check" keyBinds="LEFT,X"
+button x=200 y=200 id=154 tag="practice_buttons,remove_checkpoint,not_paused" action="remove_check" keyBinds="RIGHT,B"
 
 darken opacity=0.5 tag="paused"
 button x=45 y=60 id=127 scale=1 tag="paused" action="settings" keyBinds="SELECT"
