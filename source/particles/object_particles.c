@@ -379,6 +379,8 @@ void spawn_object_particles(int obj) {
         case SECRET_COIN:
             if (!is_ps_already_loaded(obj))
             {
+                if (is_coin_collected(obj)) break;
+                
                 index = load_object_particles(obj, &coin_effect, false);
                 if (index >= 0)
                 {

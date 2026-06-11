@@ -9,18 +9,22 @@
 
 #include "menus/components/ui_screen.h"
 #include "menus/settings.h"
+#include "menus/level_select.h"
 
 #include "fonts/goldFont.h"
 #include "fonts/bigFont.h"
 
+#include "utils/string_helpers.h"
+
 char *new_best_text[] = {
     "Not 100%",
+    "Impossible timing",
+    "Have you tried Story Madness yet?",
     "Not GG",
     "GGWP",
     "Git gud nub",
     "Skill issue",
     "New % when",
-    "Impossible timing",
     "Do a practice run next time",
     "Did you reach here in the real GD?"
     "Not 0%",
@@ -37,8 +41,7 @@ char *new_best_text[] = {
     "Try it in Famidash",
     "Blame it on RobTop",
     "Do you have muscle dementia",
-    "New worst!",
-    "Have you tried Story Madness yet?"
+    "New worst!"
 };
 
 #define NUM_NEW_BEST_TEXT (sizeof(new_best_text) / sizeof(char *))
@@ -75,6 +78,24 @@ void init_new_best_popup(int progress) {
 
     new_best_popup.text_id = random_int(0, NUM_NEW_BEST_TEXT - 1);
     new_best_popup.progress = progress;
+    
+
+    // 50% chance on >95% death to say "not 100%"
+    if (progress >= 95 && random_int(0, 100) <= 50) {
+        new_best_popup.text_id = 0;
+    }
+
+    // Cycles impossible timing
+    if (progress == 42 && !state.custom_level && curr_level_id == 8 && state.player.y > 140) {
+        new_best_popup.text_id = 1;
+    }
+
+    // If on story madness, reroll to not say the story madness line
+    if (new_best_popup.text_id == 2 && contains(level_info.level_name, "story madness")) {
+        do {
+            new_best_popup.text_id = random_int(0, NUM_NEW_BEST_TEXT - 1);
+        } while(new_best_popup.text_id == 2);
+    }
 
     new_best_popup.timer = 0;
     new_best_popup.duration = NEW_BEST_STATE_0_DURATION;

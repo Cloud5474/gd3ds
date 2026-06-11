@@ -28,6 +28,9 @@
 #include "particles/rays.h"
 #include "practice.h"
 
+#include "save/saving.h"
+#include "menus/level_select.h"
+
 const Color white = { 255, 255, 255 };
 
 int sprite_count = 0;
@@ -432,7 +435,7 @@ int get_obj_random_layer(int obj, int id) {
             return tex + (objects.random[obj] & 0b11);
         
         case SECRET_COIN:
-            return get_coin_texture(tex, 26);
+            return get_coin_texture(tex + (is_coin_collected(obj) ? 12 : 0), 26);
     }
     return -1;
 }

@@ -249,6 +249,8 @@ void init_state() {
     state.current_data.coin2 = false;
     state.current_data.coin3 = false;
 
+    in_level_complete = false;
+
     cheated = false;
     for (int i = 0; i < CHEAT_COUNT; i++) {
         cheats_used[i] = false;
@@ -468,4 +470,29 @@ void play_level_song() {
             song_loaded = play_mp3(main_levels[curr_level_id].song_path, false, 0);
         }
     }
+}
+
+bool is_coin_collected(int obj) {
+    if (state.custom_level) return false;
+
+    if (objects.id[obj] != SECRET_COIN) return false;
+
+    LevelData *level_data = &main_level_data[curr_level_id];
+
+    switch (objects.coin_id[obj]) {
+        case 0:
+            if (level_data->coin1) 
+                return true;
+            break;
+        case 1:
+            if (level_data->coin2) 
+                return true;
+            break;
+        case 2:
+            if (level_data->coin3) 
+                return true;
+            break;
+    }
+
+    return false;
 }
