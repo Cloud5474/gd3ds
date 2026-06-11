@@ -80,8 +80,8 @@ const float slopeHeights[SPEED_COUNT] = {
 };
 
 const float player_speed_mults[SPEED_COUNT] = {
-	0.9f,
 	0.7f,
+	0.9f,
 	1.1f,
 	1.3f	
 };
@@ -249,21 +249,17 @@ void rotate_fly(Player *player, float mult) {
 }
 
 // Ball rotation multiplier
-// TODO: reverse engineer this
 float get_ball_rotation_speed(Player *player) {
     float speed = (player->mini ? 0.16f : 0.2f);
     switch (state.speed) {
         case 0:
             speed *= 1.2405638f;
             break;
-        case 1:
+        case 2:
             speed *= 0.80424345f;
             break;
-        case 2:
-            speed *= 0.6657693f;
-            break;
         case 3:
-            speed *= 0.5409375f;
+            speed *= 0.6657693f;
             break;
         default:
             break;
@@ -407,7 +403,7 @@ void ball_gamemode(Player *player) {
         player->on_ground = false;
     }
     
-    player->rotation += player->ball_rotation_speed * get_ball_rotation_speed(player) * mult * STEPS_DT * (0.9f * 0.9f);
+    player->rotation += player->ball_rotation_speed * get_ball_rotation_speed(player) * mult * STEPS_DT;
 
     if (player->vel_y < -810) {
         player->vel_y = -810;
