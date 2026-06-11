@@ -51,6 +51,14 @@ int num_actions[2] = {0};
 
 int frame_skipped = 0;
 
+
+const float velocity_thresholds[SPEED_COUNT] = {
+	101.541492,
+	103.485494592,
+	103.377492,
+	103.809492
+};
+
 const float player_speeds[SPEED_COUNT] = {
 	251.16007972276924,
 	311.580093712804,
@@ -162,9 +170,7 @@ void cube_gamemode(Player *player) {
         update_rotation_direction(player);
     }
 
-    if (player->upside_down && state.input.holdJump && player->coyote_frames < 10) {
-        jump = true;
-    }
+    bool should_coyote = player->upside_down && state.input.holdJump && player->coyote_frames < 10;
 
     SlopeData slope_data = player->slope_data;
 
@@ -173,7 +179,7 @@ void cube_gamemode(Player *player) {
         slope_data = player->coyote_slope;
     }
 
-    if (((slope_data.slope_id >= 0 && grav_slope_orient(slope_data.slope_id, player) < ORIENT_UD_DOWN) || player->on_ground) && jump) {
+    if (((slope_data.slope_id >= 0 && grav_slope_orient(slope_data.slope_id, player) < ORIENT_UD_DOWN) || player->on_ground || should_coyote) && jump) {
         // If on slope, the player jumps depending on time on slope
         if (slope_data.slope_id >= 0) {
             // Slope jump
@@ -321,12 +327,12 @@ void ship_gamemode(Player *player) {
         // Make both dual players symmetric by using inverted ship gravity
         if (state.input.holdJump) {
             player->buffering_state = BUFFER_END;
-            if (player->vel_y <= -101.541492f)
+            if (player->vel_y <= -velocity_thresholds[state.speed])
                 player->gravity = player->mini ? 1643.5872f : 1397.0491f;
             else
                 player->gravity = player->mini ? 1314.86976f : 1117.64328f;
         } else {
-            if (player->vel_y >= -101.541492f)
+            if (player->vel_y >= -velocity_thresholds[state.speed])
                 player->gravity = player->mini ? -1577.85408f : -1341.1719f;
             else
                 player->gravity = player->mini ? -1051.8984f : -894.11464f;
@@ -334,12 +340,12 @@ void ship_gamemode(Player *player) {
     } else {
         if (state.input.holdJump) {
             player->buffering_state = BUFFER_END;
-            if (player->vel_y <= grav(player, 101.541492f))
+            if (player->vel_y <= grav(player, velocity_thresholds[state.speed]))
                 player->gravity = player->mini ? 1643.5872f : 1397.0491f;
             else
                 player->gravity = player->mini ? 1314.86976f : 1117.64328f;
         } else {
-            if (player->vel_y >= grav(player, 101.541492f))
+            if (player->vel_y >= grav(player, velocity_thresholds[state.speed]))
                 player->gravity = player->mini ? -1577.85408f : -1341.1719f;
             else
                 player->gravity = player->mini ? -1051.8984f : -894.11464f;
@@ -464,13 +470,13 @@ void ufo_gamemode(Player *player) {
     } else {
         // Same as ship
         if (!state.dual) {
-            if (player->vel_y > grav(player, 103.485494)) {
+            if (player->vel_y > grav(player, velocity_thresholds[state.speed])) {
                 player->gravity = player->mini ? -1969.92 : -1676.84;
             } else {
                 player->gravity = player->mini ? -1308.96 : -1117.56;
             }
         } else {   
-            if (player->vel_y > -103.485494) {
+            if (player->vel_y > -velocity_thresholds[state.speed]) {
                 player->gravity = player->mini ? -1969.92 : -1676.84;
             } else {
                 player->gravity = player->mini ? -1308.96 : -1117.56;
