@@ -26,6 +26,7 @@
 #include "endwall.h"
 
 #include "menus/settings.h"
+#include "utils/string_helpers.h"
 
 #include "save/saving.h"
 
@@ -61,6 +62,7 @@ char *practice_completion_text = "Well done... Now try to complete it<p>without 
 
 char *do_not_completion_texts[] = {
     "Not 1 attempt",
+    "You beat this instead of Story Madness...",
     "That was kinda sloppy",
     "Well done... now beat it in the PC version",
     "Good, now beat it with your eyes closed",
@@ -70,7 +72,6 @@ char *do_not_completion_texts[] = {
     "Noclip Accuracy: 0.01%",
     "Would be better if it was a harder level",
     "Would be better if it was an easier level",
-    "You beat this instead of Story Madness...",
     "Auto Safe Mode cheat detected: Using a 3DS",
     "Auto Safe Mode cheat detected:<p>Noclipped through the end wall",
     "I lied, you got 99%",
@@ -165,6 +166,7 @@ static void run_end_animation(float delta) {
 
 void level_complete_init() {
     init = true;
+    in_level_complete = true;
     ui_load_screen(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete_top.txt");
     ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete.txt");
 
@@ -220,9 +222,23 @@ void level_complete_init() {
         int start_index = 0;
 
         // Skip the "Not 1 attempt" line
-        if (doNot && state.current_data.attempts == 1) start_index++;
+        if (doNot) {
+            if (state.current_data.attempts == 1) start_index++;
+        }
 
         int text_index = random_int(start_index, (doNot ? NUM_DO_NOCOMPLETION_TEXTS : NUM_COMPLETION_TEXTS)- 1);
+
+        if (doNot) {
+            // If exactly 2 attempts, say "Not 1 attempt"
+            if (state.current_data.attempts == 2) text_index = 0;
+
+            // If on story madness, reroll to not say the story madness line
+            if (text_index == 1 && contains(level_info.level_name, "story madness")) {
+                do {
+                    text_index = random_int(start_index, (doNot ? NUM_DO_NOCOMPLETION_TEXTS : NUM_COMPLETION_TEXTS)- 1);
+                } while(text_index == 1);
+            }
+        }
 
         char *text = (doNot ? do_not_completion_texts[text_index] : completion_texts[text_index]);
 

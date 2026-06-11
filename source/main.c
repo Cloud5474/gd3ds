@@ -992,6 +992,7 @@ void game_loop() {
 
         if (exiting_level) {
             game_paused = false;
+            in_level_complete = false;
             if (song_loaded) unpause_playback_mp3();
             break;
         }
@@ -1112,11 +1113,6 @@ int main(int argc, char* argv[]) {
     loading_screen_update(25);
 
     calculate_stats();
-
-    output_log("Stars: %d\n", total_stars);
-    output_log("Coins: %d\n", total_coins);
-    output_log("Attempts: %d\n", total_attempts);
-    output_log("Jumps: %d\n", total_jumps);
 
     cache_all_sprites();
 

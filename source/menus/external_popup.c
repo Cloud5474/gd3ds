@@ -58,7 +58,7 @@ static int stars_num = 0;
 #define MAX_STARS 10
 
 #define NA_FACE     251
-#define AUTO_FACE   269
+#define AUTO_FACE   267
 #define EASY_FACE   252
 #define NORMAL_FACE 253
 #define HARD_FACE   254

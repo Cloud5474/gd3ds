@@ -11,6 +11,7 @@
 #include "ui_screen.h"
 #include "menus/settings.h"
 #include "menus/gameplay.h"
+#include "state.h"
 
 #include "main.h"
 
@@ -21,7 +22,7 @@ static void ui_button_update(UIElement* e, UIInput* touch) {
     //Keybinds logic
     u32 validKeybinds = e->button.keyBinds;
 
-    if(enableDebugBindings && game_state == STATE_GAME && !game_paused){
+    if(enableDebugBindings && game_state == STATE_GAME && !game_paused && !in_level_complete){
         validKeybinds &= ~(KEY_B | KEY_X | KEY_L | KEY_R);
     }
 

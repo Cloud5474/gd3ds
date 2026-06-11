@@ -96,6 +96,10 @@ extern int level_result;
 
 extern bool cheated;
 
+extern bool game_paused;
+
+extern bool in_level_complete;
+
 void allocate_particles();
 void free_particles();
 void init_particles(Color p1_color, Color p2_color);

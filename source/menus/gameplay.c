@@ -33,6 +33,7 @@
 #include "save/saving.h"
 
 bool game_paused = false;
+bool in_level_complete = false;
 static bool in_disclaimer = false;
 static bool in_settings = false;
 

@@ -162,8 +162,8 @@ int handle_wall_cutscene(float delta) {
         // Handle level complete menu
         int status = level_complete_loop(delta);
         if (status) {
+            LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
             if (!cheated) {
-                LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
                 if (state.practice_mode) {
                     state.current_data.max_practice = 100;
                     level_data_sel->practice_progress = 100;
@@ -216,7 +216,13 @@ int handle_wall_cutscene(float delta) {
                 stop_mp3();
                 set_fade_status(FADE_STATUS_OUT);
             } else if (status == 2) { // Restarting
-                init_variables();
+                level_data_sel->attempts += state.current_data.attempts;
+                level_data_sel->jumps += state.current_data.jumps;
+
+                total_attempts += state.current_data.attempts;
+                total_jumps += state.current_data.jumps;
+
+                first_load_init_variables();
                 reload_level(); 
                 if (state.practice_mode) {
                     clear_practice_mode();
@@ -225,6 +231,7 @@ int handle_wall_cutscene(float delta) {
                 } else {
                     if (song_loaded) seek_mp3(level_info.song_offset);
                 }
+
                 unpause_playback_mp3();
             }
             level_complete_initialized = false;
