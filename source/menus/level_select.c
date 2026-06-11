@@ -42,6 +42,9 @@ static int dragStartX;
 static int lastTouchX;
 static int dragDistance;
 static int dragDir;
+//Prevents cards from overlapping 
+//hopefully
+static bool cardCorrection;
 
 static UIElement *bg_gradient = NULL;
 static UIElement *bg_gradient_top = NULL;
@@ -246,7 +249,6 @@ void recenter(){
     update_level_name(curr_level_id, 0);
     update_level_stars(curr_level_id, 0);
     update_level_progress(curr_level_id, 0);
-    ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
 }
 
 void handle_card_movement() {
@@ -489,12 +491,18 @@ void level_select_loop() {
         ui_image_set_tint(bg_gradient_top, C2D_Color32(channel.color.r, channel.color.g, channel.color.b, 255));
         ui_run_func_on_tag(&screen, "ground", tint_ground);
 
+        if(cardCorrection){
+            ui_run_func_on_tag(&screen, "level_card_2", disable_card_2);
+            ui_set_pos_on_tag(&screen, 160, LEVEL_CARD_Y_POS, "level_card_2");
+            cardCorrection = false;
+        }
+
         if((kDown & KEY_TOUCH)){
             dragStartX = touch.touchPosition.px;
-            dragDistance = 0;
-            dragDir = 0;
             dragging = false;
-            scroll_dir = 0;
+            dragDir = 0;
+            dragDistance = 0;
+
             recenter();
         }
         if((kHeld & KEY_TOUCH)){
@@ -502,7 +510,6 @@ void level_select_loop() {
                 int delta = touch.touchPosition.px - lastTouchX;
                 dragDistance += delta;
 
-                //This is to make sure that the second panel never overlaps with the first one
                 if(dragDistance > 15){
                     dragDir = -1;
                     peek_left();
@@ -522,6 +529,12 @@ void level_select_loop() {
                 int dragXDiff = touch.touchPosition.px - dragStartX;
                 if(abs(dragXDiff) > 10){
                     dragging = true;
+                    scroll_dir = 0;
+                    anim_time = ANIM_DURATION;
+                    dragDistance = 0;
+                    dragDir = 0;
+                    cardCorrection = true;
+                    recenter();
                 }
             }
             lastTouchX = touch.touchPosition.px;
@@ -543,10 +556,15 @@ void level_select_loop() {
 
         handle_card_movement();
 
-        //Buttons can't be tapped while dragging
+        //Buttons can't be tapped while dragging, left/right buttons cannot be pressed with keybinds while dragging
         if(dragging){
             touch.touchPosition.px = -99;
             touch.touchPosition.py = -99;
+            ui_get_element_by_tag(&screen, "left")->button.keyBinds = 0;
+            ui_get_element_by_tag(&screen, "right")->button.keyBinds = 0;
+        } else{
+            ui_get_element_by_tag(&screen, "left")->button.keyBinds = (KEY_DLEFT | KEY_L | KEY_ZL | KEY_CPAD_LEFT | KEY_CSTICK_LEFT);
+            ui_get_element_by_tag(&screen, "right")->button.keyBinds = (KEY_DRIGHT | KEY_R | KEY_ZR | KEY_CPAD_RIGHT | KEY_CSTICK_RIGHT);
         }
 
         ui_screen_update(&screen, &touch);
