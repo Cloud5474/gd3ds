@@ -4,12 +4,18 @@
 #include "ui_screen.h"
 #include "graphics.h"
 
+void ui_particle_set_pos(UIElement* e, float x, float y){
+    ParticleSystem *p = &(e->particle.particle);
+    p->emitterX = x;
+    p->emitterY = y;
+}
+
+void ui_particle_emit(UIElement* e, int emitCount){
+    spawnMultipleParticles(&(e->particle.particle), emitCount);
+}
+
 static void ui_particle_update(UIElement* e, UIInput* touch) {
     ParticleSystem *p = &(e->particle.particle);
-    
-    p->emitterX = e->x;
-    p->emitterY = e->y;
-
     updateParticleSystem(p, delta);
 }
 
@@ -17,10 +23,6 @@ static void ui_particle_draw(UIElement* e) {
     change_blending(true);
     drawParticleSystem(&(e->particle.particle), 0, 0, 1);
     change_blending(false);
-}
-
-void ui_particle_emit(UIElement* e, int emitCount){
-    spawnMultipleParticles(&(e->particle.particle), emitCount);
 }
 
 UIElement ui_create_particle(int x, int y, float scale, float r, float g, float b, ParticleDefinition* const def, char (*tag)[TAG_LENGTH]) {

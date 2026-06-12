@@ -172,10 +172,9 @@ static void run_start_animation(float delta) {
 }
 
 static void spawn_reward_firework(UIElement* e){
-    UIElement *particle = ui_get_element_by_tag(&screen, "rewardParticle");
-    particle->x = e->x;
-    particle->y = e->y;
-    ui_particle_emit(particle, 30);
+    UIElement *particle = ui_get_element_by_tag(&screen_top, "rewardParticle");
+    ui_particle_set_pos(particle, e->x, e->y);
+    ui_particle_emit(particle, 60);
 }
 
 // This plays the animation of the coins popping into place and the stars
@@ -192,16 +191,10 @@ static void run_rewards_animation(float delta){
         LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
 
         //Skip uncollected/already collected coins
-        if(rewardAnimPhase == 0 && (!state.current_data.coin1 || level_data_sel->coin1)){
-            rewardAnimPhase = 1;
-            rewardAnimTime = 0;
-            return;
-        } else if(rewardAnimPhase == 1 && (!state.current_data.coin2 || level_data_sel->coin2)){
-            rewardAnimPhase = 2;
-            rewardAnimTime = 0;
-            return;
-        } else if(rewardAnimPhase == 2 && (!state.current_data.coin3 || level_data_sel->coin3)){
-            rewardAnimPhase = 3;
+        if((rewardAnimPhase == 0 && (!state.current_data.coin1 || level_data_sel->coin1))
+        || (rewardAnimPhase == 1 && (!state.current_data.coin2 || level_data_sel->coin2))
+        || (rewardAnimPhase == 2 && (!state.current_data.coin3 || level_data_sel->coin3))){
+            rewardAnimPhase++;
             rewardAnimTime = 0;
             return;
         }
@@ -390,14 +383,27 @@ void level_complete_init() {
 
         LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
 
-        ui_image_set_image(coin_1, (level_data_sel->coin1 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
-        ui_image_set_image(coin_2, (level_data_sel->coin2 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
-        ui_image_set_image(coin_3, (level_data_sel->coin3 ? COMPLETE_COIN_FILLED_ID : COMPLETE_COIN_UNFILLED_ID), 1);
+        for(int i = 0; i < 3; i++){
+            bool alreadyCollectedCoin = false;
+            if((i == 0 && level_data_sel->coin1)
+            || (i == 1 && level_data_sel->coin2)
+            || (i == 2 && level_data_sel->coin3)){
+                alreadyCollectedCoin = true;
+            }
+            
+            UIElement* coin = coins_full[i];
+
+            if(alreadyCollectedCoin){
+                coin->enabled = true;
+                coin->opacity = 1.f;
+                coin->image.scaleX = 0.88f;
+                coin->image.scaleY = 0.88f;
+            }
+        }
     }
 
     if (state.practice_mode) {
         ui_run_func_on_tag(&screen_top, "levelcomplete", ui_disable_element);
-
         if (doNot) ui_get_element_by_tag(&screen_top, "practicecomplete")->image.scaleX *= -1.f;
     } else {
         ui_run_func_on_tag(&screen_top, "practicecomplete", ui_disable_element);
