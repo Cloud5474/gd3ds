@@ -17,6 +17,8 @@
 #include "new_best.h"
 #include "endwall.h"
 
+#define FIRST_ATTEMPT_CAMERA_OFFSET 15
+
 GameState state;
 
 void run_camera() {
@@ -106,12 +108,12 @@ void run_camera() {
         state.camera_x = player->x - 125.0f/SCALE;
         
         if (state.current_data.attempts == 1) {
-            if (state.camera_x < 15) {
-                state.camera_x = 15;
+            if (state.camera_x < FIRST_ATTEMPT_CAMERA_OFFSET) {
+                state.camera_x = FIRST_ATTEMPT_CAMERA_OFFSET;
             }
         }
 
-        if (state.current_data.attempts > 1 || player->x - 125.0f/SCALE > 0) {
+        if (state.current_data.attempts > 1 || player->x - 125.0f/SCALE >= FIRST_ATTEMPT_CAMERA_OFFSET) {
             state.ground_x += player->vel_x * STEPS_DT * state.mirror_speed_factor;
             state.background_x += player->vel_x * STEPS_DT * state.mirror_speed_factor;
         }
