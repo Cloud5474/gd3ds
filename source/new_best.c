@@ -26,7 +26,7 @@ char *new_best_text[] = {
     "Skill issue",
     "New % when",
     "Do a practice run next time",
-    "Did you reach here in the real GD?"
+    "Did you reach here in the real GD?",
     "Not 0%",
     "Buff it",
     "Nerf it",
