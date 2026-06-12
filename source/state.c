@@ -496,15 +496,23 @@ void handle_respawn_effect() {
         case RESPAWN_EFFECT_HIDE_PLAYER:
             // First frame
             if (data->timer == RESPAWN_EFFECT_DURATION) {
-                UseEffect *effect_p1 = add_use_effect(state.player.x, state.player.y, USE_EFFECT_OBJ_P1, &portal_use_effect, GFX_TOP);
+                UseEffect *effect_p1 = add_use_effect(state.player.x, state.player.y, USE_EFFECT_OBJ_P1, &respawn_effect, GFX_TOP);
                 if (effect_p1) {
-                    // Do shit
+                    Color color_not_white = get_white_if_black(p1_color);
+
+                    effect_p1->def.colorR = color_not_white.r / 255.f;
+                    effect_p1->def.colorG = color_not_white.g / 255.f;
+                    effect_p1->def.colorB = color_not_white.b / 255.f;
                 }
 
                 if (state.dual) {
-                    UseEffect *effect_p2 = add_use_effect(state.player2.x, state.player2.y, USE_EFFECT_OBJ_P2, &portal_use_effect, GFX_TOP);
+                    UseEffect *effect_p2 = add_use_effect(state.player2.x, state.player2.y, USE_EFFECT_OBJ_P2, &respawn_effect, GFX_TOP);
                     if (effect_p2) {
-                        // Do shit
+                        Color color_not_white = get_white_if_black(p2_color);
+
+                        effect_p2->def.colorR = color_not_white.r / 255.f;
+                        effect_p2->def.colorG = color_not_white.g / 255.f;
+                        effect_p2->def.colorB = color_not_white.b / 255.f;
                     }
                 }
             }

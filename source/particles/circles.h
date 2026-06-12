@@ -70,6 +70,7 @@ extern const UseEffectDefinition end_wall_filled_second;
 extern const UseEffectDefinition end_wall_filled_title;
 extern const UseEffectDefinition end_wall_firework_circle;
 extern const UseEffectDefinition end_wall_circunference;
+extern const UseEffectDefinition respawn_effect;
 
 UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, int screen);
 void update_use_effects(float delta, int screen);
