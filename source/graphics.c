@@ -962,6 +962,18 @@ void get_fade_vars(int obj, float x, int *fade_x, int *fade_y, float *fade_scale
     }
 }
 
+void get_special_fading_vars(int obj, float fade_val, float *calc_x) {
+    if (objects.transition_applied[obj] == FADE_DOWN_STATIONARY || objects.transition_applied[obj] == FADE_UP_STATIONARY) {
+        if (fade_val < 255) {
+            if (*calc_x > (SCREEN_WIDTH / SCALE) / 2) {
+                *calc_x = SCREEN_WIDTH / SCALE - FADE_WIDTH;
+            } else {
+                *calc_x = FADE_WIDTH;
+            }
+        }
+    }
+}
+
 void change_blending(bool blending) {
     // If changing blending to the same state, do nothing a state change its not worth it
     if (blending == blending_state) return;
@@ -1190,15 +1202,7 @@ void create_objects() {
                 objects.rotation[obj] += (((objects.random[obj] & 1) ? -get_rotation_speed(objects.id[obj]) : get_rotation_speed(objects.id[obj]))) * delta;
                 
                 // Handle special fade types
-                if (objects.transition_applied[obj] == FADE_DOWN_STATIONARY || objects.transition_applied[obj] == FADE_UP_STATIONARY) {
-                    if (fade_val < 255) {
-                        if (calc_x > (SCREEN_WIDTH / SCALE) / 2) {
-                            calc_x = SCREEN_WIDTH / SCALE - FADE_WIDTH;
-                        } else {
-                            calc_x = FADE_WIDTH;
-                        }
-                    }
-                }
+                get_special_fading_vars(obj, fade_val, &calc_x);
 
                 spawn_object_at(
                     obj,
