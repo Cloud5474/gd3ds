@@ -17,6 +17,8 @@
 #include "new_best.h"
 #include "endwall.h"
 
+#define FIRST_ATTEMPT_CAMERA_OFFSET 15
+
 GameState state;
 
 void run_camera() {
@@ -106,12 +108,12 @@ void run_camera() {
         state.camera_x = player->x - 125.0f/SCALE;
         
         if (state.current_data.attempts == 1) {
-            if (state.camera_x < 0) {
-                state.camera_x = 0;
+            if (state.camera_x < FIRST_ATTEMPT_CAMERA_OFFSET) {
+                state.camera_x = FIRST_ATTEMPT_CAMERA_OFFSET;
             }
         }
 
-        if (state.current_data.attempts > 1 || player->x - 125.0f/SCALE > 0) {
+        if (state.current_data.attempts > 1 || player->x - 125.0f/SCALE >= FIRST_ATTEMPT_CAMERA_OFFSET) {
             state.ground_x += player->vel_x * STEPS_DT * state.mirror_speed_factor;
             state.background_x += player->vel_x * STEPS_DT * state.mirror_speed_factor;
         }
@@ -373,6 +375,7 @@ void init_variables() {
     p1_trail = false;
 
     clear_bg_flash();
+    if (game_state == STATE_GAME && state.current_data.attempts != 1) start_respawn_effect();
 }
 
 void handle_death(Player *player, bool pause_song) {
@@ -470,6 +473,80 @@ void play_level_song() {
             song_loaded = play_mp3(main_levels[curr_level_id].song_path, false, 0);
         }
     }
+}
+
+// Respawn effect
+
+void start_respawn_effect() {
+    RespawnEffectData *data = &state.respawn_effect_data;
+    data->active = true;
+    data->timer = RESPAWN_EFFECT_DURATION;
+    data->state = RESPAWN_EFFECT_HIDE_PLAYER;
+    data->remaining = RESPAWN_EFFECT_REPEAT;
+    data->hide_player = true;
+}
+
+void handle_respawn_effect() {
+    RespawnEffectData *data = &state.respawn_effect_data;
+    if (!data->active) return;
+
+    // Run respawn state
+    switch (data->state) {
+        case RESPAWN_EFFECT_NONE:
+            break;
+        
+        case RESPAWN_EFFECT_HIDE_PLAYER:
+            // First frame
+            if (data->timer == RESPAWN_EFFECT_DURATION) {
+                UseEffect *effect_p1 = add_use_effect(state.player.x, state.player.y, USE_EFFECT_OBJ_P1, &respawn_effect, GFX_TOP);
+                if (effect_p1) {
+                    Color color_not_white = get_white_if_black(p1_color);
+
+                    effect_p1->def.colorR = color_not_white.r / 255.f;
+                    effect_p1->def.colorG = color_not_white.g / 255.f;
+                    effect_p1->def.colorB = color_not_white.b / 255.f;
+                }
+
+                if (state.dual) {
+                    UseEffect *effect_p2 = add_use_effect(state.player2.x, state.player2.y, USE_EFFECT_OBJ_P2, &respawn_effect, GFX_TOP);
+                    if (effect_p2) {
+                        Color color_not_white = get_white_if_black(p2_color);
+
+                        effect_p2->def.colorR = color_not_white.r / 255.f;
+                        effect_p2->def.colorG = color_not_white.g / 255.f;
+                        effect_p2->def.colorB = color_not_white.b / 255.f;
+                    }
+                }
+            }
+
+            data->timer -= STEPS_DT;
+            if (data->timer <= 0) {
+                data->state = RESPAWN_EFFECT_SHOW_PLAYER;
+                data->timer = RESPAWN_EFFECT_DURATION;
+                data->hide_player = false;
+            }
+            break;
+        case RESPAWN_EFFECT_SHOW_PLAYER:
+            data->timer -= STEPS_DT;
+            if (data->timer <= 0) {
+                data->hide_player = true;
+                if (--data->remaining == 0) {
+                    data->timer = 0;
+                    data->state = RESPAWN_EFFECT_NONE;
+                    data->active = false;
+                    break;
+                }
+                
+                data->timer = RESPAWN_EFFECT_DURATION;
+                data->state = RESPAWN_EFFECT_HIDE_PLAYER;
+            }
+            break;
+    }
+}
+
+void clear_respawn_effect() {
+    state.respawn_effect_data.active = false;
+    state.respawn_effect_data.hide_player = false;
 }
 
 bool is_coin_collected(int obj) {

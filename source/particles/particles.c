@@ -486,6 +486,9 @@ void freeParticleData(ParticleData* d) {
 void drawParticleSystem(ParticleSystem* ps, float x_offset, float y_offset, float opacity) {
     if (particlesDisabled) return;
     
+    C2D_Image img = C2D_SpriteSheetGetImage(particleSheet, ps->cfg.textureFileName);
+    C3D_TexSetFilter(img.tex, GPU_LINEAR, GPU_LINEAR);
+    
     ParticleData* d = &ps->data;
     int count = d->count;
 
@@ -523,16 +526,22 @@ void drawParticleSystem(ParticleSystem* ps, float x_offset, float y_offset, floa
             y = (GSP_SCREEN_WIDTH - y);
         }
 
+        C2D_ImageTint tint = { 0 };
+
+        C2D_PlainImageTint(&tint, color, 1.f);
+
         // Draw centered square
         float half = size * 0.5f;
 
-        C2D_DrawRectSolid(
+        C2D_DrawImageAtRotated(
+            img, 
             x - half,
             y - half + y_offset,
             0.0f,
-            size,
-            size,
-            color
+            d->rotation[i], 
+            &tint,
+            size / 32.f,
+            size / 32.f
         );
     }
 }

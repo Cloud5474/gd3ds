@@ -640,6 +640,7 @@ void game_loop() {
                     
                     run_camera();
                     handle_bg_flash();
+                    handle_respawn_effect();
 
                     u64 end_physics = svcGetSystemTick();
                     float physics_time = (end_physics - start_physics) / (CPU_TICKS_PER_MSEC);
@@ -1021,6 +1022,8 @@ void game_loop() {
 
     unload_level();
 
+    clear_respawn_effect();
+
     level_complete_destroy();
 
     game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
@@ -1042,6 +1045,9 @@ void game_assets_init() {
 
     trailSheet = C2D_SpriteSheetLoad("romfs:/gfx/trails.t3x");
     if (!trailSheet) svcBreak(USERBREAK_PANIC);
+
+    particleSheet = C2D_SpriteSheetLoad("romfs:/gfx/particles.t3x");
+    if (!particleSheet) svcBreak(USERBREAK_PANIC);
 
     initParticleSystem(&touch_drag_particles, &touch_drag_effect);
     touch_drag_particles.relativeStationary = true;
@@ -1228,6 +1234,8 @@ int main(int argc, char* argv[]) {
     C2D_SpriteSheetFree(bgSheet);
     C2D_SpriteSheetFree(bg2Sheet);
     C2D_SpriteSheetFree(iconSheet);
+    C2D_SpriteSheetFree(trailSheet);
+    C2D_SpriteSheetFree(particleSheet);
     C2D_SpriteSheetFree(ui_sheet);
     C2D_SpriteSheetFree(ui_2_sheet);
     C2D_SpriteSheetFree(groundSheet);

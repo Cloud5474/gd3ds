@@ -745,6 +745,8 @@ float player_time = 0;
 float handle_player_time = 0;
 
 void handle_player(Player *player) {
+    if (get_fade_status()) return;
+
     u64 start_player = svcGetSystemTick();
     if (state.input.holdJump) {
         if (player->buffering_state == BUFFER_NONE) {
@@ -963,6 +965,9 @@ void draw_p1_trail(Player *player, int player_id) {
 void draw_player(Player *player) {
     // Don't draw player if dead
     if (state.dead) return;
+
+    // Don't draw player if respawning and should hide
+    if (state.respawn_effect_data.active && state.respawn_effect_data.hide_player) return;
 
     float calc_x = ((player->x - state.camera_x));
     float calc_y = SCREEN_HEIGHT - ((player->y - state.camera_y));

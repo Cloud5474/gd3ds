@@ -45,6 +45,7 @@ C2D_SpriteSheet bg2Sheet;
 C2D_SpriteSheet groundSheet;
 C2D_SpriteSheet iconSheet;
 C2D_SpriteSheet trailSheet;
+C2D_SpriteSheet particleSheet;
 
 static SortItem buf_a[MAX_SPRITES];
 static SortItem buf_b[MAX_SPRITES];
@@ -57,6 +58,8 @@ int current_fading_effect = FADE_NONE;
 int current_pulserod_ball_image = 0;
 
 SpriteTemplate sprite_templates[GAME_OBJECT_COUNT]; // global cache
+
+float touch_effect_drag_timer = 0.f;
 
 #define LUT_SIZE 256
 
@@ -959,6 +962,18 @@ void get_fade_vars(int obj, float x, int *fade_x, int *fade_y, float *fade_scale
     }
 }
 
+void get_special_fading_vars(int obj, float fade_val, float *calc_x) {
+    if (objects.transition_applied[obj] == FADE_DOWN_STATIONARY || objects.transition_applied[obj] == FADE_UP_STATIONARY) {
+        if (fade_val < 255) {
+            if (*calc_x > (SCREEN_WIDTH / SCALE) / 2) {
+                *calc_x = SCREEN_WIDTH / SCALE - FADE_WIDTH;
+            } else {
+                *calc_x = FADE_WIDTH;
+            }
+        }
+    }
+}
+
 void change_blending(bool blending) {
     // If changing blending to the same state, do nothing a state change its not worth it
     if (blending == blending_state) return;
@@ -1187,15 +1202,7 @@ void create_objects() {
                 objects.rotation[obj] += (((objects.random[obj] & 1) ? -get_rotation_speed(objects.id[obj]) : get_rotation_speed(objects.id[obj]))) * delta;
                 
                 // Handle special fade types
-                if (objects.transition_applied[obj] == FADE_DOWN_STATIONARY || objects.transition_applied[obj] == FADE_UP_STATIONARY) {
-                    if (fade_val < 255) {
-                        if (calc_x > (SCREEN_WIDTH / SCALE) / 2) {
-                            calc_x = SCREEN_WIDTH / SCALE - FADE_WIDTH;
-                        } else {
-                            calc_x = FADE_WIDTH;
-                        }
-                    }
-                }
+                get_special_fading_vars(obj, fade_val, &calc_x);
 
                 spawn_object_at(
                     obj,
@@ -1432,11 +1439,15 @@ void update_touch_effect(float delta) {
                 effect->def.colorG = p1_not_white.g / 255.f;
                 effect->def.colorB = p1_not_white.b / 255.f;
             }
+            touch_effect_drag_timer = 0.08f;
         }
 
         touch_drag_particles.emitterX = pos.px;
         touch_drag_particles.emitterY = flipped_y;
-        touch_drag_particles.emitting = true;
+        touch_drag_particles.emitting = (touch_effect_drag_timer <= 0);
+        if (touch_effect_drag_timer > 0) {
+            touch_effect_drag_timer -= delta;
+        }
 
         
     }

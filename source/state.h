@@ -22,10 +22,14 @@ typedef struct {
     u8 pressedJump:1;
     u8 holdJump:1;
 } KeyInput;
+
 // First flash
 #define FLASH_TIME_1 (20.f / STEPS_HZ)
 // Rest of timers
 #define FLASH_TIME_2 (14.f / STEPS_HZ)
+
+#define RESPAWN_EFFECT_REPEAT 4
+#define RESPAWN_EFFECT_DURATION (12.f / STEPS_HZ)
 
 typedef enum {
     FLASH_NONE,
@@ -40,6 +44,20 @@ typedef struct {
     float timer;
     bool use_lbg;
 } BGFlashData;
+
+typedef enum {
+    RESPAWN_EFFECT_NONE,
+    RESPAWN_EFFECT_SHOW_PLAYER,
+    RESPAWN_EFFECT_HIDE_PLAYER
+} RespawnEffectState;
+
+typedef struct {
+    bool active;
+    bool hide_player;
+    RespawnEffectState state;
+    float timer;
+    int remaining;
+} RespawnEffectData;
 
 typedef struct {
     int attempts;
@@ -126,6 +144,7 @@ typedef struct {
     char custom_level_path[256];
 
     BGFlashData flash_data;
+    RespawnEffectData respawn_effect_data;
 
     int last_hitbox_trail;
     PlayerHitboxTrail hitbox_trail_players[2][HITBOX_TRAIL_SIZE];
@@ -153,6 +172,10 @@ void handle_death(Player *player, bool pause_song);
 void start_bg_flash();
 void handle_bg_flash();
 void clear_bg_flash();
+
+void start_respawn_effect();
+void handle_respawn_effect();
+void clear_respawn_effect();
 
 void init_player(Player *player);
 void init_state();

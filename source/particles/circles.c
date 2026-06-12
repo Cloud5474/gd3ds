@@ -271,6 +271,24 @@ const UseEffectDefinition end_wall_circunference = {
     .end_rad_ease = EASE_LINEAR,
 }; 
 
+const UseEffectDefinition respawn_effect = {
+    .colorR = 1, 
+    .colorG = 1,
+    .colorB = 1,
+    .duration = 0.3f,
+    .start_opacity = 0.1f,
+    .end_opacity = 0.95f,
+    .start_rad = 67.f,
+    .end_rad = 3.f,
+    .hollow = true,
+    .trifading = true,
+    .start_opacity_ease = CUBIC_OUT,
+    .end_opacity_ease = EASE_LINEAR,
+    .start_rad_ease = EASE_LINEAR,
+    .end_rad_ease = EASE_LINEAR,
+    .line_thickness = 1.f
+}; 
+
 UseEffect use_effects_top[MAX_USE_EFFECTS];
 UseEffect use_effects_top_above_level[MAX_USE_EFFECTS];
 UseEffect use_effects_bot[MAX_USE_EFFECTS];
