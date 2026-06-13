@@ -51,8 +51,17 @@ typedef struct {
 
     int obj;
 
+    //where in the pool this UseEffect is
+    int index;
+
     bool active;
 } UseEffect;
+
+typedef struct {
+    UseEffect pool[MAX_USE_EFFECTS];
+    //whether the effect should have mirror, fading, and world-space transforms
+    bool stationary;
+} UseEffectPool;
 
 extern const UseEffectDefinition pad_use_effect;
 extern const UseEffectDefinition orb_use_effect;
@@ -72,7 +81,8 @@ extern const UseEffectDefinition end_wall_firework_circle;
 extern const UseEffectDefinition end_wall_circunference;
 extern const UseEffectDefinition respawn_effect;
 
-UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, int screen);
-void update_use_effects(float delta, int screen);
-void draw_use_effects(int screen);
-void clear_use_effects(int screen);
+UseEffectPool *get_use_effect_array_ptr(int screen);
+UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, UseEffectPool *pool);
+void update_use_effects(float delta, UseEffectPool *pool);
+void draw_use_effects(UseEffectPool *pool);
+void clear_use_effects(UseEffectPool *pool);

@@ -405,7 +405,7 @@ void main_menu_loop() {
         MotionTrail_Update(&trail_p1, delta);
         MotionTrail_UpdateWaveTrail(&wave_trail_p1, delta);
         update_player_effects(delta);
-        update_use_effects(delta, GFX_TOP);
+        update_use_effects(delta, get_use_effect_array_ptr(GFX_TOP));
 
         UIInput touch;
         touchPosition touchPos;
@@ -480,7 +480,7 @@ void main_menu_loop() {
 
             draw_player_effects();
             change_blending(true);
-            draw_use_effects(GFX_TOP);
+            draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
 
             change_blending(false);
             draw_player(&title_screen_player);
@@ -498,7 +498,7 @@ void main_menu_loop() {
             state.camera_y = 0;
             draw_player_effects();
             change_blending(true);
-            draw_use_effects(GFX_TOP);
+            draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
 
             change_blending(false);
             draw_player(&title_screen_player);

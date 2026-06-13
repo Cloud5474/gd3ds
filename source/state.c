@@ -358,7 +358,7 @@ void init_variables() {
     init_trails(selected_trail);
     init_wave_trails();
 
-    clear_use_effects(GFX_TOP);
+    clear_use_effects(get_use_effect_array_ptr(GFX_TOP));
 
     current_fading_effect = FADE_NONE;
     level_info.completing = false;
@@ -386,7 +386,7 @@ void handle_death(Player *player, bool pause_song) {
     }
 
     // Spawn death particles
-    UseEffect *effect = add_use_effect(player->x, player->y, USE_EFFECT_OBJ_NOTHING, &death_effect, GFX_TOP);
+    UseEffect *effect = add_use_effect(player->x, player->y, USE_EFFECT_OBJ_NOTHING, &death_effect, get_use_effect_array_ptr(GFX_TOP));
     if (effect) {
         Color color_not_white = get_white_if_black((state.current_player == 1 ? p2_color : p1_color));
 
@@ -498,7 +498,7 @@ void handle_respawn_effect() {
         case RESPAWN_EFFECT_HIDE_PLAYER:
             // First frame
             if (data->timer == RESPAWN_EFFECT_DURATION) {
-                UseEffect *effect_p1 = add_use_effect(state.player.x, state.player.y, USE_EFFECT_OBJ_P1, &respawn_effect, GFX_TOP);
+                UseEffect *effect_p1 = add_use_effect(state.player.x, state.player.y, USE_EFFECT_OBJ_P1, &respawn_effect, get_use_effect_array_ptr(GFX_TOP));
                 if (effect_p1) {
                     Color color_not_white = get_white_if_black(p1_color);
 
@@ -508,7 +508,7 @@ void handle_respawn_effect() {
                 }
 
                 if (state.dual) {
-                    UseEffect *effect_p2 = add_use_effect(state.player2.x, state.player2.y, USE_EFFECT_OBJ_P2, &respawn_effect, GFX_TOP);
+                    UseEffect *effect_p2 = add_use_effect(state.player2.x, state.player2.y, USE_EFFECT_OBJ_P2, &respawn_effect, get_use_effect_array_ptr(GFX_TOP));
                     if (effect_p2) {
                         Color color_not_white = get_white_if_black(p2_color);
 

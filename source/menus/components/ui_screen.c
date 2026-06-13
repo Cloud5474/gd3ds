@@ -16,6 +16,7 @@
 #include "ui_window_button.h"
 #include "ui_progress_bar.h"
 #include "ui_particle.h"
+#include "ui_use_effect.h"
 #include "particles/particle_definitions.h"
 
 #include <stdlib.h>
@@ -292,7 +293,10 @@ void add_ui_particle_system(ParticleSystem *particle){
 void free_ui_particle_systems(){
     for (int i = 0; i < uiParticleSystemCount; i++)
     {
-        freeParticleData(&uiParticleSystems[i]->data);
+        if (uiParticleSystems[i]) {
+        freeParticleData(&(uiParticleSystems[i]->data));
+        uiParticleSystems[i] = NULL;
+    }
     }
 
     uiParticleSystemCount = 0;
@@ -603,10 +607,15 @@ void ui_load_screen(UIScreen* screen,
                     tag
                 );
         } else if (strcmp(type, "particle") == 0) {
-            screen->elements[screen->count++] = 
+            int i = screen->count++;
+            screen->elements[i] = 
                 ui_create_particle(
                     x, y, scale, r, g, b, particleDef, tag
                 );
+            add_ui_particle_system(&screen->elements[i].particle.particle);
+        } else if (strcmp(type, "useeffect") == 0) {
+            screen->elements[screen->count++] =
+                ui_create_use_effect(tag);
         }
     }
 

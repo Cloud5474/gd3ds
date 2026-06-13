@@ -21,6 +21,8 @@
 #include "state.h"
 #include "endwall.h"
 #include "menus/components/ui_darken.h"
+#include "menus/components/ui_use_effect.h"
+#include "particles/circles.h"
 
 #include "settings.h"
 #include "generic_disclaimer.h"
@@ -55,6 +57,11 @@ static UIElement *coin_1;
 static UIElement *coin_2;
 static UIElement *coin_3;
 
+static UIElement *coins_full[3];
+static bool coins_got[3];
+static float coin_anims[3];
+static bool coins_circles_spawned[3];
+
 static UIElement *coin_1_top;
 static UIElement *coin_2_top;
 static UIElement *coin_3_top;
@@ -80,6 +87,29 @@ static void update_progress_bars() {
     ui_image_set_image(coin_3_top, (level_data_sel->coin3 ? PAUSE_COIN_FILLED_ID : PAUSE_COIN_UNFILLED_ID), 0);
 }
 
+static void reset_coin(LevelData *level_data_sel, int i){
+    if((!level_data_sel->coin1 && i == 0)
+        || (!level_data_sel->coin2 && i == 1)
+        || (!level_data_sel->coin3 && i == 2)) { 
+            coins_full[i]->enabled = false;
+        } else {
+            coins_full[i]->enabled = true;
+    }
+}
+
+void reset_coins(){
+    LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
+
+    ui_use_effect_clear(ui_get_element_by_tag(&screen, "coin_circle"));
+
+    for(int i = 0; i < 3; i++){
+        reset_coin(level_data_sel, i);
+        coins_got[i] = false;
+        coin_anims[i] = 0.f;
+        coins_circles_spawned[i] = false;
+    }
+}
+
 void pause_game() {
     if (state.end_wall_anim_playing) return;
 
@@ -93,6 +123,10 @@ void pause_game() {
         ui_run_func_on_tag(&screen, "coin_1", ui_disable_element);
         ui_run_func_on_tag(&screen, "coin_2", ui_disable_element);
         ui_run_func_on_tag(&screen, "coin_3", ui_disable_element);
+        ui_run_func_on_tag(&screen, "coin_1_full", ui_disable_element);
+        ui_run_func_on_tag(&screen, "coin_2_full", ui_disable_element);
+        ui_run_func_on_tag(&screen, "coin_3_full", ui_disable_element);
+        ui_run_func_on_tag(&screen, "coin_circle", ui_disable_element);
     }
     ui_run_func_on_tag(&screen_top, "pause_menu", ui_enable_element);
     ui_run_func_on_tag(&screen, "paused", ui_enable_element);
@@ -112,6 +146,10 @@ void unpause_game() {
         ui_run_func_on_tag(&screen, "coin_1", ui_enable_element);
         ui_run_func_on_tag(&screen, "coin_2", ui_enable_element);
         ui_run_func_on_tag(&screen, "coin_3", ui_enable_element);
+        for(int i = 0; i < 3; i++){
+            reset_coin((state.custom_level ? &level_data : &main_level_data[curr_level_id]), i);
+        }
+        ui_run_func_on_tag(&screen, "coin_circle", ui_enable_element);
     }
     ui_run_func_on_tag(&screen_top, "pause_menu", ui_disable_element);
     ui_run_func_on_tag(&screen, "paused", ui_disable_element);
@@ -135,6 +173,8 @@ static void restart_level() {
             restore_checkpoint();
         }
     } else if (song_loaded) seek_mp3(level_info.song_offset);
+
+    reset_coins();
 
     ui_get_element_by_tag(&screen, "endDarken")->opacity = 0.f;
 
@@ -237,6 +277,13 @@ void gameplay_screen_init() {
     coin_1 = ui_get_element_by_tag(&screen, "coin_1");
     coin_2 = ui_get_element_by_tag(&screen, "coin_2");
     coin_3 = ui_get_element_by_tag(&screen, "coin_3");
+
+    coins_full[0] = ui_get_element_by_tag(&screen, "coin_1_full");
+    coins_full[1] = ui_get_element_by_tag(&screen, "coin_2_full");
+    coins_full[2] = ui_get_element_by_tag(&screen, "coin_3_full");
+    
+    reset_coins();
+
     coin_1_top = ui_get_element_by_tag(&screen_top, "coin_1");
     coin_2_top = ui_get_element_by_tag(&screen_top, "coin_2");
     coin_3_top = ui_get_element_by_tag(&screen_top, "coin_3");
@@ -292,10 +339,35 @@ int gameplay_screen_bot_loop() {
 
     LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
 
-    ui_image_set_image(coin_1, (state.current_data.coin1 | level_data_sel->coin1 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
-    ui_image_set_image(coin_2, (state.current_data.coin2 | level_data_sel->coin2 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
-    ui_image_set_image(coin_3, (state.current_data.coin3 | level_data_sel->coin3 ? COIN_FILLED_ID : COIN_UNFILLED_ID), 1);
+    coins_got[0] = state.current_data.coin1 && !level_data_sel->coin1;
+    coins_got[1] = state.current_data.coin2 && !level_data_sel->coin2;
+    coins_got[2] = state.current_data.coin3 && !level_data_sel->coin3;
 
+    for(int i = 0; i < 3; i++){
+        if(coins_got[i] && !game_paused){
+            float scale = easeValue(BOUNCE_OUT, 2.f, 0.65f, coin_anims[i], 0.35f, 1.f);
+            float opacity = easeValue(EASE_LINEAR, 0.f, 1.f, coin_anims[i], 0.1f, 1.f);
+
+            coins_full[i]->enabled = true;
+            coins_full[i]->image.scaleX = scale;
+            coins_full[i]->image.scaleY = scale;
+            ui_image_set_tint(coins_full[i], C2D_Color32f(1, 1, 1, opacity));
+
+            if(coin_anims[i] >= 0.05f){
+                if(!coins_circles_spawned[i]){
+                    ui_set_use_effect_col(
+                        ui_add_use_effect(
+                            ui_get_element_by_tag(&screen, "coin_circle"), 
+                        coins_full[i]->x, coins_full[i]->y, &end_wall_firework_circle),
+                    1.f, 0.75f, 0.f);
+                    
+                    coins_circles_spawned[i] = true;
+                }
+            }
+
+            coin_anims[i] += delta;
+        }
+    }
 
     //level end buttons retraction animation
     float cutscene_timer = state.player.cutscene_timer;
@@ -305,6 +377,9 @@ int gameplay_screen_bot_loop() {
     coin_1->y = complete_y_offset;
     coin_2->y = complete_y_offset;
     coin_3->y = complete_y_offset;
+    coins_full[0]->y = complete_y_offset;
+    coins_full[1]->y = complete_y_offset;
+    coins_full[2]->y = complete_y_offset;
 
     UIElement *pause_btn = ui_get_element_by_tag(&screen, "pause_btn");
     pause_btn->y = complete_y_offset;

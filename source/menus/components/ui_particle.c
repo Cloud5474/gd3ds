@@ -4,10 +4,10 @@
 #include "ui_screen.h"
 #include "graphics.h"
 
-void ui_particle_set_pos(UIElement* e, float x, float y){
+void ui_particle_update_pos(UIElement* e){
     ParticleSystem *p = &(e->particle.particle);
-    p->emitterX = x;
-    p->emitterY = y;
+    p->emitterX = e->x;
+    p->emitterY = e->y;
 }
 
 void ui_particle_emit(UIElement* e, int emitCount){
@@ -56,8 +56,6 @@ UIElement ui_create_particle(int x, int y, float scale, float r, float g, float 
     e.draw = ui_particle_draw;
 
     copy_tag_array(&e, tag);
-
-    add_ui_particle_system(p);
 
     return e;
 }

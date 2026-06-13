@@ -4,6 +4,7 @@
 #include "mp3_player.h"
 #include "utils/gfx.h"
 #include "wav_player.h"
+#include "particles/circles.h"
 
 #include "endwall.h"
 #include "particles/rays.h"
@@ -61,7 +62,7 @@ int handle_wall_cutscene(float delta) {
 
         state.completion_shake = true;
         
-        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_first, GFX_TOP);
+        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_first, get_use_effect_array_ptr(GFX_TOP));
         if (effect) {
             Color p1_white = get_white_if_black(p1_color);
             effect->def.colorR = p1_white.r / 255.f;
@@ -76,7 +77,7 @@ int handle_wall_cutscene(float delta) {
 
     // Make circunferences
     if (circunference_timer >= (circunferences_spawned * CIRCUNFERENCE_SPAWN_DELAY) && circunferences_spawned < CIRCUNFERENCE_COUNT && !practice_mode_end_wall) {        
-        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_circunference, GFX_TOP);
+        UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_circunference, get_use_effect_array_ptr(GFX_TOP));
         if (effect) {
             Color p1_white = get_white_if_black(p1_color);
             effect->def.colorR = p1_white.r / 255.f;
@@ -99,7 +100,7 @@ int handle_wall_cutscene(float delta) {
             circunference_timer = 0.0f;
 
             // Endwall circle
-            UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_second, GFX_TOP);
+            UseEffect *effect = add_use_effect(level_info.wall_x, level_info.wall_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_second, get_use_effect_array_ptr(GFX_TOP));
             if (effect) {
                 Color p1_white = get_white_if_black(p1_color);
                 effect->def.colorR = p1_white.r / 255.f;
@@ -110,7 +111,7 @@ int handle_wall_cutscene(float delta) {
             // Pop up circle
             float calc_x = state.camera_x + (SCREEN_WIDTH_AREA / 2);
             float calc_y = state.camera_y + (SCREEN_HEIGHT - (SCREEN_HEIGHT_AREA / 2));
-            UseEffect *effect2 = add_use_effect(calc_x, calc_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_title, GFX_TOP_BUT_ABOVE_LEVEL);
+            UseEffect *effect2 = add_use_effect(calc_x, calc_y, USE_EFFECT_OBJ_NOTHING, &end_wall_filled_title, get_use_effect_array_ptr(GFX_TOP_BUT_ABOVE_LEVEL));
             if (effect2) {
                 Color p1_white = get_white_if_black(p1_color);
                 effect2->def.colorR = p1_white.r / 255.f;
@@ -134,7 +135,7 @@ int handle_wall_cutscene(float delta) {
             float calc_x = state.camera_x + 100 + random_float(0, SCREEN_WIDTH_AREA - 200);
             float y = random_float(0, SCREEN_HEIGHT_AREA);
             float calc_y = state.camera_y + (SCREEN_HEIGHT - y);
-            UseEffect *effect = add_use_effect(calc_x, calc_y, USE_EFFECT_OBJ_NOTHING, &end_wall_firework_circle, GFX_TOP_BUT_ABOVE_LEVEL);
+            UseEffect *effect = add_use_effect(calc_x, calc_y, USE_EFFECT_OBJ_NOTHING, &end_wall_firework_circle, get_use_effect_array_ptr(GFX_TOP_BUT_ABOVE_LEVEL));
             if (effect) {
                 Color p2_white = get_white_if_black(p2_color);
                 effect->def.colorR = p2_white.r / 255.f;

@@ -453,6 +453,11 @@ void level_select_loop() {
     channels[0].color.g = GET_G(color);
     channels[0].color.b = GET_B(color);
 
+    dragging = false;
+    dragDistance = 0;
+    dragDir = 0;
+    cardCorrection = false;
+
     scroll_dir = 0;
 
     set_fade_status(FADE_STATUS_IN);

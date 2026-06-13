@@ -66,6 +66,7 @@ char *splash_texts[] = {
     "Does this look possible to you?",
     "Bwomp",
     "Trans rights are human rights",
+    "No consistent naming conventions!"
 };
 
 #define NUM_SPLASH_TEXTS (sizeof(splash_texts) / sizeof(char *))

@@ -3,6 +3,7 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include "utils/gfx.h"
+#include "particles/circles.h"
 
 #define TAGS_PER_ELEMENT 5
 #define TAG_LENGTH 32
@@ -23,7 +24,8 @@ typedef enum {
     UI_PROGRESS_BAR,
     UI_EXTERNAL_LEVEL_CARD,
     UI_STATISTIC_CARD,
-    UI_PARTICLE
+    UI_PARTICLE,
+    UI_USE_EFFECT
 } UIElementType;
 
 typedef struct {
@@ -215,6 +217,12 @@ typedef struct {
     ParticleSystem particle;
 } UIParticleData;
 
+typedef struct {
+    UseEffectPool useEffects;
+    //Use effect original positions relative to (0, 0)
+    float xPos[MAX_USE_EFFECTS];
+    float yPos[MAX_USE_EFFECTS];
+} UIUseEffectData;
 
 typedef void (*UIActionFn)(UIElement* e);
 
@@ -247,6 +255,7 @@ struct UIElement {
         UIExternalLevelCardData external_level_card;
         UIStatisticCardData statistic_card;
         UIParticleData particle;
+        UIUseEffectData use_effect;
     };
 
     char tag[TAGS_PER_ELEMENT][TAG_LENGTH];

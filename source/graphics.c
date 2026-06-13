@@ -1327,7 +1327,7 @@ void draw_player_graphics() {
     draw_collect_effect();
 
     change_blending(true);
-    draw_use_effects(GFX_TOP);
+    draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
     if (level_info.wall_y > 0) {
         drawParticleSystem(&end_wall_particles, 0, 0, 1);
         // Render rays
@@ -1428,7 +1428,7 @@ void update_touch_effect(float delta) {
 
         // Use effect
         if (kDown & KEY_TOUCH) {
-            UseEffect *effect = add_use_effect(pos.px, pos.py, USE_EFFECT_OBJ_NOTHING, &tap_effect, GFX_BOTTOM);    
+            UseEffect *effect = add_use_effect(pos.px, pos.py, USE_EFFECT_OBJ_NOTHING, &tap_effect, get_use_effect_array_ptr(GFX_BOTTOM));    
             touch_explosion_particles.emitterX = pos.px;
             touch_explosion_particles.emitterY = flipped_y;
             spawnMultipleParticles(&touch_explosion_particles, 50);
@@ -1451,13 +1451,13 @@ void update_touch_effect(float delta) {
 
         
     }
-    update_use_effects(delta, GFX_BOTTOM);
+    update_use_effects(delta, get_use_effect_array_ptr(GFX_BOTTOM));
     updateParticleSystem(&touch_explosion_particles, delta);
     updateParticleSystem(&touch_drag_particles, delta);
 }
 
 void draw_touch_effect() {
-    draw_use_effects(GFX_BOTTOM);
+    draw_use_effects(get_use_effect_array_ptr(GFX_BOTTOM));
     drawParticleSystem(&touch_drag_particles, 0, 0, 1.f);
     drawParticleSystem(&touch_explosion_particles, 0, 0, 1.f);
 }

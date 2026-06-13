@@ -289,26 +289,32 @@ const UseEffectDefinition respawn_effect = {
     .line_thickness = 1.f
 }; 
 
-UseEffect use_effects_top[MAX_USE_EFFECTS];
-UseEffect use_effects_top_above_level[MAX_USE_EFFECTS];
-UseEffect use_effects_bot[MAX_USE_EFFECTS];
+UseEffectPool use_effects_top = {
+    .stationary = false
+};
+UseEffectPool use_effects_top_above_level = {
+    .stationary = false
+};
+UseEffectPool use_effects_bot = {
+    .stationary = true
+};
 
-static UseEffect *get_array_ptr(int screen) {
+UseEffectPool *get_use_effect_array_ptr(int screen) {
     switch (screen) {
         case GFX_TOP:
-            return use_effects_top;
+            return &use_effects_top;
             
         case GFX_BOTTOM:
-            return use_effects_bot;
+            return &use_effects_bot;
         
         case GFX_TOP_BUT_ABOVE_LEVEL:
-            return use_effects_top_above_level;
+            return &use_effects_top_above_level;
     }
-    return use_effects_top;
+    return &use_effects_top;
 }
 
-UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, int screen) {
-    UseEffect *ptr = get_array_ptr(screen);
+UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *def, UseEffectPool *pool) {
+    UseEffect *ptr = pool->pool;
 
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
@@ -327,14 +333,16 @@ UseEffect *add_use_effect(float x, float y, int obj, const UseEffectDefinition *
             effect->mid_opacity = (effect->def.end_opacity + effect->def.start_opacity) / 2;
 
             effect->elapsed = 0;
+
+            effect->index = i;
             return effect;
         }
     }
     return NULL;
 }
 
-void update_use_effects(float delta, int screen) {
-    UseEffect *ptr = get_array_ptr(screen);
+void update_use_effects(float delta, UseEffectPool *pool) {
+    UseEffect *ptr = pool->pool;
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
         if (effect->active) {
@@ -386,15 +394,15 @@ void update_use_effects(float delta, int screen) {
     }
 }
 
-void clear_use_effects(int screen) {
-    UseEffect *ptr = get_array_ptr(screen);
+void clear_use_effects(UseEffectPool *pool) {
+    UseEffect *ptr = pool->pool;
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         ptr[i].active = false;
     }
 }
 
-void draw_use_effects(int screen) {
-    UseEffect *ptr = get_array_ptr(screen);
+void draw_use_effects(UseEffectPool *pool) {
+    UseEffect *ptr = pool->pool;
     for (size_t i = 0; i < MAX_USE_EFFECTS; i++) {
         UseEffect *effect = &ptr[i];
         if (effect->active) {
@@ -414,7 +422,7 @@ void draw_use_effects(int screen) {
             float opacity = 1.f;
 
             // If stationary, dont convert to screen space
-            if (screen != GFX_BOTTOM) {
+            if (!pool->stationary) {
                 // If obj is positive, it is an object, else it is a player
                 if (effect->obj >= 0) { // Obj
                     float tmp_x = (x - state.camera_x);
