@@ -431,13 +431,13 @@ void create_setting(Setting *setting, int id) {
     if (list) {
         float list_width = list->base.w * 0.5f;
 
-        UIElement *card = (UIElement *) ui_create_rectangle(&screen.ctx);
+        UIElement *card = (UIElement *) ui_create_rectangle(&screen);
 
         if (card) {
             ui_rectangle_set_color((UIRectangle *) card, (id & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
             ui_element_set_size(card, 0, 28);
 
-            UICheckBox *checkbox = ui_create_checkbox(&screen.ctx);
+            UICheckBox *checkbox = ui_create_checkbox(&screen);
             if (checkbox) {
                 // Store in the user data
                 CheckboxData *data = malloc(sizeof(*data));
@@ -453,7 +453,7 @@ void create_setting(Setting *setting, int id) {
                 ui_element_add_child(card, (UIElement *) checkbox);
             }
 
-            UILabel *name = ui_create_label(&screen.ctx);
+            UILabel *name = ui_create_label(&screen);
             if (name) {
                 name->base.w = list->base.w - 60;
                 ui_label_set_text(name, setting->label);
@@ -464,7 +464,7 @@ void create_setting(Setting *setting, int id) {
             }
 
             if (setting->additionalInfo) {
-                UIButton *info = ui_create_button(&screen.ctx);
+                UIButton *info = ui_create_button(&screen);
                 if (info) {
                     // Store the text pointer in the user data
                     InfoButtonData *data = malloc(sizeof(*data));

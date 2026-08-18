@@ -57,7 +57,7 @@ static void ui_darken_destroy(UIElement *e) {
     }
 }
 
-UIDarken *ui_create_darken(const UIContext *ctx) {
+UIDarken *ui_create_darken(const UIScreen *screen) {
     UIDarken *e = malloc(sizeof(UIDarken));
 
     if (!e) return NULL;
@@ -72,7 +72,7 @@ UIDarken *ui_create_darken(const UIContext *ctx) {
     e->darkenOver = false;
     e->targetOpacity = 0.4f;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
     
     C2D_SpriteFromSheet(&e->image.sprite, ui_sheet, 416);
     C2D_SpriteSetCenter(&e->image.sprite, 0.5f, 0.5f);
@@ -84,12 +84,12 @@ UIDarken *ui_create_darken(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_darken_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIDarken *darken = ui_create_darken(ctx);
+UIElement *ui_create_darken_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIDarken *darken = ui_create_darken(screen);
 
     if (!darken) return NULL;
 
-    ui_element_apply_properties(&darken->base, ctx, props);
+    ui_element_apply_properties(&darken->base, screen, props);
 
     if (darken->base.w == 0 || darken->base.h == 0) {
         darken->fullScreen = true;
@@ -99,7 +99,7 @@ UIElement *ui_create_darken_from_props(const UIContext *ctx, const UIPropertyLis
     float opacity = ui_prop_float(props, "opacity", 0.4f);
     
     if (darkenTime <= 0.f) {
-        ui_darken_reset_opacity(darken );
+        ui_darken_reset_opacity(darken);
         
         darken->base.opacity = opacity;
         darken->darkenOver = true;

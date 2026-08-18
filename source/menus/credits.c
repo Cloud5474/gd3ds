@@ -66,14 +66,14 @@ void credits_init() {
             char *contributor = credits[i].contributor;
             char *contribution = credits[i].contribution;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen.ctx);
+            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, C2D_Color32(0,34,65,0));
                 ui_element_set_size(card, 0, 17);
 
                 // Contibutor name
-                UILabel *name = ui_create_label(&screen.ctx);
+                UILabel *name = ui_create_label(&screen);
                 if (name) {
                     name->base.w = list->base.w - 12;
                     ui_label_set_text(name, contributor);
@@ -86,7 +86,7 @@ void credits_init() {
                 }
 
                 // Contribution name
-                UILabel *description = ui_create_label(&screen.ctx);
+                UILabel *description = ui_create_label(&screen);
                 if (description) {
                     char text[256];
                     snprintf(text, sizeof(text) - 1, "- %s", contribution);

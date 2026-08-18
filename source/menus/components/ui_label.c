@@ -52,7 +52,7 @@ void ui_label_set_text(UILabel *e, const char *text) {
     strncpy(e->text, text, sizeof(e->text) - 1);
 }
 
-UILabel *ui_create_label(const UIContext *ctx) {
+UILabel *ui_create_label(const UIScreen *screen) {
     UILabel *e = malloc(sizeof(UILabel));
 
     if (!e) return NULL;
@@ -61,7 +61,7 @@ UILabel *ui_create_label(const UIContext *ctx) {
     e->base.type = UI_LABEL;
     e->base.enabled = true;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     e->parse_tags = true;
 
@@ -72,12 +72,12 @@ UILabel *ui_create_label(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_label_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UILabel *label = ui_create_label(ctx);
+UIElement *ui_create_label_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UILabel *label = ui_create_label(screen);
 
     if (!label) return NULL;
 
-    ui_element_apply_properties(&label->base, ctx, props);
+    ui_element_apply_properties(&label->base, screen, props);
 
     ui_label_set_text(label, ui_prop_string(props, "text", ""));
     

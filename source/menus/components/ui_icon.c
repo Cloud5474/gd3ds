@@ -68,7 +68,7 @@ void ui_icon_set_gamemode_index(UIIcon*e, int gamemode, int index) {
     e->index = index;
 }
 
-UIIcon *ui_create_icon(const UIContext *ctx) {
+UIIcon *ui_create_icon(const UIScreen *screen) {
     UIIcon *e = malloc(sizeof(UIIcon));
 
     if (!e) return NULL;
@@ -85,7 +85,7 @@ UIIcon *ui_create_icon(const UIContext *ctx) {
 
     button->base.modify_transform = ui_button_modify_transform;
 
-    ui_element_apply_default_properties(&button->base, ctx);
+    ui_element_apply_default_properties(&button->base, screen);
     
     button->hoverScale = 1;
     button->hoverFactor = 1;
@@ -96,14 +96,14 @@ UIIcon *ui_create_icon(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_icon_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIIcon *icon = ui_create_icon(ctx);
+UIElement *ui_create_icon_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIIcon *icon = ui_create_icon(screen);
 
     if (!icon) return NULL;
 
     UIButton *button = (UIButton *) icon;
 
-    ui_element_apply_properties(&button->base, ctx, props);
+    ui_element_apply_properties(&button->base, screen, props);
 
     ui_element_set_size(&button->base, 30, 30);
     

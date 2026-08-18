@@ -14,5 +14,5 @@ void ui_button_set_text(UIButton *e, const char *text);
 
 void ui_button_modify_transform(UIElement *e, UITransform *t);
 
-UIButton *ui_create_button(const UIContext *ctx);
-UIElement *ui_create_button_from_props(const UIContext *ctx, const UIPropertyList *props);
+UIButton *ui_create_button(const UIScreen *screen);
+UIElement *ui_create_button_from_props(const UIScreen *screen, const UIPropertyList *props);

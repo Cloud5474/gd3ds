@@ -55,7 +55,7 @@ void ui_init_particle_definition(UIParticle *e, const ParticleDefinition *def) {
     p->stationary = true;
 }
 
-UIParticle *ui_create_particle(const UIContext *ctx) {
+UIParticle *ui_create_particle(const UIScreen *screen) {
     UIParticle *e = malloc(sizeof(UIParticle));
 
     if (!e) return NULL;
@@ -69,17 +69,17 @@ UIParticle *ui_create_particle(const UIContext *ctx) {
     e->base.draw = ui_particle_draw;
     e->base.destroy = ui_particle_destroy;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     return e;
 }
 
-UIElement *ui_create_particle_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIParticle *particle = ui_create_particle(ctx);
+UIElement *ui_create_particle_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIParticle *particle = ui_create_particle(screen);
 
     if (!particle) return NULL;
     
-    ui_element_apply_properties(&particle->base, ctx, props);
+    ui_element_apply_properties(&particle->base, screen, props);
 
     float r = ui_prop_float(props, "r", -1.f);
     float g = ui_prop_float(props, "g", -1.f);

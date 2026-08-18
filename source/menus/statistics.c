@@ -58,14 +58,14 @@ void statistics_init() {
             char *name = stats[i].name;
             int value = *stats[i].value;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen.ctx);
+            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, (i & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
                 ui_element_set_size(card, 0, 28);
 
                 // Stat name
-                UILabel *stat = ui_create_label(&screen.ctx);
+                UILabel *stat = ui_create_label(&screen);
                 if (stat) {
                     ui_label_set_text(stat, name);
                     ui_element_set_position((UIElement *) stat, -list_width + 6, 1);
@@ -77,7 +77,7 @@ void statistics_init() {
                 }
 
                 // Value name
-                UILabel *stat_value = ui_create_label(&screen.ctx);
+                UILabel *stat_value = ui_create_label(&screen);
                 if (stat_value) {
                     char tmp_value[16];
 

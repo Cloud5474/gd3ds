@@ -191,7 +191,7 @@ void ui_button_set_image(UIButton *e, int sprite_index, int sheet) {
     e->base.h = e->image.sprite.image.subtex->height;
 }
 
-UIButton *ui_create_button(const UIContext *ctx) {
+UIButton *ui_create_button(const UIScreen *screen) {
     UIButton *e = malloc(sizeof(UIButton));
 
     if (!e) return NULL;
@@ -208,7 +208,7 @@ UIButton *ui_create_button(const UIContext *ctx) {
 
     e->base.on_disable = ui_button_on_disable;
 
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     e->hoverScale = 1.f;
     e->hoverFactor = 1.f;
@@ -218,12 +218,12 @@ UIButton *ui_create_button(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_button_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIButton *button = ui_create_button(ctx);
+UIElement *ui_create_button_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIButton *button = ui_create_button(screen);
 
     if (!button) return NULL;
 
-    ui_element_apply_properties(&button->base, ctx, props);
+    ui_element_apply_properties(&button->base, screen, props);
 
     button->invisible = ui_prop_bool(props, "invisible", false);
 

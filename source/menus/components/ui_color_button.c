@@ -54,7 +54,7 @@ static void ui_color_button_destroy(UIElement *e) {
     }
 }
 
-UIColor *ui_create_color_button(const UIContext *ctx) {
+UIColor *ui_create_color_button(const UIScreen *screen) {
     UIColor *e = malloc(sizeof(UIColor));
 
     if (!e) return NULL;
@@ -69,7 +69,7 @@ UIColor *ui_create_color_button(const UIContext *ctx) {
     button->base.draw = ui_color_button_draw;
     button->base.destroy = ui_color_button_destroy;
     
-    ui_element_apply_default_properties(&button->base, ctx);
+    ui_element_apply_default_properties(&button->base, screen);
     
     button->hoverScale = 1;
     button->hoverFactor = 1;
@@ -83,14 +83,14 @@ UIColor *ui_create_color_button(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_color_button_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIColor *color_button = ui_create_color_button(ctx);
+UIElement *ui_create_color_button_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIColor *color_button = ui_create_color_button(screen);
 
     if (!color_button) return NULL;
     
     UIButton *button = (UIButton *) color_button;
 
-    ui_element_apply_properties(&button->base, ctx, props);
+    ui_element_apply_properties(&button->base, screen, props);
     
     ui_element_set_size(&button->base, 30, 30);
 

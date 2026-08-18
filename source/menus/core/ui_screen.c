@@ -628,8 +628,8 @@ void copy_tag_array(UIElement *e, const char *tags) {
     memcpy(e->tag, tag, sizeof(tag));
 }
 
-void ui_element_apply_properties(UIElement *e, const UIContext *ctx, const UIPropertyList *props) {
-    if (!e || !ctx || !props) return;
+void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props) {
+    if (!e || !screen || !props) return;
 
     ui_element_set_position(e, 
         ui_prop_int(props, "x", e->x), 
@@ -651,22 +651,22 @@ void ui_element_apply_properties(UIElement *e, const UIContext *ctx, const UIPro
     e->opacity = ui_prop_float(props, "opacity", 1);
 
     e->action = ui_find_action(
-        ctx->screen->actions, 
-        ctx->screen->action_count,
+        screen->def.actions, 
+        screen->def.action_count,
         ui_prop_string(props, "action", "")
     );
 
     e->custom_properties = ui_prop_list(props, "custom");
 }
 
-void ui_element_apply_default_properties(UIElement *e, const UIContext *ctx) {
-    if (!e || !ctx) return;
+void ui_element_apply_default_properties(UIElement *e, UIScreen *screen) {
+    if (!e || !screen) return;
 
     ui_element_set_scale(e, 1);
 
     e->opacity = 1;
 
-    e->screen = ctx->screen;
+    e->screen = screen;
 
     e->userdata_destroy = free;
 }
@@ -764,10 +764,7 @@ void collect_properties(UIPropertyList *props, char *token, char **cursor, bool 
 #define MAX_NESTED_CHILDREN 32
 
 // Load a screen from its file, needs a pointer to the actions table and the action count
-void ui_load_screen(UIScreen* screen,
-                    const UIAction* actions,
-                    size_t actionCount,
-                    const char* path) {
+void ui_load_screen(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path) {
     FILE* f = fopen(path, "r");
     if (!f) return;
     
@@ -786,14 +783,8 @@ void ui_load_screen(UIScreen* screen,
     screen->capacity = 16;
     screen->elements = calloc(screen->capacity, sizeof(*screen->elements));
 
-    screen->actions = actions;
-    screen->action_count = actionCount;
-
-    // Add context
-    UIContext ctx = { 0 };
-    ctx.screen = screen;
-
-    screen->ctx = ctx;
+    screen->def.actions = actions;
+    screen->def.action_count = action_count;
 
     char line[512];
 
@@ -848,7 +839,7 @@ void ui_load_screen(UIScreen* screen,
         for (int i = 0; i < ARRAY_LEN(element_constructors); i++) {
             if (strcmp(type, element_constructors[i].name) == 0) {
                 if (element_constructors[i].create) {
-                    UIElement *e = element_constructors[i].create(&ctx, &props);
+                    UIElement *e = element_constructors[i].create(screen, &props);
                     //print_props(&props);
 
                     if (stack_ptr > 0) {

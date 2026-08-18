@@ -54,7 +54,7 @@ static void ui_textbox_destroy(UIElement *e) {
     }
 }
 
-UITextbox *ui_create_textbox(const UIContext *ctx) {
+UITextbox *ui_create_textbox(const UIScreen *screen) {
     UITextbox *e = malloc(sizeof(UITextbox));
 
     if (!e) return NULL;
@@ -66,7 +66,7 @@ UITextbox *ui_create_textbox(const UIContext *ctx) {
     e->base.draw = ui_textbox_draw;
     e->base.destroy = ui_textbox_destroy;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     e->atlas = C2D_SpriteSheetGetImage(window_sheet, TEXTBOX_STYLE);
     e->border = e->atlas.subtex->width / 3;
@@ -74,12 +74,12 @@ UITextbox *ui_create_textbox(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_textbox_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UITextbox *textbox = ui_create_textbox(ctx);
+UIElement *ui_create_textbox_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UITextbox *textbox = ui_create_textbox(screen);
 
     if (!textbox) return NULL;
 
-    ui_element_apply_properties(&textbox->base, ctx, props);
+    ui_element_apply_properties(&textbox->base, screen, props);
 
     if (textbox->base.h == 0) {
         textbox->base.h = 30;

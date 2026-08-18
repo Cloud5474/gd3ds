@@ -123,13 +123,13 @@ void load_level_folder(char *folder) {
 
             float list_width = list->base.w * 0.5f;
 
-            card = (UIElement *) ui_create_rectangle(&screen.ctx);
+            card = (UIElement *) ui_create_rectangle(&screen);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, color);
                 ui_element_set_size(card, 0, 28);
                 
-                UIButton *button = ui_create_button(&screen.ctx);
+                UIButton *button = ui_create_button(&screen);
                 if (button) {
                     // Store in the user data
                     LevelCardData *data = malloc(sizeof(*data));
@@ -147,7 +147,7 @@ void load_level_folder(char *folder) {
                     ui_element_add_child(card, (UIElement *) button);
                 }
 
-                UIImage *icon = ui_create_image(&screen.ctx);
+                UIImage *icon = ui_create_image(&screen);
                 if (icon) {
                     ui_image_set_image(icon, (entry->is_dir ? 320 : 420), 0);
                     ui_element_set_position((UIElement *) icon, -list_width + 15, 0);
@@ -157,7 +157,7 @@ void load_level_folder(char *folder) {
                 }
 
                 // Name
-                UILabel *label = ui_create_label(&screen.ctx);
+                UILabel *label = ui_create_label(&screen);
                 if (label) {
                     ui_label_set_text(label, name);
                     ui_element_set_position((UIElement *) label, -list_width + 29, 1);

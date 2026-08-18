@@ -68,14 +68,14 @@ void songs_init() {
             char *title = songs[i].title;
             char *artist = songs[i].artist;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen.ctx);
+            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, (i & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
                 ui_element_set_size(card, 0, 46);
 
                 // Song name
-                UILabel *song = ui_create_label(&screen.ctx);
+                UILabel *song = ui_create_label(&screen);
                 if (song) {
                     song->base.w = list->base.w - 12;
                     ui_label_set_text(song, title);
@@ -88,7 +88,7 @@ void songs_init() {
                 }
 
                 // Song name
-                UILabel *creator = ui_create_label(&screen.ctx);
+                UILabel *creator = ui_create_label(&screen);
                 if (creator) {
                     ui_label_set_text(creator, artist);
                     ui_element_set_position((UIElement *) creator, -list_width + 6, + 7);

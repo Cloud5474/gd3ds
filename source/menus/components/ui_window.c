@@ -46,7 +46,7 @@ static void ui_window_destroy(UIElement *e) {
     }
 }
 
-UIWindow *ui_create_window(const UIContext *ctx) {
+UIWindow *ui_create_window(const UIScreen *screen) {
     UIWindow *e = malloc(sizeof(UIWindow));
 
     if (!e) return NULL;
@@ -59,7 +59,7 @@ UIWindow *ui_create_window(const UIContext *ctx) {
     e->base.draw = ui_window_draw;
     e->base.destroy = ui_window_destroy;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     ui_window_set_atlas(e, 0);
     ui_window_set_tint(e, C2D_Color32(255, 255, 255, 255));
@@ -67,12 +67,12 @@ UIWindow *ui_create_window(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_window_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIWindow *window = ui_create_window(ctx);
+UIElement *ui_create_window_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIWindow *window = ui_create_window(screen);
 
     if (!window) return NULL;
 
-    ui_element_apply_properties(&window->base, ctx, props);
+    ui_element_apply_properties(&window->base, screen, props);
 
     ui_window_set_atlas(window, ui_prop_int(props, "style", 0));
 

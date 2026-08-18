@@ -43,6 +43,9 @@ typedef enum {
 
 
 typedef struct {
+    u32 down;
+    u32 held;
+    u32 up;
     touchPosition touchPosition;
     bool did_something;
     bool interacted;

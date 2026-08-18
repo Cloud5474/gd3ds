@@ -28,7 +28,7 @@ static void ui_bg_gradient_destroy(UIElement *e) {
     }
 }
 
-UIImage *ui_create_bg_gradient(const UIContext *ctx) {
+UIImage *ui_create_bg_gradient(const UIScreen *screen) {
     UIImage *e = malloc(sizeof(UIImage));
 
     if (!e) return NULL;
@@ -39,7 +39,7 @@ UIImage *ui_create_bg_gradient(const UIContext *ctx) {
     e->base.y = 0;
     e->base.enabled = true;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     C2D_SpriteFromSheet(&e->image.sprite, bg_gradient_sheet, 0);
 
@@ -57,12 +57,12 @@ UIImage *ui_create_bg_gradient(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_bg_gradient_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIImage *bg_gradient = ui_create_bg_gradient(ctx);
+UIElement *ui_create_bg_gradient_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIImage *bg_gradient = ui_create_bg_gradient(screen);
 
     if (!bg_gradient) return NULL;
     
-    ui_element_apply_properties(&bg_gradient->base, ctx, props);
+    ui_element_apply_properties(&bg_gradient->base, screen, props);
 
     // Those have to be hardcoded
     ui_element_set_position((UIElement *) bg_gradient, 0, 0);

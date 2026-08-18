@@ -179,7 +179,7 @@ static void ui_list_destroy(UIElement *e) {
     }
 }
 
-UIList *ui_create_list(const UIContext *ctx) {
+UIList *ui_create_list(const UIScreen *screen) {
     UIList *e = malloc(sizeof(UIList));
 
     if (!e) return NULL;
@@ -199,12 +199,12 @@ UIList *ui_create_list(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_list_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIList *list = ui_create_list(ctx);
+UIElement *ui_create_list_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIList *list = ui_create_list(screen);
 
     if (!list) return NULL;
     
-    ui_element_apply_properties(&list->base, ctx, props);
+    ui_element_apply_properties(&list->base, screen, props);
 
     ui_list_set_bg_color(list, ui_prop_color(props, "bgColor", ABGR8(0, 0, 0, 0)));
 

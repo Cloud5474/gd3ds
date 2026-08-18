@@ -64,7 +64,7 @@ static void ui_checkbox_on_disable(UIElement *e) {
     checkbox->hoverTimer = 0.f;
 }
 
-UICheckBox *ui_create_checkbox(const UIContext *ctx) {
+UICheckBox *ui_create_checkbox(const UIScreen *screen) {
     UICheckBox *e = malloc(sizeof(UICheckBox));
 
     if (!e) return NULL;
@@ -84,7 +84,7 @@ UICheckBox *ui_create_checkbox(const UIContext *ctx) {
 
     button->base.on_disable = ui_checkbox_on_disable;
 
-    ui_element_apply_default_properties(&button->base, ctx);
+    ui_element_apply_default_properties(&button->base, screen);
     
     button->hoverScale = 1;
     button->hoverFactor = 1;
@@ -94,14 +94,14 @@ UICheckBox *ui_create_checkbox(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_checkbox_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UICheckBox *checkbox = ui_create_checkbox(ctx);
+UIElement *ui_create_checkbox_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UICheckBox *checkbox = ui_create_checkbox(screen);
 
     if (!checkbox) return NULL;
 
     UIButton *button = (UIButton* ) checkbox;
 
-    ui_element_apply_properties(&button->base, ctx, props);
+    ui_element_apply_properties(&button->base, screen, props);
     
     checkbox->checked = ui_prop_bool(props, "checked", false);
     

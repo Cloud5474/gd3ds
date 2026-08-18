@@ -72,7 +72,7 @@ void online_comments_init() {
             float list_width = list->base.w * 0.5f;
             float list_height = 70 * 0.5f;
 
-            UIElement *card = (UIElement *)ui_create_rectangle(&default_screen.ctx);
+            UIElement *card = (UIElement *)ui_create_rectangle(&default_screen);
 
             if (card)
             {
@@ -80,7 +80,7 @@ void online_comments_init() {
                 ui_element_set_size(card, 0, 70);
 
 
-                UIWindow *bg_window = ui_create_window(&default_screen.ctx);
+                UIWindow *bg_window = ui_create_window(&default_screen);
                 if (bg_window)
                 {
                     ui_element_set_size((UIElement *)bg_window, 2 * list_width - 10, 2 * list_height - 10);
@@ -94,7 +94,7 @@ void online_comments_init() {
 
 
                 // Comment author
-                UILabel *username_label = ui_create_label(&default_screen.ctx);
+                UILabel *username_label = ui_create_label(&default_screen);
                 if (username_label)
                 {
                     ui_label_set_text(username_label, username);
@@ -107,7 +107,7 @@ void online_comments_init() {
                 }
 
                 // Comment content
-                UILabel *content_label = ui_create_label(&default_screen.ctx);
+                UILabel *content_label = ui_create_label(&default_screen);
                 if (content_label)
                 {
                     ui_label_set_text(content_label, content);
@@ -120,7 +120,7 @@ void online_comments_init() {
                 }
 
                 // Comment percent
-                UILabel *percent_label = ui_create_label(&default_screen.ctx);
+                UILabel *percent_label = ui_create_label(&default_screen);
                 if (percent_label)
                 {
                     char tmp_value[16];
@@ -137,7 +137,7 @@ void online_comments_init() {
                 }
 
                 // Comment likes
-                UILabel *like_value = ui_create_label(&default_screen.ctx);
+                UILabel *like_value = ui_create_label(&default_screen);
                 if (like_value)
                 {
                     char tmp_value[16];
@@ -153,7 +153,7 @@ void online_comments_init() {
                     ui_element_add_child(card, (UIElement *)like_value);
                 }
 
-                UIImage *like_icon = ui_create_image(&default_screen.ctx);
+                UIImage *like_icon = ui_create_image(&default_screen);
                 if (like_icon)
                 {
                     ui_image_set_image(like_icon, 166, 0);
@@ -164,7 +164,7 @@ void online_comments_init() {
                 }
 
                 // Comment timestamp
-                UILabel *timestamp_value = ui_create_label(&default_screen.ctx);
+                UILabel *timestamp_value = ui_create_label(&default_screen);
                 if (timestamp_value)
                 {
                     char tmp_value[256];

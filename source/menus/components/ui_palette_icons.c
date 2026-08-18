@@ -41,7 +41,7 @@ static void ui_palette_icons(UIElement *e) {
     }
 }
 
-UIPaletteIcons *ui_create_palette_icons(const UIContext *ctx) {
+UIPaletteIcons *ui_create_palette_icons(const UIScreen *screen) {
     UIPaletteIcons *e = malloc(sizeof(UIPaletteIcons));
 
     if (!e) return NULL;
@@ -54,17 +54,17 @@ UIPaletteIcons *ui_create_palette_icons(const UIContext *ctx) {
     e->base.draw = ui_palette_icons_draw;
     e->base.destroy = ui_palette_icons;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     return e;
 }
 
-UIElement *ui_create_palette_icons_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIPaletteIcons *palette_icons = ui_create_palette_icons(ctx);
+UIElement *ui_create_palette_icons_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIPaletteIcons *palette_icons = ui_create_palette_icons(screen);
 
     if (!palette_icons) return NULL;
 
-    ui_element_apply_properties(&palette_icons->base, ctx, props);
+    ui_element_apply_properties(&palette_icons->base, screen, props);
 
     palette_icons->spacing = ui_prop_float(props, "spacing", 20);
 

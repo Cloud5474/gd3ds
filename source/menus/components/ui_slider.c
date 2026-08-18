@@ -167,7 +167,7 @@ static void ui_slider_init_graphics(UISlider *e) {
     e->base.h = e->track.image.subtex->height;
 }
 
-UISlider *ui_create_slider(const UIContext *ctx) {
+UISlider *ui_create_slider(const UIScreen *screen) {
     UISlider *e = malloc(sizeof(UISlider));
 
     if (!e) return NULL;
@@ -176,7 +176,7 @@ UISlider *ui_create_slider(const UIContext *ctx) {
     e->base.type = UI_SLIDER;
     e->base.enabled = true;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     ui_slider_init_graphics(e);
 
@@ -190,12 +190,12 @@ UISlider *ui_create_slider(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_slider_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UISlider *slider = ui_create_slider(ctx);
+UIElement *ui_create_slider_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UISlider *slider = ui_create_slider(screen);
 
     if (!slider) return NULL;
 
-    ui_element_apply_properties(&slider->base, ctx, props);
+    ui_element_apply_properties(&slider->base, screen, props);
 
     slider->max_value = ui_prop_float(props, "max_value", 100);
 

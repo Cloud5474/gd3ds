@@ -4,5 +4,5 @@
 
 void ui_progress_bar_set_tint(UIProgressBar* e, u32 color);
 void ui_progress_bar_clear_tint(UIProgressBar* e);
-UIProgressBar *ui_create_progress_bar(const UIContext *ctx);
-UIElement *ui_create_progress_bar_from_props(const UIContext *ctx, const UIPropertyList *props);
+UIProgressBar *ui_create_progress_bar(const UIScreen *screen);
+UIElement *ui_create_progress_bar_from_props(const UIScreen *screen, const UIPropertyList *props);

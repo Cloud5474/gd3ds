@@ -41,7 +41,7 @@ static void ui_rectangle_destroy(UIElement *e) {
     }
 }
 
-UIRectangle *ui_create_rectangle(const UIContext *ctx) {
+UIRectangle *ui_create_rectangle(const UIScreen *screen) {
     UIRectangle *e = malloc(sizeof(UIRectangle));
 
     if (!e) return NULL;
@@ -50,7 +50,7 @@ UIRectangle *ui_create_rectangle(const UIContext *ctx) {
     e->base.type = UI_RECTANGLE;
     e->base.enabled = true;
     
-    ui_element_apply_default_properties(&e->base, ctx);
+    ui_element_apply_default_properties(&e->base, screen);
 
     ui_rectangle_clear_color(e);
 
@@ -61,12 +61,12 @@ UIRectangle *ui_create_rectangle(const UIContext *ctx) {
     return e;
 }
 
-UIElement *ui_create_rectangle_from_props(const UIContext *ctx, const UIPropertyList *props) {
-    UIRectangle *rectangle = ui_create_rectangle(ctx);
+UIElement *ui_create_rectangle_from_props(const UIScreen *screen, const UIPropertyList *props) {
+    UIRectangle *rectangle = ui_create_rectangle(screen);
 
     if (!rectangle) return NULL;
     
-    ui_element_apply_properties(&rectangle->base, ctx, props);
+    ui_element_apply_properties(&rectangle->base, screen, props);
 
     ui_rectangle_set_color(rectangle, ui_prop_color(props, "color", ABGR8(255, 255, 255, 255)));
 

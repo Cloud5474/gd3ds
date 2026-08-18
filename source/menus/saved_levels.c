@@ -101,14 +101,14 @@ void saved_levels_loop() {
 
             float list_width = list->base.w * 0.5f;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&default_screen.ctx);
+            UIElement *card = (UIElement *) ui_create_rectangle(&default_screen);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, (i & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
                 ui_element_set_size(card, 0, 60);
 
                 // Level name
-                UILabel *name_label = ui_create_label(&default_screen.ctx);
+                UILabel *name_label = ui_create_label(&default_screen);
                 if (name_label) {
                     ui_label_set_text(name_label, name);
                     ui_element_set_position((UIElement *) name_label, -list_width + 50, -17);
@@ -118,7 +118,7 @@ void saved_levels_loop() {
                 }
 
                 // Level creator
-                UILabel *creator_label = ui_create_label(&default_screen.ctx);
+                UILabel *creator_label = ui_create_label(&default_screen);
                 if (creator_label) {
                     ui_label_set_text(creator_label, creator);
                     ui_element_set_position((UIElement *) creator_label, -list_width + 50, -4.5f);
@@ -130,7 +130,7 @@ void saved_levels_loop() {
                 }
 
                 // Level song
-                UILabel *song_label = ui_create_label(&default_screen.ctx);
+                UILabel *song_label = ui_create_label(&default_screen);
                 if (song_label) {
                     ui_label_set_text(song_label, song);
                     ui_element_set_position((UIElement *) song_label, -list_width + 50, 7);
@@ -140,7 +140,7 @@ void saved_levels_loop() {
                 }
 
                 // Level song
-                UILabel *length_label = ui_create_label(&default_screen.ctx);
+                UILabel *length_label = ui_create_label(&default_screen);
                 if (length_label) {
                     ui_label_set_text(length_label, length);
                     ui_element_set_position((UIElement *) length_label, -list_width + 62, 19);
@@ -150,7 +150,7 @@ void saved_levels_loop() {
                 }
 
                 // Downloads
-                UILabel *download_value = ui_create_label(&default_screen.ctx);
+                UILabel *download_value = ui_create_label(&default_screen);
                 if (download_value) {
                     char tmp_value[16];
 
@@ -164,7 +164,7 @@ void saved_levels_loop() {
                 }
 
                 // Likes
-                UILabel *like_value = ui_create_label(&default_screen.ctx);
+                UILabel *like_value = ui_create_label(&default_screen);
                 if (like_value) {
                     char tmp_value[16];
 
@@ -178,7 +178,7 @@ void saved_levels_loop() {
                 }
 
                 // Stars
-                UILabel *star_value = ui_create_label(&default_screen.ctx);
+                UILabel *star_value = ui_create_label(&default_screen);
                 if (star_value) {
                     char tmp_value[16];
 
@@ -193,7 +193,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) star_value);
                 }
 
-                UIImage *difficulty_face = ui_create_image(&default_screen.ctx);
+                UIImage *difficulty_face = ui_create_image(&default_screen);
                 if (difficulty_face) {
                     ui_image_set_image(difficulty_face, 258, 0);
                     ui_element_set_position((UIElement *) difficulty_face, -list_width + 24, -4);
@@ -202,7 +202,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) difficulty_face);
                 }
 
-                UIImage *star_icon = ui_create_image(&default_screen.ctx);
+                UIImage *star_icon = ui_create_image(&default_screen);
                 if (star_icon) {
                     ui_image_set_image(star_icon, 170, 0);
                     ui_element_set_position((UIElement *) star_icon, -list_width + 30, 20);
@@ -211,7 +211,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) star_icon);
                 }
 
-                UIImage *length_icon = ui_create_image(&default_screen.ctx);
+                UIImage *length_icon = ui_create_image(&default_screen);
                 if (length_icon) {
                     ui_image_set_image(length_icon, 197, 0);
                     ui_element_set_position((UIElement *) length_icon, -list_width + 55, 20);
@@ -220,7 +220,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) length_icon);
                 }
 
-                UIImage *download_icon = ui_create_image(&default_screen.ctx);
+                UIImage *download_icon = ui_create_image(&default_screen);
                 if (download_icon) {
                     ui_image_set_image(download_icon, 163, 0);
                     ui_element_set_position((UIElement *) download_icon, -list_width + 105, 20);
@@ -229,7 +229,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) download_icon);
                 }
 
-                UIImage *like_icon = ui_create_image(&default_screen.ctx);
+                UIImage *like_icon = ui_create_image(&default_screen);
                 if (like_icon) {
                     ui_image_set_image(like_icon, 166, 0);
                     ui_element_set_position((UIElement *) like_icon, -list_width + 155, 19);
@@ -238,7 +238,7 @@ void saved_levels_loop() {
                     ui_element_add_child(card, (UIElement *) like_icon);
                 }
 
-                UIWindowButton *button = ui_create_window_button(&default_screen.ctx);
+                UIWindowButton *button = ui_create_window_button(&default_screen);
                 if (button) {
                     ui_window_button_set_style(button, 5);
                     ui_button_set_text((UIButton *) button, "View");
