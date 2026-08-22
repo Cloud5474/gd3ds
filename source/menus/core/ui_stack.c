@@ -1,13 +1,19 @@
-#include "ui_scene.h"
+#include "ui_stack.h"
 #include "ui_screen.h"
 
-static UIStack stack = {
-    .stack = {0},
-    .scene_count = 0,
-    .next = { 0 },
-    .fade_time = 0.f,
-    .transition = UI_TRANSITION_NONE
-};
+static UIStack stack = { 0 };
+
+void free_scene(){
+    
+}
+
+//eventually the stack will be dynamically allocated but not yet
+void ui_stack_init(){
+
+}
+void ui_stack_fini(){
+
+}
 
 void ui_stack_update(UIInput *input){
     for(int i = 0; i < stack.scene_count; i++){
@@ -35,6 +41,11 @@ void ui_stack_clear_and_push_next(
 }
 void ui_stack_pop(){
     for(int i = 0; i < 2; i++){
-        ui_screen_close(&stack.stack[stack.scene_count].screens[i]);
+        ui_screen_close(&stack.scenes[stack.scene_count].screens[i]);
     }
+    stack.scene_count--;
+}
+
+void test_loop(){
+
 }

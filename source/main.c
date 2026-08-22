@@ -26,7 +26,7 @@
 #include "menus/icon_kit.h"
 #include "menus/gameplay.h"
 #include "menus/soggy.h"
-#include "menus/core/ui_scene.h"
+#include "menus/core/ui_stack.h"
 
 #include "player/collision.h"
 #include "state.h"
@@ -1361,6 +1361,9 @@ int main(int argc, char* argv[]) {
     // Set to known value
     change_blending(false);
 
+    //init screen stack (handles screens' lifetimes)
+    ui_stack_init();
+
     bool exit = false;
     while (aptMainLoop() && !exit) {
         // Update color if changed menus
@@ -1399,7 +1402,8 @@ int main(int argc, char* argv[]) {
 
         switch (game_state) {
             case STATE_MAIN_MENU:
-                main_menu_loop();
+                test_loop();
+                //main_menu_loop();
                 break;
             case STATE_LEVEL_SELECT:
                 level_select_loop();

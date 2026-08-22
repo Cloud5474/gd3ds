@@ -55,6 +55,7 @@ typedef struct {
 } UIAction;
 
 typedef struct {
+    const char* name;
     const char* path;
 
     void (*load)(UIScreen *);
@@ -67,6 +68,8 @@ typedef struct {
 } UIScreenDefinition;
 
 typedef struct UIScreen {
+    UIScreenDefinition def;
+
     UIElement **elements;
     size_t count;
     size_t capacity;
@@ -75,7 +78,8 @@ typedef struct UIScreen {
     bool isBottom;
     bool disable_element_update;
 
-    UIScreenDefinition def;
+    //whether this screen will be treated as the backmost screen of the current UI view (menus such as the main menu, level select, etc; NOT popup screens like settings or color select)
+    bool anchor;
 
     bool loaded;
 } UIScreen;
