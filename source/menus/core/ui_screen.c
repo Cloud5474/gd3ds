@@ -265,7 +265,7 @@ UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type) {
 
 
 // Starts the opening animation
-void ui_screen_open(UIScreen *screen, UIAnimation animation) {
+void ui_screen_open(UIScreen *screen, UIAnimationType animation) {
     if (!screen)
         return;
 

@@ -26,19 +26,12 @@ void ui_stack_draw(UIScreenDrawTarget target){
 void ui_stack_push(
     const UIScreenDefinition* top_def, 
     const UIScreenDefinition* btm_def, 
-    UIAnimation top_anim, 
-    UIAnimation btm_anim
+    UIAnimationType top_anim, 
+    UIAnimationType btm_anim
 ){
 
 }
-void ui_stack_clear_and_push_next(
-    const UIScreenDefinition* top_def, 
-    const UIScreenDefinition* btm_def, 
-    UIAnimation top_anim, 
-    UIAnimation btm_anim
-){
-    
-}
+
 void ui_stack_pop(){
     for(int i = 0; i < 2; i++){
         ui_screen_close(&stack.scenes[stack.scene_count].screens[i]);

@@ -26,6 +26,12 @@ typedef enum {
     ANIM_SLIDE_DOWN,
 
     NUM_OPEN_ANIMS
+} UIAnimationType;
+
+typedef struct {
+    UIAnimationType type;
+    float in_time;
+    float out_time;
 } UIAnimation;
 
 typedef enum {
@@ -40,7 +46,7 @@ typedef enum {
 } UIDrawPhase;
 
 typedef struct {
-    UIAnimation animation;
+    UIAnimationType animation;
     UITransitionState state;
 
     float time;
@@ -113,7 +119,7 @@ void copy_tag_array(UIElement *e, const char *tags);
 
 void finish_animation(UIScreen *screen);
 
-void ui_screen_open(UIScreen *screen, UIAnimation animation);
+void ui_screen_open(UIScreen *screen, UIAnimationType animation);
 void ui_screen_close(UIScreen *screen);
 
 UIElement *ui_get_element_by_tag(UIScreen *screen, const char *tag);
