@@ -8,12 +8,6 @@
 #define FADE_DURATION 0.25f
 #define FADE_SPEED (255 / FADE_DURATION)
 
-enum FadeStatus {
-    FADE_STATUS_NONE,
-    FADE_STATUS_OUT,
-    FADE_STATUS_IN
-};
-
 enum StereoEye {
     EYE_LEFT,
     EYE_RIGHT

@@ -46,7 +46,7 @@ static UIAction actions[] = {
 };
 
 void statistics_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/statistics.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/statistics.txt");
     ui_screen_open(&screen, ANIM_SLIDE_DOWN);
 
     list = (UIList *) ui_get_element_by_tag(&screen, "list");

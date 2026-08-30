@@ -47,7 +47,7 @@ static UIAction actions[] = {
 };
 
 void online_comments_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_comments.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_comments.txt");
 
     ui_screen_open(&screen, ANIM_ZOOM_SUBTLE);
 

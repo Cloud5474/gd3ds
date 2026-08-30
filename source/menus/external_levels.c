@@ -250,9 +250,9 @@ void external_levels_loop() {
     external_start_level = false;
     exit_flag = false;
     if (first_time_loaded) {
-        ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels.txt");
+        ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels.txt");
         bg_gradient = (UIImage *) ui_get_element_by_tag(&screen, "gradient");
-        ui_load_screen(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels_top.txt");
+        ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels_top.txt");
         bg_gradient_top = (UIImage *) ui_get_element_by_tag(&screen_top, "gradient_top");
         list = (UIList *) ui_get_element_by_tag(&screen, "list");
         first_time_loaded = false;

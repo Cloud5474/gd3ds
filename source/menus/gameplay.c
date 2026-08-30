@@ -239,10 +239,10 @@ static UIAction actions[] = {
 };
 
 void gameplay_screen_init() {
-    ui_load_screen(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/gameplay.txt");
+    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/gameplay.txt");
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
 
-    ui_load_screen(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/gameplay_top.txt");;
+    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/gameplay_top.txt");;
     progress_bar = (UIProgressBar *) ui_get_element_by_tag(&default_screen_top, "progressalert");
     percent = (UILabel *) ui_get_element_by_tag(&default_screen_top, "percent");
     level_name = (UILabel *) ui_get_element_by_tag(&default_screen_top, "level_title");

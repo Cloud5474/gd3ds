@@ -47,8 +47,11 @@ typedef struct {
     u32 held;
     u32 up;
     touchPosition touchPosition;
+    circlePosition cpad;
     bool did_something;
     bool interacted;
+    //used for lists
+    bool dragging;
 } UIInput;
 
 typedef struct UIElement UIElement;

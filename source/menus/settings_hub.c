@@ -69,7 +69,7 @@ static UIAction actions[] = {
 };
 
 void settings_hub_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/settings_hub.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/settings_hub.txt");
 
     ui_screen_open(&screen, ANIM_SLIDE_DOWN);
 

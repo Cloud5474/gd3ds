@@ -32,7 +32,7 @@ static UIAction actions[] = {
 };
 
 void disclaimer_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/generic_disclaimer.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/generic_disclaimer.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     yes_exit = false;
 }

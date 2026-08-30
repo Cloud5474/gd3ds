@@ -22,7 +22,7 @@ static UIAction actions[] = {
 };
 
 void external_level_infobox_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_info_pop_up.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_info_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     name = (UILabel *) ui_get_element_by_tag(&screen, "levelname");

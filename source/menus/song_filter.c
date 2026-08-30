@@ -127,7 +127,7 @@ static UIAction actions[] = {
 
 void song_filter_init() {
 
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/song_filter_pop_up.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/song_filter_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     
     ui_run_func_on_tag(&screen, "button", song_filter_enabled ? ui_enable_element : ui_disable_element);

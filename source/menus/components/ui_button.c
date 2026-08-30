@@ -25,7 +25,7 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
         validKeybinds &= ~(KEY_B | KEY_X | KEY_L | KEY_R);
     }
 
-    if((hidKeysDown() & validKeybinds) > 0){
+    if((touch->down & validKeybinds) > 0){
         button->pressed = true;
         button->hovered = true;
         button->hoverTimer = 0.2f;
@@ -63,8 +63,8 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     // Apply hover factor
     button->hoverScale = 1 + (button->hoverScale - 1) * button->hoverFactor;
 
-    bool pressedTouch = hidKeysDown() & KEY_TOUCH;
-    bool releasedTouch = hidKeysUp() & KEY_TOUCH;
+    bool pressedTouch = touch->down & KEY_TOUCH;
+    bool releasedTouch = touch->up & KEY_TOUCH;
 
     bool inside = ui_element_basic_bound_check(e, touch, transform) && !pressedKey;
 

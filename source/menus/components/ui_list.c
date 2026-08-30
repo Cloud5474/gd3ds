@@ -78,27 +78,24 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
     }
 
     // Start dragging
-    if (inside && (hidKeysDown() & KEY_TOUCH)) {
+    if (inside && (touch->down & KEY_TOUCH)) {
         l->dragging = true;
         l->lastTouchY = touch->touchPosition.py;
     }
 
     // Handle dragging
-    if (l->dragging && (hidKeysHeld() & KEY_TOUCH)) {
+    if (l->dragging && (touch->held & KEY_TOUCH)) {
         // Apply touch movement
         int delta = touch->touchPosition.py - l->lastTouchY;
         l->scrollY += delta;
         l->lastTouchY = touch->touchPosition.py;
     }
 
-    circlePosition circlePad;
-    //Joystick movement
-    hidCircleRead(&circlePad);
-    if(abs(circlePad.dy) > 48){
-        l->scrollY += (circlePad.dy / 25);
+    if(abs(touch->cpad.dy) > 48){
+        l->scrollY += (touch->cpad.dy / 25);
     }
 
-    if(hidKeysDown() & (KEY_UP | KEY_DOWN)){
+    if(touch->down & (KEY_UP | KEY_DOWN)){
         l->dpadHeldTime = 0;
     }
 
@@ -106,7 +103,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
         l->dpadHeldTime = 60;
     }
 
-    if(hidKeysHeld() & KEY_UP){
+    if(touch->held & KEY_UP){
         l->scrollY += 4;
         if(l->dpadHeldTime >= 60){
             l->scrollY += 4;
@@ -114,7 +111,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
 
         l->dpadHeldTime++;
     }
-    if(hidKeysHeld() & KEY_DOWN){
+    if(touch->held & KEY_DOWN){
         l->scrollY -= 4;
         if(l->dpadHeldTime >= 60){
             l->scrollY -= 4;
@@ -124,7 +121,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
     }
 
     // Handle releasing dragging
-    if (hidKeysUp() & KEY_TOUCH) {
+    if (touch->up & KEY_TOUCH) {
         l->dragging = false;
     }
 

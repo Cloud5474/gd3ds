@@ -19,8 +19,8 @@ button x=280 y=40 id=127 scale=0.8 tag="paused" action="settings" keyBinds="SELE
 
 button x=48 y=172 id=146 scale=0.90 tag="paused,practice_mode" action="practice" keyBinds="Y"
 button x=208 y=172 id=155 scale=0.90 tag="paused" action="restart" keyBinds="X"
-button x=272 y=172 id=111 scale=0.90 tag="paused" action="exit" keyBinds="B"
-button x=128 y=172 id=139 scale=1.15 tag="paused" action="unpause" keyBinds="A,START"
+button x=272 y=172 id=139 scale=1.15 tag="paused" action="unpause" keyBinds="A,START"
+button x=128 y=172 id=111 scale=0.90 tag="paused" action="exit" keyBinds="B"
 
 label x=120 y=32 text="Music" scale=0.5 tag="paused" align=CENTER
 slider x=120 y=48 max_value=1 scale=0.9 tag="paused,music_slider"

@@ -238,8 +238,8 @@ static UIAction actions_top[] = {
 
 void icon_kit_loop() {
     exit_flag = false;
-    ui_load_screen(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/icon_kit.txt");
-    ui_load_screen(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/icon_kit_top.txt");
+    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/icon_kit.txt");
+    ui_load_screen_old(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/icon_kit_top.txt");
     
     // Set bg color
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");

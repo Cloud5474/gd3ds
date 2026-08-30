@@ -29,7 +29,7 @@ static UIAction actions[] = {
 };
 
 void clear_search_filters_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/clear_filters.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/clear_filters.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     
     yes_exit = false;

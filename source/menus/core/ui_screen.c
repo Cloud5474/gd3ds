@@ -265,14 +265,23 @@ UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type) {
 
 
 // Starts the opening animation
-void ui_screen_open(UIScreen *screen, UIAnimationType animation) {
+void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     if (!screen)
         return;
 
     screen->transition.animation = animation;
+
+    if(animation == ANIM_SLIDE_DOWN){
+        screen->transition.out_duration = 0.5;
+    }
+
+    if(animation != ANIM_NONE){
+        screen->transition.in_duration = 0.5;
+    }
+
     screen->transition.state = UI_TRANSITION_OPENING;
     screen->transition.time = 0.0f;
-    screen->transition.duration = 0.5f;
+    screen->transition.duration = screen->transition.in_duration;
     screen->transition.done = false;
 }
 
@@ -282,11 +291,12 @@ void ui_screen_close(UIScreen *screen) {
         return;
 
     screen->transition.state = UI_TRANSITION_CLOSING;
+    screen->transition.duration = screen->transition.out_duration;
     screen->transition.time = 0.0f;
     screen->transition.done = false;
 }
 
-static void ui_screen_update_transition(UIScreen *screen, float dt) {
+void ui_screen_update_transition(UIScreen *screen, float dt) {
     UITransition *t = &screen->transition;
 
     if (t->done || t->state == UI_TRANSITION_NONE)
@@ -299,19 +309,21 @@ static void ui_screen_update_transition(UIScreen *screen, float dt) {
         t->done = true;
 
         if (t->state == UI_TRANSITION_CLOSING) {
-            ui_unload_screen(screen);
+            screen->closing = true;
         }
     }
 }
 
 // Update all screen characters
 void ui_screen_update(UIScreen* s, UIInput* touch) {
-    if (!s->loaded) return;
-
-    ui_screen_update_transition(s, 1/60.f);
-    
     // The screen could have been unloaded by the closing animation
     if (!s->loaded) return;
+
+    if(s->def->update){
+        s->def->update(s, touch);
+    }
+
+    if(s->disable_element_update) return;
 
     UITransform identity = {
         .x = 0.f,
@@ -326,25 +338,7 @@ void ui_screen_update(UIScreen* s, UIInput* touch) {
     }
 }
 
-// Draw all screen characters
-void ui_screen_draw(UIScreen* s) {
-    if (!s->loaded) return;
-
-    // If fading, update without interacting (only once, no matter how many eyes)
-    if (get_fade_status() && !is_extra_eye()) {
-        UIInput touch;
-        touch.did_something = true;
-        touch.interacted = false;
-        ui_screen_update(s, &touch);
-    }
-
-    UITransform root = {
-        .x = 0.f,
-        .y = 0.f,
-        .scaleX = 1.f,
-        .scaleY = 1.f
-    };
-
+static void ui_screen_handle_anim(UIScreen* s, UITransform *root) {
     int width = s->isBottom ? 320 : 400;
     int height = 240;
 
@@ -361,47 +355,66 @@ void ui_screen_draw(UIScreen* s) {
             
             if (s->transition.state == UI_TRANSITION_CLOSING) scale_value = 1.f - scale_value;
 
-            root.scaleX = scale_value;
-            root.scaleY = scale_value;
+            root->scaleX = scale_value;
+            root->scaleY = scale_value;
 
-            root.x = cx * (1.f - scale_value);
-            root.y = cy * (1.f - scale_value);
+            root->x = cx * (1.f - scale_value);
+            root->y = cy * (1.f - scale_value);
             break;
         case ANIM_ZOOM_SUBTLE:
             scale_value = easeValue(ELASTIC_OUT, 0.f, 1.f, s->transition.time, s->transition.duration / 1.5f, 1.6f);
             
             if (s->transition.state == UI_TRANSITION_CLOSING) scale_value = 1.f - scale_value;
 
-            root.scaleX = scale_value;
-            root.scaleY = scale_value;
+            root->scaleX = scale_value;
+            root->scaleY = scale_value;
 
-            root.x = cx * (1.f - scale_value);
-            root.y = cy * (1.f - scale_value);
+            root->x = cx * (1.f - scale_value);
+            root->y = cy * (1.f - scale_value);
             break;
         case ANIM_SLIDE_RIGHT:
             slide_value = easeValue(ELASTIC_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 0.6f);
 
             if (s->transition.state == UI_TRANSITION_CLOSING) slide_value = 1.f - slide_value;
 
-            root.x = -(1.f - slide_value) * (width / 2.f);
+            root->x = -(1.f - slide_value) * (width / 2.f);
             break;
         case ANIM_SLIDE_DOWN:
             slide_value = easeValue(EASE_IN_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 2.f);
 
             if (s->transition.state == UI_TRANSITION_CLOSING) slide_value = 1.f - slide_value;
 
-            root.y = -(1.f - slide_value) * height;
+            root->y = -(1.f - slide_value) * height;
             break;
         default:
             break;
     }
+}
 
+// Draw all screen characters
+void ui_screen_draw(UIScreen* s) {
+    if (!s->loaded) return;
+
+    bool customDraw = s->def->draw;
+
+    if(customDraw) s->def->draw(s, UI_DRAW_BEFORE);
+
+    UITransform root = {
+        .x = 0.f,
+        .y = 0.f,
+        .scaleX = 1.f,
+        .scaleY = 1.f
+    };
+
+    ui_screen_handle_anim(s, &root);
 
     for (int i = 0; i < s->count; i++) {
         UIElement *e = s->elements[i];
 
         ui_draw_tree(e, &root);
     }
+
+    if(customDraw) s->def->draw(s, UI_DRAW_AFTER);
 }
 
 void finish_animation(UIScreen *screen) {
@@ -651,8 +664,8 @@ void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropert
     e->opacity = ui_prop_float(props, "opacity", 1);
 
     e->action = ui_find_action(
-        screen->def.actions, 
-        screen->def.action_count,
+        screen->def->actions, 
+        screen->def->action_count,
         ui_prop_string(props, "action", "")
     );
 
@@ -763,11 +776,11 @@ void collect_properties(UIPropertyList *props, char *token, char **cursor, bool 
 
 #define MAX_NESTED_CHILDREN 32
 
-// Load a screen from its file, needs a pointer to the actions table and the action count
-void ui_load_screen(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path) {
-    FILE* f = fopen(path, "r");
+//UIScreenDefinition for the screen is already set at this point
+void ui_load_screen(UIScreen* screen) {
+    FILE* f = fopen(screen->def->path, "r");
     if (!f) return;
-    
+
     // Unload screen if already loaded
     if (screen->loaded) {
         ui_unload_screen(screen);
@@ -782,9 +795,6 @@ void ui_load_screen(UIScreen* screen, const UIAction* actions, size_t action_cou
     screen->count = 0;
     screen->capacity = 16;
     screen->elements = calloc(screen->capacity, sizeof(*screen->elements));
-
-    screen->def.actions = actions;
-    screen->def.action_count = action_count;
 
     char line[512];
 
@@ -857,10 +867,18 @@ void ui_load_screen(UIScreen* screen, const UIAction* actions, size_t action_cou
     }
     
     fclose(f);
+
+    if(screen->def->load){
+        screen->def->load(screen);
+    }
 }
 
 void ui_unload_screen(UIScreen *screen) {
     if (!screen->loaded || !screen->elements) return;
+
+    if(screen->def->unload){
+        screen->def->unload(screen);
+    }
 
     for (int i = 0; i < screen->count; i++) {
         UIElement *e = screen->elements[i];
@@ -870,4 +888,100 @@ void ui_unload_screen(UIScreen *screen) {
     free(screen->elements);
     screen->elements = NULL;
     screen->loaded = false;
+}
+
+// Load a screen from its file, needs a pointer to the actions table and the action count
+void ui_load_screen_old(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path) {
+    FILE* f = fopen(path, "r");
+    if (!f) return;
+    
+    // Unload screen if already loaded
+    if (screen->loaded) {
+        ui_unload_screen(screen);
+    }
+
+    screen->loaded = true;
+
+    screen->disable_element_update = false;
+    screen->transition.time = 0.f;
+    screen->transition.done = false;
+
+    screen->count = 0;
+    screen->capacity = 16;
+    screen->elements = calloc(screen->capacity, sizeof(*screen->elements));
+
+    ((UIScreenDefinition *)screen->def)->actions = actions;
+    ((UIScreenDefinition *)screen->def)->action_count = action_count;
+
+    char line[512];
+
+    UIElement *child_stack[MAX_NESTED_CHILDREN];
+
+    int stack_ptr = 0;
+
+    UIElement *last_element = NULL;
+
+    // Iterate through lines (one element per line)
+    while (fgets(line, sizeof(line), f)) {
+        trim_newline(line);
+
+        char *p = line;
+
+        // Skip leading spaces
+        while (isspace((unsigned char) *p)) {
+            p++;
+        }
+        
+        // Comment or empty
+        if (p[0] == '#' || p[0] == '\0')
+            continue;
+
+        // Add last element to the stack
+        if (p[0] == '{') {
+            if (stack_ptr < MAX_NESTED_CHILDREN) {
+                child_stack[stack_ptr++] = last_element;
+            }
+        } else if (p[0] == '}') {
+            if (stack_ptr > 0) {
+                stack_ptr--;
+            }
+        }
+        
+        char* cursor = line;
+        char* token = next_token(&cursor);
+
+        // Check for invalid tokens
+        if (!token) continue;
+
+        // The element type
+        char type[16];
+        strncpy(type, token, 15);
+
+        UIPropertyList props = ui_create_proplist(MAX_ELEMENT_PROPERTIES, false);
+
+        // Parse element parameters
+        collect_properties(&props, token, &cursor, true);
+
+        // Execute the element constructor
+        for (int i = 0; i < ARRAY_LEN(element_constructors); i++) {
+            if (strcmp(type, element_constructors[i].name) == 0) {
+                if (element_constructors[i].create) {
+                    UIElement *e = element_constructors[i].create(screen, &props);
+                    //print_props(&props);
+
+                    if (stack_ptr > 0) {
+                        ui_element_add_child(child_stack[stack_ptr - 1], e);
+                    } else {
+                        ui_screen_add_element(screen, e);
+                    }
+
+                    last_element = e;
+                }
+            }
+        }
+
+        ui_destroy_proplist(&props);
+    }
+    
+    fclose(f);
 }

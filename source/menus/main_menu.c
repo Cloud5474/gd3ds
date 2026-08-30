@@ -8,7 +8,7 @@
 #include "math_helpers.h"
 #include "menus/components/ui_list.h"
 #include "menus/components/ui_image.h"
-#include "menus/palette_kit.h"
+#include "palette_kit.h"
 #include "main.h"
 #include "color_channels.h"
 #include "mp3_player.h"
@@ -300,8 +300,8 @@ static void handle_players() {
 void main_menu_loop() {
     exit_flag = false;
     new_state = 0;
-    ui_load_screen(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/main_menu.txt");
-    ui_load_screen(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/main_menu_top.txt");
+    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/main_menu.txt");
+    ui_load_screen_old(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/main_menu_top.txt");
     
     main_menu_color_index = 0;
     u32 color = default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS];

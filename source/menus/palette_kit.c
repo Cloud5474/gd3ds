@@ -345,7 +345,7 @@ static UIAction actions[] = {
 
 
 void palette_kit_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/palette_kit.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/palette_kit.txt");
     ui_screen_open(&screen, ANIM_SLIDE_RIGHT);
     yes_exit = false;
     ui_window_set_tint((UIWindow *) ui_get_element_by_tag(&screen, "bg_window"), C2D_Color32(0, 0, 0, 64));

@@ -26,12 +26,6 @@ typedef enum {
     ANIM_SLIDE_DOWN,
 
     NUM_OPEN_ANIMS
-} UIAnimationType;
-
-typedef struct {
-    UIAnimationType type;
-    float in_time;
-    float out_time;
 } UIAnimation;
 
 typedef enum {
@@ -46,11 +40,14 @@ typedef enum {
 } UIDrawPhase;
 
 typedef struct {
-    UIAnimationType animation;
+    UIAnimation animation;
     UITransitionState state;
 
     float time;
     float duration;
+    //determined based on the animation specified (only really applies to the slide down anim for out_duration = 0.5)
+    float in_duration;
+    float out_duration;
 
     bool done;
 } UITransition;
@@ -74,20 +71,18 @@ typedef struct {
 } UIScreenDefinition;
 
 typedef struct UIScreen {
-    UIScreenDefinition def;
+    const UIScreenDefinition *def;
 
     UIElement **elements;
     size_t count;
     size_t capacity;
 
     UITransition transition;
-    bool isBottom;
-    bool disable_element_update;
+    bool isBottom:1;
+    bool disable_element_update:1;
 
-    //whether this screen will be treated as the backmost screen of the current UI view (menus such as the main menu, level select, etc; NOT popup screens like settings or color select)
-    bool anchor;
-
-    bool loaded;
+    bool loaded:1;
+    bool closing:1;
 } UIScreen;
 
 typedef void (*UIElementVisitor)(UIElement *element, void *userdata);
@@ -119,7 +114,7 @@ void copy_tag_array(UIElement *e, const char *tags);
 
 void finish_animation(UIScreen *screen);
 
-void ui_screen_open(UIScreen *screen, UIAnimationType animation);
+void ui_screen_open(UIScreen *screen, UIAnimation animation);
 void ui_screen_close(UIScreen *screen);
 
 UIElement *ui_get_element_by_tag(UIScreen *screen, const char *tag);
@@ -155,7 +150,9 @@ UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type);
 void ui_element_apply_default_properties(UIElement *e, UIScreen *screen);
 void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props);
 
-void ui_load_screen(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path);
+void ui_load_screen(UIScreen* screen);
+void ui_load_screen_old(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path);
+void ui_screen_update_transition(UIScreen *screen, float dt);
 void ui_screen_update(UIScreen* screen, UIInput* touch);
 void ui_screen_draw(UIScreen* screen);
 void ui_unload_screen(UIScreen *screen);

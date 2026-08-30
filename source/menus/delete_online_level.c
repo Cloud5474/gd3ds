@@ -28,7 +28,7 @@ static UIAction actions[] = {
 };
 
 void delete_level_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/delete_level.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/delete_level.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     yes_exit = false;

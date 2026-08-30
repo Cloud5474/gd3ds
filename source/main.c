@@ -1361,9 +1361,6 @@ int main(int argc, char* argv[]) {
     // Set to known value
     change_blending(false);
 
-    //init screen stack (handles screens' lifetimes)
-    ui_stack_init();
-
     bool exit = false;
     while (aptMainLoop() && !exit) {
         // Update color if changed menus
