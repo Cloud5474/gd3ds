@@ -5,6 +5,8 @@
 
 #define MAX_ELEMENT_PROPERTIES 64
 
+typedef struct UIScene UIScene;
+
 typedef struct {
     const Charset *charset;
     C2D_SpriteSheet *sheet;    
@@ -48,6 +50,8 @@ typedef struct {
     //determined based on the animation specified (only really applies to the slide down anim for out_duration = 0.5)
     float in_duration;
     float out_duration;
+    //amount of time it takes the (fullscreen) darken to fade in/out relative to the screen opening animation
+    float darken_frac;
 
     bool done;
 } UITransition;
@@ -71,6 +75,7 @@ typedef struct {
 } UIScreenDefinition;
 
 typedef struct UIScreen {
+    UIScene *scene;
     const UIScreenDefinition *def;
 
     UIElement **elements;
@@ -147,8 +152,8 @@ void free_ui_particle_systems();
 
 UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type);
 
-void ui_element_apply_default_properties(UIElement *e, UIScreen *screen);
-void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props);
+void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen);
+void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props);
 
 void ui_load_screen(UIScreen* screen);
 void ui_load_screen_old(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path);

@@ -95,7 +95,7 @@ int settings_hub_loop() {
 
         if (screen.loaded) {
             UIDarken *darken = (UIDarken *) ui_get_element_by_tag(&screen, "darken");
-            darken->base.opacity = ((0.5f - screen.transition.time) * 2.f) * darken->targetOpacity;
+            darken->base.opacity = ((0.5f - screen.transition.time) * 2.f) * darken->opacity;
             ui_darken_reset_opacity(darken);
         }
     }

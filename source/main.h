@@ -88,7 +88,7 @@ typedef enum Cheats {
 
 typedef enum Screens {
     SCREEN_TOP,
-    SCREEN_BOTTOM
+    SCREEN_BTM
 } Screens;
 
 extern bool cheats_used[CHEAT_COUNT];

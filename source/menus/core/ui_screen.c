@@ -271,8 +271,13 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
 
     screen->transition.animation = animation;
 
+    //could probably use a table for this stuff but whatevs
+    screen->transition.darken_frac = 1.f;
+
     if(animation == ANIM_SLIDE_DOWN){
         screen->transition.out_duration = 0.5;
+    } else{
+        screen->transition.darken_frac = 0.3;
     }
 
     if(animation != ANIM_NONE){
@@ -318,6 +323,8 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 void ui_screen_update(UIScreen* s, UIInput* touch) {
     // The screen could have been unloaded by the closing animation
     if (!s->loaded) return;
+
+    ui_screen_update_transition(s, DT);
 
     if(s->def->update){
         s->def->update(s, touch);
@@ -641,7 +648,7 @@ void copy_tag_array(UIElement *e, const char *tags) {
     memcpy(e->tag, tag, sizeof(tag));
 }
 
-void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props) {
+void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props) {
     if (!e || !screen || !props) return;
 
     ui_element_set_position(e, 
@@ -672,7 +679,7 @@ void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropert
     e->custom_properties = ui_prop_list(props, "custom");
 }
 
-void ui_element_apply_default_properties(UIElement *e, UIScreen *screen) {
+void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen) {
     if (!e || !screen) return;
 
     ui_element_set_scale(e, 1);
@@ -887,6 +894,7 @@ void ui_unload_screen(UIScreen *screen) {
 
     free(screen->elements);
     screen->elements = NULL;
+    screen->closing = false;
     screen->loaded = false;
 }
 

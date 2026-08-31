@@ -23,20 +23,39 @@ static void ui_darken_update(UIElement* e, UIInput* touch, UITransform *transfor
     // Mask background elements
     if (inside) touch->did_something = true;
 
-    if(!darken->darkenOver){
-        e->opacity = (darken->darkenTimeElapsed / darken->darkenTime) * darken->targetOpacity;
-        darken->darkenTimeElapsed += 1.f / 60.f;
-    }
+    //there's not really a reason to animate non-fullscreen darkens tbh
+    if(darken->fullScreen){
+        //hehe trans
+        const UITransition *trans = &e->screen->transition;
 
-    if(darken->darkenTimeElapsed > darken->darkenTime && !darken->darkenOver){
-        darken->darkenOver = true;
+        float duration = trans->duration * trans->darken_frac;
+        float time = trans->time;
+        if(time > duration){
+            time = duration;
+        }
+
+        if(!e->screen->transition.done){
+            float fade = 0.f;
+            switch(e->screen->transition.state){
+                case UI_TRANSITION_OPENING:
+                    fade = time / duration;
+                    break;
+                case UI_TRANSITION_CLOSING:
+                    fade = 1.f - (time / duration);
+                    break;
+                case UI_TRANSITION_NONE:
+                    fade = 0.f;
+                    break;
+            }
+            e->opacity = fade * darken->opacity;
+        }
     }
 }
 
 static void ui_darken_draw(UIElement* e, UITransform *transform) {
     UIDarken *darken = (UIDarken *) e;
 
-    if(!darken->darkenOver){
+    if(!e->screen->transition.done){
         ui_darken_reset_opacity(darken);
     }
 
@@ -67,10 +86,7 @@ UIDarken *ui_create_darken(const UIScreen *screen) {
     e->base.enabled = true;
     e->base.opacity = 0.0f;
 
-    e->darkenTime = 0.1f;
-    e->darkenTimeElapsed = 0.f;
-    e->darkenOver = false;
-    e->targetOpacity = 0.4f;
+    e->opacity = 0.4f;
     
     ui_element_apply_default_properties(&e->base, screen);
     
@@ -95,20 +111,7 @@ UIElement *ui_create_darken_from_props(const UIScreen *screen, const UIPropertyL
         darken->fullScreen = true;
     }
 
-    float darkenTime = ui_prop_float(props, "darkenTime", 0.1f);
     float opacity = ui_prop_float(props, "opacity", 0.4f);
-    
-    if (darkenTime <= 0.f) {
-        ui_darken_reset_opacity(darken);
-        
-        darken->base.opacity = opacity;
-        darken->darkenOver = true;
-    } else {
-        darken->darkenTime = darkenTime;
-        darken->darkenTimeElapsed = 0.f;
-        darken->darkenOver = false;
-        darken->targetOpacity = opacity;
-    }
 
     C2D_PlainImageTint(&darken->image.tint, C2D_Color32f(0, 0, 0, opacity), 1.0f);
 

@@ -10,3 +10,13 @@ const UIScreenDefPair soggy_def = {
     },
 };
 
+const UIScreenDefPair credits_def = {
+    .name = "Credits",
+    .top = {
+        0
+    },
+    .btm = {
+        .path = "romfs:/menus/credits.txt"
+    },
+};
+

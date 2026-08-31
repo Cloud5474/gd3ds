@@ -75,7 +75,7 @@ struct UIElement {
 
     UIActionFn action;
 
-    UIScreen *screen;
+    const UIScreen *screen;
 
     UIPropertyList custom_properties;
 
@@ -210,10 +210,7 @@ typedef struct {
     
     ImageData image;
 
-    float targetOpacity;
-    float darkenTime;
-    float darkenTimeElapsed;
-    bool darkenOver;
+    float opacity;
     bool fullScreen;
 } UIDarken;
 

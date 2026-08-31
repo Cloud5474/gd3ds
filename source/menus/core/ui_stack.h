@@ -2,7 +2,8 @@
 #include "ui_screen.h"
 #include "graphics.h"
 
-typedef struct {
+typedef struct UIScene {
+    const char* name;
     //top and bottom screen
     UIScreen screens[2];  
     //whether this scene will be treated as the backmost scene of the current UI view (menus such as the main menu, level select, etc; NOT popup scenes like settings or color select)
