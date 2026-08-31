@@ -109,7 +109,6 @@ void creator_menu_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
         if (!in_disclaimer) {
             ui_screen_update(&default_screen, &touch);

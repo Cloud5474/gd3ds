@@ -17,14 +17,14 @@ typedef struct {
 } UIScreenDefPair;
 
 typedef struct {
-    UIScene scenes[8];
+    UIScene *scenes;
     size_t stack_capacity;
 
     //"anchor" screens represent the lowest screen of the current UI view, such as the main menu, creator menu, or level select (as opposed to popups like settings, the color select, etc)
     //screens which are below the current anchor will be unloaded and not updated; reloaded when the current anchor is exited
     size_t current_anchor;
     //amount of scenes to update (starts at anchor and goes up)
-    size_t active_scenes;
+    size_t active_scene_count;
 
     //used for fade to/from black when changing menus
     UITransitionState transition;
@@ -42,5 +42,7 @@ void ui_stack_push(
 );
 void ui_stack_push_anchor(const UIScreenDefPair* defs, bool instant);
 void ui_stack_pop();
+
+void ui_stack_fini();
 
 void test_loop();

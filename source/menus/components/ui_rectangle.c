@@ -17,14 +17,6 @@ void ui_rectangle_clear_color(UIRectangle* e) {
     e->color = 0xffffffff;
 }
 
-
-static void ui_rectangle_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-}
-
 static void ui_rectangle_draw(UIElement* e, UITransform *transform) {
     UIRectangle *rectangle = (UIRectangle *) e;
 
@@ -54,7 +46,6 @@ UIRectangle *ui_create_rectangle(const UIScreen *screen) {
 
     ui_rectangle_clear_color(e);
 
-    e->base.update = ui_rectangle_update;
     e->base.draw = ui_rectangle_draw;
     e->base.destroy = ui_rectangle_destroy;
 

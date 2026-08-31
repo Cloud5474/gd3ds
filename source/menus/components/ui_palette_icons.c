@@ -8,12 +8,6 @@
 
 #define ICON_WIDTH 30
 
-static void ui_palette_icons_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    if (inside) touch->did_something = true;
-}
-
 static void ui_palette_icons_draw(UIElement* e, UITransform *transform) {
     UIPaletteIcons *palette_icons = (UIPaletteIcons *) e;
 
@@ -50,7 +44,6 @@ UIPaletteIcons *ui_create_palette_icons(const UIScreen *screen) {
     e->base.type = UI_PALETTE_ICONS;
     e->base.enabled = true;
 
-    e->base.update = ui_palette_icons_update;
     e->base.draw = ui_palette_icons_draw;
     e->base.destroy = ui_palette_icons;
     

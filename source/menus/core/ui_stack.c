@@ -11,14 +11,14 @@ static size_t ui_stack_min_index() {
 }
 
 static size_t ui_stack_max_index() {
-    if(stack.active_scenes == 0){
+    if(stack.active_scene_count == 0){
         return 0;
     }
-    return stack.current_anchor + stack.active_scenes - 1;
+    return stack.current_anchor + stack.active_scene_count - 1;
 }
 
 static size_t ui_stack_next_index() {
-    return stack.current_anchor + stack.active_scenes;
+    return stack.current_anchor + stack.active_scene_count;
 }
 
 static void open_anchor(){
@@ -40,7 +40,7 @@ static void open_anchor(){
     ui_load_screen(btm);
 
     stack.current_anchor = index;
-    stack.active_scenes = 1;
+    stack.active_scene_count = 1;
 }
 
 static void close_anchor(){
@@ -71,13 +71,13 @@ static void close_anchor(){
         }
     }
 
-    stack.active_scenes = stack.current_anchor - new_anchor;
+    stack.active_scene_count = stack.current_anchor - new_anchor;
 
     stack.current_anchor = new_anchor;
 }
 
 void ui_stack_update(UIInput *input){
-    if(stack.active_scenes == 0) return;
+    if(stack.active_scene_count == 0) return;
 
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
         UIScene *scene = &stack.scenes[i];
@@ -85,11 +85,12 @@ void ui_stack_update(UIInput *input){
         bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
     
         for(int j = 0; j < 2; j++) {
+            UIScreen *screen = &scene->screens[j];
+
             UIInput dummy_input = { 0 };
             //only update top screen with input
-            UIInput *input_to_use = updating_topmost ? input : &dummy_input;
+            UIInput *input_to_use = updating_topmost && (screen->transition.state == UI_TRANSITION_NONE) ? input : &dummy_input;
 
-            UIScreen *screen = &scene->screens[j];
             if(screen && screen->loaded){
                 ui_screen_update(screen, input_to_use);
             }
@@ -109,7 +110,7 @@ void ui_stack_update(UIInput *input){
             ui_unload_screen(max_top);
             ui_unload_screen(max_btm);
 
-            stack.active_scenes--;
+            stack.active_scene_count--;
         }
     }
 
@@ -157,7 +158,7 @@ static void draw_stack_debug(){
     char debug[2048];
     size_t pos = 0;
 
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < stack.stack_capacity; i++) {
         UIScene *scene = &stack.scenes[i];
 
         int r = 0;
@@ -187,15 +188,19 @@ static void draw_stack_debug(){
     snprintf(anchorSlop, sizeof(anchorSlop), "Anchor: %d", stack.current_anchor);
 
     char activeSlop[] = "Active:....";
-    snprintf(activeSlop, sizeof(activeSlop), "Active: %d", stack.active_scenes);
+    snprintf(activeSlop, sizeof(activeSlop), "Active: %d", stack.active_scene_count);
+
+    char capacitySlop[] = "Capacity:....";
+    snprintf(capacitySlop, sizeof(capacitySlop), "Capacity: %d", stack.stack_capacity);
 
     draw_text(&bigFont_fontCharset, &bigFont_sheet, SCREEN_BOT_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5f, 0.5f, 0, true, debug);
     draw_text(&bigFont_fontCharset, &bigFont_sheet, 10, 10, 0.5f, 0.5f, 0, true, anchorSlop);
     draw_text(&bigFont_fontCharset, &bigFont_sheet, 10, 25, 0.5f, 0.5f, 0, true, activeSlop);
+    draw_text(&bigFont_fontCharset, &bigFont_sheet, 10, 40, 0.5f, 0.5f, 0, true, capacitySlop);
 }
 
 void ui_stack_draw(Screens target){
-    if(stack.active_scenes == 0) return;
+    if(stack.active_scene_count == 0) return;
 
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
         UIScreen *screen = &stack.scenes[i].screens[target];
@@ -217,7 +222,65 @@ void ui_stack_draw(Screens target){
     if(target == SCREEN_TOP) draw_stack_debug();
 }
 
-static void setup_definitions(UIScene *scene, const UIScreenDefPair* defs){
+static bool resize_stack(size_t new_capacity){
+    //thanks advexed 
+    if(new_capacity > 64){
+        return false;
+    }
+
+    size_t capacity = stack.stack_capacity;
+
+    if(new_capacity <= capacity){
+        return true;
+    }
+
+    //stack is expanded in chunks of 4
+    capacity += 4;
+
+    UIScene *temp = realloc(stack.scenes, sizeof(UIScene) * capacity);
+
+    if(!temp){
+        return false;
+    }
+
+    stack.stack_capacity = capacity;
+    stack.scenes = temp;
+
+    //reset scene pointers in existing screens
+    if(stack.stack_capacity > 0){
+        for(size_t i = 0; i < stack.stack_capacity; i++){
+            UIScene *scene = &stack.scenes[i];
+            for(size_t j = 0; j < 2; j++){
+                scene->screens[j].scene = scene;
+            }
+        }
+    }
+
+    return true;
+}
+
+static UIScene *ui_stack_push_base(const UIScreenDefPair* defs){
+    if(stack.transition != UI_TRANSITION_NONE) {
+        printf("Cannot push to stack during transition!");
+        return NULL;
+    }
+
+    int index = ui_stack_next_index();
+
+    if(!resize_stack(index + 1)){
+        return NULL;
+    }
+
+    UIScene *scene = &stack.scenes[index];
+
+    scene = &stack.scenes[index];
+
+    if(!scene){
+        return NULL;
+    }
+
+    scene->name = defs->name;
+
     UIScreen *top = &scene->screens[SCREEN_TOP];
     UIScreen *btm = &scene->screens[SCREEN_BTM];
 
@@ -225,28 +288,25 @@ static void setup_definitions(UIScene *scene, const UIScreenDefPair* defs){
     *btm = (UIScreen){ 0 };
 
     btm->isBottom = true;
-    
-    scene->name = defs->name;
 
     top->def = &defs->top;
     btm->def = &defs->btm;
 
     top->scene = scene;
     btm->scene = scene;
+
+    return scene;
 }
 
 //initiates the fade to black transition
 void ui_stack_push_anchor(const UIScreenDefPair* defs, bool instant){
-    if(stack.transition != UI_TRANSITION_NONE) {
-        printf("Cannot push to stack during transition!");
+    UIScene *scene = ui_stack_push_base(defs);
+
+    if (!scene) {
         return;
     }
 
-    UIScene *scene = &stack.scenes[ui_stack_next_index()];
-
     scene->anchor = true;
-
-    setup_definitions(scene, defs);
 
     if(instant){
         open_anchor();
@@ -262,20 +322,18 @@ void ui_stack_push(
     UIAnimation top_anim, 
     UIAnimation btm_anim
 ){
-    if(stack.transition != UI_TRANSITION_NONE) {
-        printf("Cannot push to stack during transition!");
+    UIScene *scene = ui_stack_push_base(defs);
+
+    if (!scene){
         return;
     }
 
-    UIScene *scene = &stack.scenes[stack.current_anchor + stack.active_scenes];
     scene->anchor = false;
-
-    setup_definitions(scene, defs);
 
     UIScreen *top = &scene->screens[SCREEN_TOP];
     UIScreen *btm = &scene->screens[SCREEN_BTM];
     
-    stack.active_scenes++;
+    stack.active_scene_count++;
 
     ui_load_screen(top);
     ui_load_screen(btm);
@@ -290,7 +348,7 @@ void ui_stack_pop(){
         return;
     }
 
-    if(stack.active_scenes == 0) return;
+    if(stack.active_scene_count == 0) return;
 
     UIScene *scene = &stack.scenes[ui_stack_max_index()];
     if(scene->anchor){
@@ -302,6 +360,11 @@ void ui_stack_pop(){
             ui_screen_close(&scene->screens[i]);
         }
     }
+}
+
+void ui_stack_fini(){
+    free(stack.scenes);
+    stack.stack_capacity = 0;
 }
 
 void test_loop(){
@@ -316,7 +379,6 @@ void test_loop(){
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
         touch.down = hidKeysDown();
         touch.held = hidKeysHeld();
@@ -369,4 +431,6 @@ void test_loop(){
         C3D_FrameEnd(0);
     }
     C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
+
+    ui_stack_fini();
 }

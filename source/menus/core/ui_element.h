@@ -41,14 +41,12 @@ typedef enum {
     UI_RECTANGLE,
 } UIElementType;
 
-
 typedef struct {
     u32 down;
     u32 held;
     u32 up;
     touchPosition touchPosition;
     circlePosition cpad;
-    bool did_something;
     bool interacted;
     //used for lists
     bool dragging;

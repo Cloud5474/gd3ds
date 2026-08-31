@@ -542,7 +542,6 @@ int settings_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     if (!in_info_card) ui_screen_update(&screen, &touch);
 

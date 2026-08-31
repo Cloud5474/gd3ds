@@ -7,13 +7,6 @@
 #include "ui_bg_gradient.h"
 #include "math_helpers.h"
 
-static void ui_bg_gradient_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-}
-
 static void ui_bg_gradient_draw(UIElement* e, UITransform *transform) {
     UIImage *image = (UIImage *) e;
     C2D_SpriteSetPos(&image->image.sprite, transform->x, transform->y);
@@ -50,7 +43,6 @@ UIImage *ui_create_bg_gradient(const UIScreen *screen) {
 
     ui_image_clear_tint(e);
 
-    e->base.update = ui_bg_gradient_update;
     e->base.draw = ui_bg_gradient_draw;
     e->base.destroy = ui_bg_gradient_destroy;
 

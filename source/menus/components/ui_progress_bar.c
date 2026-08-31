@@ -4,13 +4,6 @@
 #include "menus/core/ui_props.h"
 #include "math_helpers.h"
 
-static void ui_progress_bar_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-}
-
 static void draw_frame(UIProgressBar *e, UITransform *transform) {
     C2D_SpriteSetCenter(&e->frame.sprite, 0.5f, 0.5f);
     C2D_SpriteSetPos(&e->frame.sprite, transform->x, transform->y);
@@ -150,7 +143,6 @@ UIProgressBar *ui_create_progress_bar(const UIScreen *screen) {
     e->value = 0;
     e->max_value = 100;
 
-    e->base.update = ui_progress_bar_update;
     e->base.draw = ui_progress_bar_draw;
     e->base.destroy = ui_progress_bar_destroy;
 

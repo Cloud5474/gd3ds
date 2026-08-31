@@ -116,7 +116,6 @@ int settings_hub_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     if (!in_settings && !in_credits && !in_how_to_play && !in_songs) ui_screen_update(&screen, &touch);
 

@@ -9,12 +9,6 @@ static const UIFloatEnumEntry alignment_table[] = {
     { "RIGHT",  1.f }
 };
 
-static void ui_label_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    // Do absolutely nothing
-    (void)e;
-    (void)touch;
-}
-
 static void ui_label_draw(UIElement* e, UITransform *transform) {
     UILabel *label = (UILabel *) e;
     int font_id = label->font;
@@ -65,7 +59,6 @@ UILabel *ui_create_label(const UIScreen *screen) {
 
     e->parse_tags = true;
 
-    e->base.update = ui_label_update;
     e->base.draw = ui_label_draw;
     e->base.destroy = ui_label_destroy;
 

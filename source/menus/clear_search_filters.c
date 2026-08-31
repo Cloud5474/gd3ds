@@ -46,7 +46,6 @@ int clear_search_filters_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     ui_screen_update(&screen, &touch);
     ui_screen_update(&screen_top, &touch);

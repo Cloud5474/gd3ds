@@ -130,7 +130,6 @@ int songs_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
 
     ui_screen_update(&screen, &touch);

@@ -110,9 +110,9 @@ static void ui_slider_update(UIElement* e, UIInput* touch, UITransform *transfor
 
     bool inside = slider_touching_button(s, touch, transform);
 
-    bool pressedTouch = hidKeysDown() & KEY_TOUCH;
-    bool heldTouch = hidKeysHeld() & KEY_TOUCH;
-    bool releasedTouch = hidKeysUp() & KEY_TOUCH;
+    bool pressedTouch = touch->down & KEY_TOUCH;
+    bool heldTouch = touch->held & KEY_TOUCH;
+    bool releasedTouch = touch->up & KEY_TOUCH;
 
     if (pressedTouch && inside) {
         s->dragging = true;
@@ -131,7 +131,6 @@ static void ui_slider_update(UIElement* e, UIInput* touch, UITransform *transfor
     // Mask background elements
     if (inside) {
         touch->interacted = true;
-        touch->did_something = true;
     }
 }
 

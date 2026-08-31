@@ -419,7 +419,6 @@ void main_menu_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
 
         float touch_x = touchPos.px/SCALE;

@@ -161,7 +161,6 @@ int search_filters_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     if (!in_length_pop_up && !in_song_pop_up) ui_screen_update(&screen, &touch);
 

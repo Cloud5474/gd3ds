@@ -479,7 +479,6 @@ void level_select_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
 
         handle_col_channel(0);

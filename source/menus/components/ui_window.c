@@ -26,13 +26,6 @@ void ui_window_set_atlas(UIWindow* e, int index) {
     }
 }
 
-static void ui_window_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-}
-
 static void ui_window_draw(UIElement* e, UITransform *transform) {
     UIWindow *window = (UIWindow *) e;
 
@@ -55,7 +48,6 @@ UIWindow *ui_create_window(const UIScreen *screen) {
     e->base.type = UI_WINDOW;
     e->base.enabled = true;
 
-    e->base.update = ui_window_update;
     e->base.draw = ui_window_draw;
     e->base.destroy = ui_window_destroy;
     

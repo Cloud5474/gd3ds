@@ -19,7 +19,6 @@ static void ui_textbox_update(UIElement* e, UIInput* touch, UITransform *transfo
     
     // Mask background elements
     if (inside) {
-        touch->did_something = true;
         touch->interacted = true;
 
         if (hidKeysDown() & KEY_TOUCH) {

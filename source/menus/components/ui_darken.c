@@ -18,11 +18,6 @@ void ui_darken_reset_opacity(UIDarken* e){
 static void ui_darken_update(UIElement* e, UIInput* touch, UITransform *transform) {
     UIDarken *darken = (UIDarken *) e;
 
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-
     //there's not really a reason to animate non-fullscreen darkens tbh
     if(darken->fullScreen){
         //hehe trans

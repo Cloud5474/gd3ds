@@ -69,7 +69,7 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     bool inside = ui_element_basic_bound_check(e, touch, transform) && !pressedKey;
 
     // Check if pressed the button
-    if (inside && pressedTouch && !touch->did_something) {
+    if (inside && pressedTouch) {
         button->hovered = true;
         button->pressed = true;
     }
@@ -103,7 +103,6 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     // Mask background elements
     if (inside) {
         touch->interacted = true;
-        touch->did_something = true;
     }
 }
 

@@ -352,7 +352,6 @@ int external_popup_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     if (!in_infobox) ui_screen_update(&screen, &touch);
     ui_screen_update(&screen_top, &touch);

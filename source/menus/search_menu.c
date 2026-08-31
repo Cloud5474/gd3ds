@@ -79,7 +79,6 @@ void search_menu_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
 
         if (!in_disclaimer && !in_server_switcher && !in_clear_search_filters && !in_filters) ui_screen_update(&default_screen, &touch);

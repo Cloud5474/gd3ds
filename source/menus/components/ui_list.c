@@ -71,8 +71,6 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
 
     ui_list_forward_touch(l, touch, transform);
     if (inside) {  
-        touch->did_something = true;
-
         // Exit if used something
         if (touch->interacted) return;
     }
@@ -80,6 +78,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
     // Start dragging
     if (inside && (touch->down & KEY_TOUCH)) {
         l->dragging = true;
+        touch->dragging = true;
         l->lastTouchY = touch->touchPosition.py;
     }
 
@@ -123,6 +122,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
     // Handle releasing dragging
     if (touch->up & KEY_TOUCH) {
         l->dragging = false;
+        touch->dragging = false;
     }
 
     // Clamp scrolling

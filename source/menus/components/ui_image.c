@@ -4,13 +4,6 @@
 #include "menus/core/ui_props.h"
 #include "math_helpers.h"
 
-static void ui_image_update(UIElement* e, UIInput* touch, UITransform *transform) {
-    bool inside = ui_element_basic_bound_check(e, touch, transform);
-    
-    // Mask background elements
-    if (inside) touch->did_something = true;
-}
-
 static void ui_image_draw(UIElement* e, UITransform *transform) {
     UIImage *image = (UIImage *) e;
 
@@ -62,7 +55,6 @@ UIImage *ui_create_image(const UIScreen *screen) {
 
     ui_image_clear_tint(e);
 
-    e->base.update = ui_image_update;
     e->base.draw = ui_image_draw;
     e->base.destroy = ui_image_destroy;
 

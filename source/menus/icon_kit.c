@@ -284,7 +284,6 @@ void icon_kit_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
 
         for(int i = 0; i < GAMEMODE_COUNT + 1; i++){

@@ -405,7 +405,6 @@ int gameplay_screen_bot_loop() {
     }
 
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
     if (!in_settings && !in_disclaimer && !in_info_card) {
         ui_screen_update(&default_screen, &touch);

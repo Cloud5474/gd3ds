@@ -89,7 +89,6 @@ void online_menu_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
         touch.interacted = false;
         
         // Frees a render target, so keep it out of the frame below

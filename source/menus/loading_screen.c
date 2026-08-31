@@ -116,7 +116,6 @@ void loading_screen_update(float progress) {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
     touch.interacted = false;
 
     ui_screen_update(&default_screen_top, &touch);

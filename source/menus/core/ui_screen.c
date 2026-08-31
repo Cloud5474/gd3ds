@@ -206,7 +206,9 @@ void ui_update_tree(UIElement *e, UIInput *input, UITransform *parent) {
     if (e->modify_transform)
         e->modify_transform(e, &world);
     
-    e->update(e, input, &world);
+    if(e->update){
+        e->update(e, input, &world);
+    }
 
     if (!e->draws_children) {
         for (UIElement *child = e->first_child; child; child = child->next_sibling) {
@@ -321,16 +323,14 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 
 // Update all screen characters
 void ui_screen_update(UIScreen* s, UIInput* touch) {
+    ui_screen_update_transition(s, DT);
+
     // The screen could have been unloaded by the closing animation
     if (!s->loaded) return;
-
-    ui_screen_update_transition(s, DT);
 
     if(s->def->update){
         s->def->update(s, touch);
     }
-
-    if(s->disable_element_update) return;
 
     UITransform identity = {
         .x = 0.f,
