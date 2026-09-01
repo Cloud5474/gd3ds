@@ -479,7 +479,7 @@ void ufo_gamemode(Player *player) {
     drag_particles_2[state.current_player].gravityFlipped = !player->upside_down;
     drag_particles_2[state.current_player].scale = (player->mini ? 0.6f : 1.0f);
 
-    bool buffering_check = ((state.old_player.gamemode == GAMEMODE_PLAYER || state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_DART) && (state.input.holdJump));
+    bool buffering_check = ((state.old_player.gamemode == GAMEMODE_PLAYER || state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_DART || player->buffer_ufo) && (state.input.holdJump));
     // If buffering, jump
     if (player->buffering_state == BUFFER_READY && (state.input.pressedJump || buffering_check)) {
         player->vel_y = fmaxf(player->vel_y, player->mini ? 358.992 : 371.034);
@@ -759,6 +759,8 @@ void run_player(Player *player) {
     if (player->gamemode == GAMEMODE_BIRD) rotate_fly(player, 0.07f);
 
     player->snap_rotation = false;
+
+    player->buffer_ufo = false;
 }
 
 float collision_time = 0;
@@ -972,7 +974,7 @@ void draw_p1_trail(Player *player, int player_id) {
             u32 color = (player_id == 1) ? C2D_Color32(p2_color.r, p2_color.g, p2_color.b, trail_data->opacity * 255) : C2D_Color32(p1_color.r, p1_color.g, p1_color.b, trail_data->opacity * 255);
 
             spawn_p1_layer_at(
-                trail_data->gamemode, *current_icons[trail_data->gamemode], 
+                trail_data->gamemode, ((settingsState.defaultMiniIcon && player->mini && (trail_data->gamemode == 0 || trail_data->gamemode == 2)) ? 0 : *current_icons[trail_data->gamemode]), 
                 get_mirror_x(calc_x, state.mirror_factor), calc_y, 
                 trail_data->rot,  
                 flip_x, trail_data->upside_down,
@@ -1040,11 +1042,13 @@ void draw_player(Player *player) {
     int selected_ufo =  player->player_icons.ufo;
     int selected_wave = player->player_icons.wave;
 
+
+
     bool glow_enabled = (player->player_icons.glow || ((p1_color.r | p1_color.g | p1_color.b) == 0));
 
     switch (player->gamemode) {
         case GAMEMODE_PLAYER:
-            spawn_icon_at(GAMEMODE_PLAYER, selected_cube, glow_enabled, calc_x_mirror, calc_y, p_rot, flip_x, false, scale, 
+            spawn_icon_at(GAMEMODE_PLAYER, (settingsState.defaultMiniIcon && player->mini) ? 0 : selected_cube, glow_enabled, calc_x_mirror, calc_y, p_rot, flip_x, false, scale, 
                 primary_color,
                 secondary_color,
                 C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)
@@ -1052,7 +1056,7 @@ void draw_player(Player *player) {
             break;
         case GAMEMODE_SHIP:
             if (glow_enabled) spawn_glow_layer_at(GAMEMODE_SHIP, selected_ship, calc_x_mirror, calc_y, p_rot, flip_x, player->upside_down, scale, C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255));
-            spawn_icon_at(GAMEMODE_PLAYER, selected_cube, glow_enabled, p_x, p_y, p_rot, flip_x, player->upside_down, scale * 0.5f, 
+            spawn_icon_at(GAMEMODE_PLAYER, (settingsState.defaultMiniIcon && player->mini) ? 0 : selected_cube, glow_enabled, p_x, p_y, p_rot, flip_x, player->upside_down, scale * 0.5f, 
                 primary_color,
                 secondary_color,
                 C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)
@@ -1064,7 +1068,7 @@ void draw_player(Player *player) {
             );
             break;
         case GAMEMODE_PLAYER_BALL:
-            spawn_icon_at(GAMEMODE_PLAYER_BALL, selected_ball, glow_enabled, calc_x_mirror, calc_y, p_rot, flip_x, false, scale, 
+            spawn_icon_at(GAMEMODE_PLAYER_BALL, (settingsState.defaultMiniIcon && player->mini) ? 0 : selected_ball, glow_enabled, calc_x_mirror, calc_y, p_rot, flip_x, false, scale, 
                 primary_color,
                 secondary_color,
                 C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)
@@ -1072,7 +1076,7 @@ void draw_player(Player *player) {
             break;
         case GAMEMODE_BIRD:
             if (glow_enabled) spawn_glow_layer_at(GAMEMODE_BIRD, selected_ufo, calc_x_mirror, calc_y, p_rot, flip_x, player->upside_down, scale, C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255));
-            spawn_icon_at(GAMEMODE_PLAYER, selected_cube, glow_enabled, p_x, p_y, p_rot, flip_x, player->upside_down, scale * 0.5f, 
+            spawn_icon_at(GAMEMODE_PLAYER, (settingsState.defaultMiniIcon && player->mini) ? 0 : selected_cube, glow_enabled, p_x, p_y, p_rot, flip_x, player->upside_down, scale * 0.5f, 
                 primary_color,
                 secondary_color,
                 C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)

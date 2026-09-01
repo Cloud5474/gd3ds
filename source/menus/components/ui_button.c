@@ -148,14 +148,10 @@ static void ui_button_draw(UIElement* e, UITransform *transform) {
 
     if(button->invisible) return;
 
-    C2D_ImageTint tint;
-
-    C2D_PlainImageTint(&tint, C2D_Color32f(1, 1, 1, e->opacity), 1.f);
-
     C2D_SpriteSetCenter(&button->image.sprite, 0.5f, 0.5f);
     C2D_SpriteSetPos(&button->image.sprite, transform->x, transform->y);
     C2D_SpriteSetScale(&button->image.sprite, transform->scaleX, transform->scaleY);
-    C2D_DrawSpriteTinted(&button->image.sprite, &tint);
+    C2D_DrawSpriteTinted(&button->image.sprite, &button->image.tint);
 
     ui_button_draw_text(e, transform);
 }
@@ -207,6 +203,10 @@ UIButton *ui_create_button(const UIScreen *screen) {
 
     e->base.on_disable = ui_button_on_disable;
 
+    e->base.opacity = 1.f;
+
+    C2D_PlainImageTint(&e->image.tint, C2D_Color32f(1, 1, 1, 1), 1.f);
+
     ui_element_apply_default_properties(&e->base, screen);
 
     e->hoverScale = 1.f;
@@ -230,6 +230,7 @@ UIElement *ui_create_button_from_props(const UIScreen *screen, const UIPropertyL
         ui_prop_int(props, "id", 0),
         ui_prop_int(props, "sheet", 0)
     );
+    C2D_PlainImageTint(&button->image.tint, C2D_Color32f(1, 1, 1, button->base.opacity), 1.f);
     
     // Copy text
     strncpy(button->text, ui_prop_string(props, "text", ""), 63);

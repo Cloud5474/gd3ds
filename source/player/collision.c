@@ -1,4 +1,5 @@
 #include "collision.h"
+#include "icons.h"
 #include "player.h"
 #include <math.h>
 #include "practice.h"
@@ -200,8 +201,23 @@ void trySnap(int block, Player *player) {
     }
 }
 
+#define Y true
+#define N false
+
+// Table that says if gravity changes should affect the other gamemode
+static const bool gamemode_linked_gravity[GAMEMODE_COUNT][GAMEMODE_COUNT] = {
+    /* CUBE */ { Y, N, N, N, Y},
+    /* SHIP */ { N, Y, N, N, N},
+    /* BALL */ { N, N, Y, N, N},
+    /* UFO  */ { N, N, N, Y, N},
+    /* WAVE */ { Y, N, N, N, Y},
+};
+
+#undef Y
+#undef N
+
 void flip_other_player(int current_player) {
-    if (state.dual && state.player.gamemode == state.player2.gamemode && state.player.upside_down == state.player2.upside_down) {
+    if (state.dual && gamemode_linked_gravity[state.player.gamemode][state.player2.gamemode] && state.player.upside_down == state.player2.upside_down) {
         if (current_player == 0) {
             state.player2.upside_down = !state.player.upside_down;
             state.player2.vel_y /= -2;
@@ -309,6 +325,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->on_ground = false;
                 player->inverse_rotation = false;
                 player->left_ground = true;
+                player->jumped = true;
                 SET_ACTIVATED(obj, true);
                 update_rotation_direction(player);
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &pad_use_effect, get_use_effect_array_ptr(GFX_TOP));
@@ -326,6 +343,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->on_ground = false;
                 player->inverse_rotation = false;
                 player->left_ground = true;
+                player->jumped = true;
                 SET_ACTIVATED(obj, true);
                 update_rotation_direction(player);
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &pad_use_effect, get_use_effect_array_ptr(GFX_TOP));
@@ -363,6 +381,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->on_ground = false;
                 player->inverse_rotation = false;
                 player->ceiling_inv_time = CEILING_INVUL_TIME;
+                player->jumped = true;
 
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &pad_use_effect, get_use_effect_array_ptr(GFX_TOP));
                 if (effect) {
@@ -387,6 +406,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->inverse_rotation = false;
                 player->left_ground = true;
                 player->buffering_state = BUFFER_END;
+                player->jumped = true;
                 update_rotation_direction(player);
                 
                 state.current_data.jumps++;
@@ -414,6 +434,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->inverse_rotation = false;
                 player->left_ground = true;
                 player->buffering_state = BUFFER_END;
+                player->jumped = true;
                 update_rotation_direction(player);
 
                 state.current_data.jumps++;
@@ -451,6 +472,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 player->left_ground = true;
                 player->buffering_state = BUFFER_END;
                 player->ceiling_inv_time = CEILING_INVUL_TIME;
+                player->jumped = true;
                 
                 UseEffect *effect = add_use_effect(objects.x[obj], objects.y[obj], obj, &orb_use_effect, get_use_effect_array_ptr(GFX_TOP));
                 if (effect) {
@@ -696,6 +718,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                     player->snap_rotation = true;
                     set_gamemode(player, GAMEMODE_PLAYER);
                     set_checkpoint_timer(0);
+                    pseudo_checkpoint_exists = false;
                     flip_other_player(state.current_player ^ 1);
                     update_rotation_direction(player);
                 }
@@ -717,6 +740,11 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                     if (player->gamemode == GAMEMODE_DART) player->vel_y *= 0.9f;
                     player->vel_y /= (player->gamemode == GAMEMODE_BIRD || player->gamemode == GAMEMODE_DART) ? 4 : 2;
                     
+                    // No pseudo checkpoint if coming from non flying gamemode
+                    if (!player_gamemode_is_flying(player)) {
+                        pseudo_checkpoint_exists = false;
+                    }
+
                     set_gamemode(player, GAMEMODE_SHIP);
                     set_checkpoint_timer(AUTO_CHECKPOINT_TIME);
                     player->inverse_rotation = false;
@@ -766,6 +794,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                     }
                     set_gamemode(player, GAMEMODE_PLAYER_BALL);
                     set_checkpoint_timer(0);
+                    pseudo_checkpoint_exists = false;
 
                     if (state.input.holdJump && state.old_player.gamemode == GAMEMODE_SHIP) {
                         player->buffering_state = BUFFER_READY;
@@ -798,6 +827,12 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 if (player->gamemode != GAMEMODE_BIRD) {
                     if (player->gamemode == GAMEMODE_DART) player->vel_y *= 0.9f;
                     player->vel_y /= (player->gamemode == GAMEMODE_SHIP || player->gamemode == GAMEMODE_DART) ? 4 : 2;
+                    
+                    // No pseudo checkpoint if coming from non flying gamemode
+                    if (!player_gamemode_is_flying(player)) {
+                        pseudo_checkpoint_exists = false;
+                    }
+
                     set_gamemode(player, GAMEMODE_BIRD);
                     set_checkpoint_timer(AUTO_CHECKPOINT_TIME);
                     player->inverse_rotation = false;
@@ -829,6 +864,11 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 set_intended_ceiling();
 
                 if (player->gamemode != GAMEMODE_DART) {
+                    // No pseudo checkpoint if coming from non flying gamemode
+                    if (!player_gamemode_is_flying(player)) {
+                        pseudo_checkpoint_exists = false;
+                    }
+                    
                     set_gamemode(player, GAMEMODE_DART);
                     set_checkpoint_timer(AUTO_CHECKPOINT_TIME);
                     player->inverse_rotation = false;

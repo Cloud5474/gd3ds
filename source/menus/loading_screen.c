@@ -64,7 +64,22 @@ char *splash_texts[] = {
     "Does this look possible to you?",
     "Bwomp",
     "Trans rights are human rights",
-    "No consistent naming conventions!"
+    "No consistent naming conventions!",
+    "void envelop_objects();",
+    "FIVE FIVE. FIVE FIVE.",
+    "advexed never clear",
+    "By: Dimrain47",
+    "Probably runs at like... 5FPS",
+    "Wouldn't it be funny if this was\nin the Oxygene1 font -Crafty Jumper",
+    "Its mostly optimisation",
+    "500 memory leaks",
+    "CONCRETE",
+    "Hope you don't mind 45 seconds of input lag",
+    "Put ya 3DS away Waltuh",
+    "free(people_array[get_SSN(\"KandoWontu\")])",
+    "Have you encountered the nightmare men?",
+    "who is cloud5474",
+    "Can you do um maybe like um... stuff"
 };
 
 void loading_screen_init() {
@@ -116,7 +131,7 @@ void loading_screen_update(float progress) {
     // Top screen, drawn once per eye when 3D is on
     for (int eye = 0; begin_top_eye(eye); eye++) {
         begin_eye_layer(DEPTH_BACKGROUND);
-        draw_background(0, -30);
+        draw_background(-20, -30);
         end_eye_layer();
 
         begin_eye_layer(DEPTH_UI);
@@ -128,7 +143,7 @@ void loading_screen_update(float progress) {
     C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
     C2D_SceneBegin(bot);
 
-    draw_background(0, SCREEN_HEIGHT-30);
+    draw_background(20, SCREEN_HEIGHT-30);
     C2D_ViewScale(SCALE, SCALE);
     draw_fade();
 

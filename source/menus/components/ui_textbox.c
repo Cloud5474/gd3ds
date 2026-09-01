@@ -23,6 +23,9 @@ static void ui_textbox_update(UIElement* e, UIInput* touch, UITransform *transfo
 
         if (hidKeysDown() & KEY_TOUCH) {
             read_text(textbox->text, textbox->title, textbox->character_limit);
+            if(e->action){
+                e->action(e);
+            }
         }
     }
 }
@@ -43,7 +46,7 @@ static void ui_textbox_draw(UIElement* e, UITransform *transform) {
         txt_scale = 1.0f;
     }
 
-    draw_text(&bigFont_fontCharset, &bigFont_sheet, transform->x - e->w / 2 + (TEXTBOX_MARGIN / 2), transform->y, txt_scale, txt_scale, 0.f, false, "%s", textbox->text);
+    draw_text(&bigFont_fontCharset, &bigFont_sheet, transform->x - ((e->w / 2) - (TEXTBOX_MARGIN / 2)) * transform->scaleX, transform->y, txt_scale * transform->scaleX, txt_scale * transform->scaleY, 0.f, false, "%s", textbox->text);
 }
 
 static void ui_textbox_destroy(UIElement *e) {

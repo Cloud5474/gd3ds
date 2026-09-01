@@ -214,8 +214,12 @@ typedef struct {
 
     int gamemode;
     int index;
+    u32 p1_color;
+    u32 p2_color;
+    u32 glow_color;
 
     bool isSelected;
+    bool glow;
 } UIIcon;
 
 typedef struct {
@@ -315,3 +319,47 @@ typedef struct {
 
     u32 color;
 } UIRectangle;
+
+typedef struct {
+    UIImage base;
+
+    float rotation_speed;
+    bool blending;
+} UISpinner;
+/*
+typedef struct {
+    
+    UIImageData icon;
+    UILabelData label;
+    UIButtonData button;
+    float button_w;
+    float button_h;
+    char path[256];
+    bool swap_color;
+} UIExternalLevelCardData;
+
+typedef struct {
+    UILabelData stat_name;
+    int value;
+    bool swap_color;
+} UIStatisticCardData;
+
+typedef struct {
+    UILabelData name;
+    UILabelData creator;
+    UILabelData song;
+    UILabelData length;
+    int downloads;
+    int likes;
+    int stars;
+    bool swap_color;
+    UIWindowButtonData windowbutton;
+    float windowbutton_w;
+    float windowbutton_h;
+    UIImageData difficulty;
+    UIImageData stars_icon;
+    UIImageData downloads_icon;
+    UIImageData likes_icon;
+    UIImageData length_icon;
+} UIOnlineLevelCardData;
+*/

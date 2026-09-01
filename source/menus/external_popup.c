@@ -10,10 +10,13 @@
 #include "main.h"
 #include "external_level_infobox.h"
 #include "menus/external_levels.h"
+#include "external_popup.h"
 
+#include "menus/songs.h"
 #include "save/saving.h"
 
 #include "fonts/chatFont.h"
+#include "utils/string_helpers.h"
 
 #include "state.h"
 
@@ -47,19 +50,6 @@ static UILabel *practice_progress_val;
 
 static int stars_num = 0;
 
-#define MAX_STARS 10
-
-#define NA_FACE     251
-#define AUTO_FACE   267
-#define EASY_FACE   252
-#define NORMAL_FACE 253
-#define HARD_FACE   254
-#define HARDER_FACE 255
-#define INSANE_FACE 256
-#define DEMON_FACE  258
-
-#define DISLIKE_ICON 56
-
 const int difficulty_stars[MAX_STARS + 1] = {
     NA_FACE,
     AUTO_FACE,
@@ -73,8 +63,6 @@ const int difficulty_stars[MAX_STARS + 1] = {
     INSANE_FACE,
     DEMON_FACE
 };
-
-#define MAX_DESCRIPTION_WIDTH 300
 
 void external_popup_enter_from_level();
 
@@ -174,26 +162,32 @@ static void set_description(char *gmd) {
 }
 
 static void set_downloads_likes(char *gmd) {
-    char tmp[512];
-
     char *downloads = extract_gmd_key((const char *) gmd, "k11", "i");
     if (downloads) {
-        snprintf(tmp, sizeof(tmp), "%s", downloads);
+        int download_count = atoi(downloads);
+        char *truncated_downloads = truncate_number(download_count);
         free(downloads);
 
-        ui_label_set_text(downloads_label, tmp);
+        if (!truncated_downloads) return;
+
+        ui_label_set_text(downloads_label, truncated_downloads);    
+        free(truncated_downloads);
     }
 
     char *likes = extract_gmd_key((const char *) gmd, "k22", "i");
     if (likes) {
-        snprintf(tmp, sizeof(tmp), "%s", likes);
+        int like_count = atoi(likes);
+        char *truncated_likes = truncate_number(like_count);
+        free(likes);
 
-        ui_label_set_text(likes_label, tmp);
+        if (!truncated_likes) return;
 
-        if (atoi(likes) < 0) {
+        ui_label_set_text(likes_label, truncated_likes);
+
+        if (like_count < 0) {
             ui_image_set_image(like_image, DISLIKE_ICON, 0);
         }
-        free(likes);
+        free(truncated_likes);
     }
 }
 
@@ -256,8 +250,8 @@ static void set_song_id(char *gmd) {
         }
     } else {
         char *song_name = "Unknown";
-        if (song_id < MAIN_LEVELS_NUM) {
-            song_name = main_levels[song_id].level_name;
+        if (IN_BOUNDS(song_id, main_songs)) {
+            song_name = main_songs[song_id].title;
         }
         snprintf(tmp, sizeof(tmp), "Using song: %s", song_name);
     }
@@ -279,7 +273,11 @@ static void set_progress() {
 }
 
 static void set_difficulty() {
-    ui_image_set_image(difficulty_face, difficulty_stars[stars_num], 0);
+    int face = difficulty_stars[0];
+    if (IN_BOUNDS(stars_num, difficulty_stars)) {
+        face = difficulty_stars[stars_num];
+    }
+    ui_image_set_image(difficulty_face, face, 0);
 }
 
 void external_popup_enter_from_level() {

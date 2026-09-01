@@ -222,11 +222,11 @@ static void show_error_message() {
 
     int message_id = level_result - 1;
     char *message = "Ultra unknown error.";
-    if (message_id < ARRAY_LEN(error_strings)) {
+    if (IN_BOUNDS(message_id, error_strings)) {
         message = (char *) error_strings[message_id]; 
     }
 
-    snprintf(tmp, sizeof(tmp), "<red>ERROR</>:<p>%s", message);
+    snprintf(tmp, sizeof(tmp), "<red>ERROR</>:\n%s", message);
 
     info_card_init();
     set_info_content(tmp);
@@ -268,11 +268,8 @@ void external_levels_loop() {
     }
 
     set_fade_status(FADE_STATUS_IN);
-
-    if (!playing_menu_loop) {
-        play_mp3("romfs:/songs/menuLoop.mp3", true, 0);
-        playing_menu_loop = true;
-    }
+    
+    play_menu_song();
 
     while (aptMainLoop()) {
         hidScanInput();

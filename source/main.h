@@ -25,6 +25,13 @@
 #define UNUSED __attribute__((unused)) 
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
+#define IN_BOUNDS(index, arr) (index >= 0 && index < ARRAY_LEN(arr))
+
+#define GD_VERSION 1.9
+#define LAST_GD_VERSION_ID 11020426 // Last 1.9 id
+
+// When making a release, uncomment this please thanks
+// #define IS_RELEASE
 
 typedef struct {
     float x, y;
@@ -40,6 +47,7 @@ extern bool song_loaded;
 extern bool exiting_level;
 
 extern bool alt_title_screen;
+extern bool is_N3DS;
 
 extern float global_volume;
 extern float music_volume;
@@ -77,6 +85,7 @@ enum GameState {
     STATE_CREATOR_MENU,
     STATE_SEARCH_MENU,
     STATE_SOGGY,
+    STATE_ONLINE,
     STATE_EXIT
 };
 
@@ -100,6 +109,7 @@ extern C3D_RenderTarget* bot;
 
 extern int game_state;
 extern bool playing_menu_loop;
+extern char menu_loop_path[32];
 
 extern int level_result;
 

@@ -44,7 +44,7 @@ void soggy_menu_loop() {
         touch.interacted = false;
 
         ui_screen_update(&default_screen, &touch);
-        
+
         // Frees a render target, so keep it out of the frame below
         update_stereo_target();
 
@@ -78,6 +78,7 @@ void soggy_menu_loop() {
 
         if (exit_flag) {
             stop_mp3();
+
             game_state = STATE_CREATOR_MENU;
             break;
         }

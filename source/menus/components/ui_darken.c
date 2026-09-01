@@ -108,7 +108,7 @@ UIElement *ui_create_darken_from_props(const UIScreen *screen, const UIPropertyL
 
     float opacity = ui_prop_float(props, "opacity", 0.4f);
 
-    C2D_PlainImageTint(&darken->image.tint, C2D_Color32f(0, 0, 0, opacity), 1.0f);
+    C2D_PlainImageTint(&darken->image.tint, C2D_Color32f(0.f, 0.f, 0.f, darken->base.opacity), 1.0f);
 
     return &darken->base;
 }

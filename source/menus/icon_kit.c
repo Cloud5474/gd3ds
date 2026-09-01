@@ -23,6 +23,7 @@
 #include "palette_kit.h"
 
 #include "save/config.h"
+#include "state.h"
 
 static UIImage *bg_gradient = NULL;
 static UIImage *bg_gradient_top = NULL;
@@ -57,7 +58,7 @@ int selected_glow = 0;
 
 bool player_glow_enabled = false;
 
-static const int gamemode_icon_count[GAMEMODE_COUNT + 1] = {
+const int gamemode_icon_count[GAMEMODE_COUNT + 1] = {
     ICON_COUNT_PLAYER,
     ICON_COUNT_SHIP,
     ICON_COUNT_PLAYER_BALL,
@@ -109,6 +110,7 @@ static void set_icon_index(UIElement *e) {
     int new_index = (*current_pages[gamemode_page] * ICONS_PER_PAGE) + icon_counter;
     if (new_index < gamemode_icon_count[gamemode_page]) {
         e->enabled = true;
+        ui_icon_set_selected((UIIcon *) e, *current_icons[gamemode_page] == new_index);
         ui_icon_set_gamemode_index((UIIcon *) e, gamemode_page, new_index);
         icon_counter++;
     } else {
@@ -120,6 +122,7 @@ static void set_trail_index(UIElement *e) {
     int new_index = icon_counter;
     if (new_index < gamemode_icon_count[gamemode_page]) {
         e->enabled = true;
+        ui_icon_set_selected((UIIcon *) e, *current_icons[gamemode_page] == new_index);
         ui_icon_set_gamemode_index((UIIcon *) e, gamemode_page, new_index);
         icon_counter++;
     } else {
@@ -259,10 +262,7 @@ void icon_kit_loop() {
     update_player_colors();
     set_fade_status(FADE_STATUS_IN);
 
-    if (!playing_menu_loop) {
-        play_mp3("romfs:/songs/menuLoop.mp3", true, 0);
-        playing_menu_loop = true;
-    }
+    play_menu_song();
 
     gamemode_btns[0] = (UIButton *) ui_get_element_by_tag(&default_screen, "cube");
     gamemode_btns[1] = (UIButton *) ui_get_element_by_tag(&default_screen, "ship");

@@ -42,6 +42,7 @@ typedef struct {
     bool showProgressPercent;
     bool decimalPercent;
     bool ultraDecimalPercent;
+    bool defaultMiniIcon;
     bool switchTrailColor;
     bool switchWaveTrailColor;
     bool quickRetry;
@@ -52,9 +53,12 @@ typedef struct {
     bool practiceMusicSync;
     bool autoCheckpoints;
     bool quickCheckpoints;
+    bool skipHighObjWarning;
+    bool skipVersionWarning;
+    bool skipSongWarning;
 } SettingState;
 
-extern Setting settings[25];
+extern Setting settings[29];
 extern SettingState settingsState;
 
 void settings_init();

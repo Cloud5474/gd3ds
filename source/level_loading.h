@@ -1,5 +1,6 @@
 #pragma once
 #include "objects.h"
+#include "utils/server_utils.h"
 #include <3ds.h>
 
 #define MAX_GROUPS_PER_OBJECT 20
@@ -106,6 +107,8 @@ extern LoadedLevelInfo level_info;
 
 extern const char *default_name;
 
+extern const char *level_lengths[5];
+
 #define BG_COUNT 7
 #define G_COUNT 7
 
@@ -115,6 +118,7 @@ char *read_file(const char *filepath, size_t *out_size);
 char *decompress_level(char *data);
 
 int load_level(char *path);
+int load_online_level(LevelEntry *level);
 void reload_level();
 void unload_level();
 
@@ -132,3 +136,7 @@ char *get_level_name(char *data_ptr);
 char *load_user_song(int id, size_t *out_size); 
 bool check_song(int id);
 char *extract_gmd_key(const char *data, const char *key, const char *type);
+
+char **split_string(const char *str, char delimiter, int *outCount, bool ignoreZeroLength);
+char **split_string_str_del(const char *str, const char *delimiter, int *outCount, bool ignoreZeroLength);
+void free_string_array(char **arr, int count);

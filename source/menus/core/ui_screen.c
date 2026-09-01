@@ -1,5 +1,6 @@
 #include "menus/core/ui_screen.h"
 #include "main.h"
+#include "menus/components/ui_spinner.h"
 #include "menus/core/common_setters.h"
 #include "ui_props.h"
 #include "ui_element.h"
@@ -76,6 +77,7 @@ static const UIElementConstructor element_constructors[] = {
     {"paletteicons", ui_create_palette_icons_from_props },
     {"slider",       ui_create_slider_from_props },
     {"rectangle",    ui_create_rectangle_from_props },
+    {"spinner",      ui_create_spinner_from_props },
 };
 
 const UIBitfieldEntry keybind_table[] = {
@@ -181,6 +183,8 @@ C2D_SpriteSheet *get_sheet(int sheet) {
             return &bg2Sheet;
         case 9:
             return &bar_sheet;
+        case 10:
+            return &bg_gradient_sheet;
     }
     return NULL;
 }
@@ -368,6 +372,15 @@ static void strip_enclosures(char* s) {
     {
         memmove(s, s + 1, length - 1);
         s[length - 2] = '\0';
+    }
+}
+
+static void convert_new_line(char *str) {
+    for (char *p = str; *p; p++) {
+        if (*p == '\\' && p[1] == 'n') {
+            *p = '\n';
+            memmove(p + 1, p + 2, strlen(p + 2) + 1);
+        }
     }
 }
 
@@ -577,6 +590,8 @@ void collect_properties(UIPropertyList *props, char *token, char **cursor, bool 
         char* value = equal + 1;
 
         strip_enclosures(value);
+
+        convert_new_line(value);
 
         ui_proplist_add(props, key, value);
     }

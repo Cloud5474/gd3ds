@@ -48,18 +48,18 @@ static void action_open_external_menu(UIElement *e, const UIPropertyList *args) 
 
 static void action_open_saved_menu(UIElement *e, const UIPropertyList *args) {
     //disabled for release build
-    // new_state = STATE_SAVED_LEVELS;
-    // set_fade_status(FADE_STATUS_OUT);
-    in_disclaimer = true;
-    disclaimer_init();
+    new_state = STATE_SAVED_LEVELS;
+    set_fade_status(FADE_STATUS_OUT);
+    // in_disclaimer = true;
+    // disclaimer_init();
 }
 
 static void action_open_search_menu(UIElement *e, const UIPropertyList *args) {
     // disabled for release build
-    // new_state = STATE_SEARCH_MENU;
-    // set_fade_status(FADE_STATUS_OUT);
-    in_disclaimer = true;
-    disclaimer_init();
+    new_state = STATE_SEARCH_MENU;
+    set_fade_status(FADE_STATUS_OUT);
+    // in_disclaimer = true;
+    // disclaimer_init();
 }
 
 static void action_open_soggy_menu(UIElement *e, const UIPropertyList *args) {
@@ -91,10 +91,7 @@ void creator_menu_loop() {
 
     set_fade_status(FADE_STATUS_IN);
 
-    if (!playing_menu_loop) {
-        play_mp3("romfs:/songs/menuLoop.mp3", true, 0);
-        playing_menu_loop = true;
-    }
+    play_menu_song();
 
     while (aptMainLoop()) {
         hidScanInput();

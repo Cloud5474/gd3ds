@@ -83,6 +83,15 @@ typedef struct {
 } StateLevelData;
 
 typedef struct {
+    bool active;
+    float timer;
+    float strength;
+} ShakeData;
+
+typedef struct {
+    float unmod_cam_x;
+    float unmod_cam_y;
+
     float camera_x;
     float camera_y;
 
@@ -113,6 +122,7 @@ typedef struct {
     unsigned char current_player;
 
     Player old_player;
+    Player death_player;
 
     StateLevelData current_data;
 
@@ -134,7 +144,6 @@ typedef struct {
     unsigned char speed;
 
     bool end_wall_anim_playing;
-    bool completion_shake;
     
     bool noclip;
     int hitbox_display;
@@ -151,11 +160,14 @@ typedef struct {
 
     bool hitbox_enabled_when_dead;
 
+    bool online_level;
+
     bool custom_level;
     char custom_level_path[256];
 
     BGFlashData flash_data;
     RespawnEffectData respawn_effect_data;
+    ShakeData shake_data;
 
     int last_hitbox_trail;
     PlayerHitboxTrail hitbox_trail_players[2][HITBOX_TRAIL_SIZE];
@@ -197,10 +209,18 @@ void init_wave_trails();
 
 void play_level_song(float seek);
 void play_practice_song();
+void play_menu_song();
 void update_attempt_text_pos();
 
 bool is_coin_collected(int obj);
 
 void kill_player(DeathReason reason);
+
+void set_camera_x(float x);
+void set_camera_y(float y);
+
+void init_shake();
+void start_shake(float duration, float strength);
+void handle_shake(float delta);
 
 extern bool disableHitboxesAfterRespawn;

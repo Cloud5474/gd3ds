@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "3ds/console.h"
 #include "3ds/env.h"
 #include "3ds/services/cfgu.h"
 #include "objects.h"
@@ -20,6 +21,7 @@
 #include "save/config.h"
 
 #include <curl/curl.h>
+#include "utils/network.h"
 
 #include "menus/main_menu.h"
 #include "menus/level_select.h"
@@ -47,6 +49,7 @@
 #include "menus/loading_screen.h"
 #include "menus/level_complete.h"
 #include "menus/online_level_menu.h"
+#include "menus/online_menu.h"
 
 #include "save/saving.h"
 
@@ -57,7 +60,9 @@
 
 #include "math_helpers.h"
 
+#include "utils/utils.h"
 #include "utils/precise_input.h"
+#include "utils/server_utils.h"
 
 #ifdef DEBUG_LEAKS
 #include "utils/leaks_dbg.h"
@@ -69,6 +74,7 @@
 int game_state = STATE_MAIN_MENU;
 
 bool playing_menu_loop = false;
+char menu_loop_path[32];
 
 int level_result = 0;
 
@@ -118,6 +124,8 @@ float fast_speed_particles_timer = 0.f;
 float faster_speed_particles_timer = 0.f;
 
 bool alt_title_screen;
+
+bool is_N3DS;
 
 // Checks if the game is being emulated by citra/azahar
 bool is_citra() {
@@ -232,6 +240,11 @@ void apply_volume_settings() {
     for (int i = 1; i <= 7; i++) {
         set_channel_volume(i, sound_volume);
     }
+}
+
+void check_system_model() {
+    u8 model = get_model();
+    is_N3DS = model == CFG_MODEL_N2DSXL || model == CFG_MODEL_N3DS || model == CFG_MODEL_N3DSXL || is_citra();
 }
 
 float sprite_drawing_time = 0;
@@ -556,32 +569,47 @@ void game_loop() {
     }
     C3D_FrameEnd(0);
     
-    char *path;
 
-    if (state.custom_level) {
-        path = state.custom_level_path;
-    } else {
-        path = main_levels[curr_level_id].gmd_path;
-    }
 
     update_player_colors();
 
-    int returned = load_level(path);
-    level_result = returned;
-    if (returned) {
-        printf("\x1b[9;1HFailed %d", returned);
+    if (state.online_level) {
+        int returned = load_online_level(level_entry);
+        level_result = returned;
+        if (returned) {
+            output_log("Failed %d\n", returned);
 
-        game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
-        return;
-    }
+            state.online_level = false;
+            game_state = STATE_ONLINE_LEVEL;
+            return;
+        }
+    } else {
+        char *path;
+        if (state.custom_level) {
+            path = state.custom_level_path;
+        } else {
+            path = main_levels[curr_level_id].gmd_path;
+        }
 
-    if (!state.custom_level) {
-        snprintf(level_info.level_name, sizeof(level_info.level_name), "%s", main_levels[curr_level_id].level_name);
+        int returned = load_level(path);
+        level_result = returned;
+        if (returned) {
+            output_log("Failed %d\n", returned);
+
+            game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
+            return;
+        }
+
+        if (!state.custom_level) {
+            snprintf(level_info.level_name, sizeof(level_info.level_name), "%s", main_levels[curr_level_id].level_name);
+        }
     }
 
     play_level_song(level_info.song_offset);
 
-    if (song_loaded) pause_playback_mp3();
+    if (song_loaded) {
+        pause_playback_mp3();
+    }
 
     set_fade_status(FADE_STATUS_IN);
 
@@ -768,8 +796,6 @@ void game_loop() {
                     }
 
                     if (state.dead) break;
-                    
-                    handle_auto_checkpoints(STEPS_DT);
 
                     if (state.dual) {
                         // Run second player
@@ -785,6 +811,7 @@ void game_loop() {
                     run_camera();
                     handle_bg_flash();
                     handle_respawn_effect();
+                    handle_auto_checkpoints(STEPS_DT);
 
                     u64 end_physics = svcGetSystemTick();
                     float physics_time = (end_physics - start_physics) / (CPU_TICKS_PER_MSEC);
@@ -866,7 +893,12 @@ void game_loop() {
                     reset_coins();
 
                     if (state.practice_mode) {
-                        if (checkpoint_count > 0) {
+                        if (settingsState.autoCheckpoints && player_gamemode_is_flying(&state.death_player) && pseudo_checkpoint_exists) {
+                            delete_last_checkpoint();
+                            pseudo_checkpoint_exists = false;
+                        }
+
+                        if (get_checkpoint_count() > 0) {
                             restore_checkpoint();
                         } else {
                             seek_mp3(level_info.song_offset);
@@ -882,6 +914,7 @@ void game_loop() {
             }
 
             handle_practice_mode();
+            handle_shake(delta);
 
             u64 start_trig = svcGetSystemTick();
             handle_triggers();
@@ -1193,17 +1226,21 @@ void game_loop() {
         }
     }
 
-    LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
+    if (!state.online_level) { // TODO: IMPLEMENT SAVING
+        LevelData *level_data_sel = (state.custom_level ? &level_data : &main_level_data[curr_level_id]);
 
-    level_data_sel->attempts += state.current_data.attempts;
-    level_data_sel->jumps += state.current_data.jumps;
-    level_data_sel->normal_progress = state.current_data.max_normal;
-    level_data_sel->practice_progress = state.current_data.max_practice;
+        level_data_sel->attempts += state.current_data.attempts;
+        level_data_sel->jumps += state.current_data.jumps;
+        level_data_sel->normal_progress = state.current_data.max_normal;
+        level_data_sel->practice_progress = state.current_data.max_practice;
+    }
 
     total_attempts += state.current_data.attempts;
     total_jumps += state.current_data.jumps;
 
-    if (state.custom_level) {
+    if (state.online_level) {
+        ; // Nothing for now
+    } else if (state.custom_level) {
         save_level_progress();
     } else {
         save_main_level_progress(curr_level_id);
@@ -1215,6 +1252,8 @@ void game_loop() {
 
     unload_level();
 
+    clear_practice_mode();
+
     clear_respawn_effect();
 
     level_complete_destroy();
@@ -1224,7 +1263,12 @@ void game_loop() {
     
     if (song_loaded) unpause_playback_mp3();
 
-    game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
+    if (state.online_level) {
+        game_state = STATE_ONLINE_LEVEL;
+        state.online_level = false;
+    } else {
+        game_state = (state.custom_level ? STATE_EXTERNAL_LEVELS : STATE_LEVEL_SELECT);
+    }
 }
 
 void game_assets_init() {
@@ -1280,6 +1324,11 @@ int main(int argc, char* argv[]) {
     C2D_Init(MAX_SPRITES);
     C2D_Prepare();
     osSetSpeedupEnable(1);
+    soc_init();
+    check_system_model();
+#ifndef IS_RELEASE
+    consoleDebugInit(debugDevice_SVC);
+#endif
 
     cfg_init();
     cfguInit();
@@ -1405,10 +1454,13 @@ int main(int argc, char* argv[]) {
                 saved_levels_loop();
                 break;
             case STATE_ONLINE_LEVEL:
-                online_menu_loop();
+                online_level_menu_loop();
                 break;
             case STATE_EXTERNAL_LEVELS:
                 external_levels_loop();
+                break;
+            case STATE_ONLINE:
+                online_menu_loop();
                 break;
             case STATE_SOGGY: // Sog
                 soggy_menu_loop();

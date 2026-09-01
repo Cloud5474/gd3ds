@@ -23,6 +23,16 @@
 
 GameState state;
 
+void set_camera_x(float x) {
+    state.camera_x = x;
+    state.unmod_cam_x = x;
+}
+
+void set_camera_y(float y) {
+    state.camera_y = y;
+    state.unmod_cam_y = y;
+}
+
 void run_camera() {
     Player *player = &state.player;
     state.old_camera_x = state.camera_x;
@@ -62,13 +72,9 @@ void run_camera() {
         float final_camera_x_wall = level_info.wall_x - (SCREEN_WIDTH_AREA);
         float final_camera_y_wall = level_info.wall_y - ((SCREEN_HEIGHT_AREA / 2) - LEVEL_Y_OFFSET);   
 
-        state.camera_x = easeValue(EASE_IN_OUT, final_camera_x_wall - CAMERA_X_WALL_OFFSET, final_camera_x_wall, state.camera_wall_timer, CAMERA_WALL_ANIM_DURATION, 2.0f);
-        state.camera_y = easeValue(EASE_IN_OUT, state.camera_wall_initial_y, final_camera_y_wall, state.camera_wall_timer, CAMERA_WALL_ANIM_DURATION, 2.0f);
+        set_camera_x(easeValue(EASE_IN_OUT, final_camera_x_wall - CAMERA_X_WALL_OFFSET, final_camera_x_wall, state.camera_wall_timer, CAMERA_WALL_ANIM_DURATION, 2.0f));
+        set_camera_y(easeValue(EASE_IN_OUT, state.camera_wall_initial_y, final_camera_y_wall, state.camera_wall_timer, CAMERA_WALL_ANIM_DURATION, 2.0f));
         state.camera_wall_timer += STEPS_DT;
-        if (state.completion_shake) {
-            state.camera_x = final_camera_x_wall + 3.f * random_float(-1, 1);
-            state.camera_y = final_camera_y_wall + 3.f * random_float(-1, 1);
-        }
     } else { 
         float cam_y = state.camera_y;
 
@@ -102,13 +108,13 @@ void run_camera() {
             cam_y = MAX_LEVEL_HEIGHT - SCREEN_HEIGHT_AREA;
         }
 
-        state.camera_y = cam_y;
+        set_camera_y(cam_y);
 
-        state.camera_x = player->x - 125.0f/SCALE;
+        set_camera_x(player->x - 125.0f/SCALE);
         
         if (state.current_data.attempts == 1) {
             if (state.camera_x < FIRST_ATTEMPT_CAMERA_OFFSET) {
-                state.camera_x = FIRST_ATTEMPT_CAMERA_OFFSET;
+                set_camera_x(FIRST_ATTEMPT_CAMERA_OFFSET);
             }
         }
 
@@ -191,7 +197,7 @@ void init_player(Player *player) {
     
     player->cutscene_timer = 0;
     player->x = 0;
-    player->y = player->height / 2;
+    player->y = 15;
     player->vel_x = player_speeds[state.speed];  
     player->vel_y = 0;
     player->new_vel_y = __FLT_MAX__;
@@ -360,6 +366,7 @@ void init_variables() {
    
     init_trails(selected_trail);
     init_wave_trails();
+    init_shake();
 
     clear_use_effects(get_use_effect_array_ptr(GFX_TOP));
 
@@ -382,6 +389,7 @@ void init_variables() {
 }
 
 void handle_death(Player *player, bool pause_song) {
+    state.death_player = state.player;
     play_sfx(&explode_sound, 1);
     if (song_loaded && pause_song) {
         if (!state.practice_mode) {
@@ -409,6 +417,8 @@ void handle_death(Player *player, bool pause_song) {
     explosion_particles[state.current_player].emitterY = player->y;
     explosion_particles[state.current_player].scale = (player->mini ? 0.6 : 1.0f);
     spawnMultipleParticles(&explosion_particles[state.current_player], 90);
+
+    if (!state.practice_mode) start_shake(0.15f, 1.f);
     
     if (settingsState.hitboxesOnDeath) {
         state.hitbox_enabled_when_dead = true;
@@ -469,7 +479,7 @@ void clear_bg_flash() {
 }
 
 void play_level_song(float seek) {
-    if (level_info.custom_song_id > 0) {
+    if (level_info.custom_song_id > 0 && state.custom_level) {
         size_t sz = 0;
         void *buf = load_user_song(level_info.custom_song_id, &sz);
         if (buf) {
@@ -478,16 +488,31 @@ void play_level_song(float seek) {
             song_loaded = false;
         }
     } else {
-        if (state.custom_level) {
-            song_loaded = play_mp3(main_levels[level_info.song_id].song_path, false, seek);
+        int song_id = curr_level_id;
+
+        if (state.custom_level) song_id = level_info.song_id;
+
+        if (song_id < MAIN_LEVELS_NUM) {
+            song_loaded = play_mp3(main_levels[song_id].song_path, false, seek);
         } else {
-            song_loaded = play_mp3(main_levels[curr_level_id].song_path, false, seek);
+            song_loaded = false;
         }
     }
 }
 
 void play_practice_song() {
     play_mp3("romfs:/songs/StayInsideMe.mp3", true, 0);
+}
+
+void play_menu_song() {
+    if (!playing_menu_loop) {
+        size_t out_size;
+        void *buf = read_file(menu_loop_path, &out_size);
+        if (buf) {
+            play_mp3_buf(buf, out_size, true, 0);
+            playing_menu_loop = true;
+        }
+    }
 }
 
 // Respawn effect
@@ -592,4 +617,29 @@ bool is_coin_collected(int obj) {
 void kill_player(DeathReason reason) {
     state.dead = true;
     state.death_reason = reason;
+}
+
+void init_shake() {
+    state.shake_data.active = false;
+}
+
+void start_shake(float duration, float strength) {
+    state.shake_data.timer = duration;
+    state.shake_data.strength = strength;
+    state.shake_data.active = true;
+}
+
+void handle_shake(float delta) {
+    if (state.shake_data.active) {
+        state.camera_x = state.unmod_cam_x + state.shake_data.strength * random_float(-1, 1);
+        state.camera_y = state.unmod_cam_y + state.shake_data.strength * random_float(-1, 1);
+        state.shake_data.timer -= delta;
+
+        // End of shake
+        if (state.shake_data.timer < 0) {
+            state.shake_data.active = false;
+            state.camera_x = state.unmod_cam_x;
+            state.camera_y = state.unmod_cam_y;
+        }
+    }
 }
