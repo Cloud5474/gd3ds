@@ -37,10 +37,14 @@ static void ui_darken_update(UIElement* e, UIInput* touch, UITransform *transfor
             float fade = 0.f;
             switch(e->screen->transition.state){
                 case UI_TRANSITION_OPENING:
-                    fade = time / duration;
+                    if(trans->in_duration > 0.f){
+                        fade = time / duration;
+                    }
                     break;
                 case UI_TRANSITION_CLOSING:
-                    fade = 1.f - (time / duration);
+                    if(trans->out_duration > 0.f){
+                        fade = 1.f - (time / duration);
+                    }
                     break;
                 case UI_TRANSITION_NONE:
                     fade = 0.f;
