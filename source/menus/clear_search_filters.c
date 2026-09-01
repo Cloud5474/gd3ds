@@ -19,12 +19,12 @@ void action_clear_search_filters(UIElement* e, const UIPropertyList *args) {
     yes_exit = true;
 }
 
-static UIActionDef clear_search_filter_actions[] = {
+static UIActionDef actions[] = {
     { "clear", action_clear_search_filters },
 };
 
 void clear_search_filters_init() {
-    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/clear_filters.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/clear_filters.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     
     yes_exit = false;

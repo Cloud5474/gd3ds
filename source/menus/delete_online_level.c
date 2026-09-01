@@ -18,12 +18,12 @@ void action_delete_level(UIElement* e, const UIPropertyList *args) {
     delete_level();
 }
 
-static UIActionDef clear_search_filter_actions[] = {
+static UIActionDef actions[] = {
     { "delete", action_delete_level },
 };
 
 void delete_level_init() {
-    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/delete_level.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/delete_level.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     yes_exit = false;

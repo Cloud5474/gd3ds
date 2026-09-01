@@ -17,7 +17,7 @@ static void action_boop(UIElement *e, const UIPropertyList *args) {
     play_sfx(&honk, 1);
 }
 
-static UIActionDef clear_search_filter_actions[] = {
+static UIActionDef actions[] = {
     {"boop", action_boop},
 };
 
@@ -26,8 +26,8 @@ void soggy_menu_loop() {
     gotSogged = true;
     cfg_save(); // You got sogged
 
-    ui_load_screen_old(&default_screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/soggy.txt");
-    ui_load_screen_old(&default_screen_top, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/soggy_top.txt");
+    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/soggy.txt");
+    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/soggy_top.txt");
 
     set_fade_status(FADE_STATUS_IN);
 
