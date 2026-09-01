@@ -80,6 +80,13 @@ void ui_destroy_tree(UIElement *e) {
 
     if (e->userdata && e->userdata_destroy) e->userdata_destroy(e->userdata);
 
+    if(e->actions){
+        for(int i = 0; i < e->action_count; i++){
+            ui_destroy_proplist(&e->actions[i].args);
+        }
+        free(e->actions);
+    }
+
     ui_destroy_proplist(&e->custom_properties);
     
     e->destroy(e);
@@ -154,7 +161,7 @@ UIActionFn ui_find_action(const UIActionDef* actions, size_t count, const char* 
     return NULL;
 }
 
-void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props) {
+void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props) {
     if (!e || !screen || !props) return;
 
     ui_element_set_position(e, 
@@ -182,10 +189,18 @@ void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIP
         ui_prop_string(props, "action", "")
     );
 
+    e->actions = ui_prop_actions(
+        props, 
+        e->screen->def->actions, 
+        e->screen->def->action_count, 
+        "actions",
+        &e->action_count
+    );
+
     e->custom_properties = ui_prop_list(props, "custom");
 }
 
-void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen) {
+void ui_element_apply_default_properties(UIElement *e, UIScreen *screen) {
     if (!e || !screen) return;
 
     ui_element_set_scale(e, 1);
@@ -195,4 +210,18 @@ void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen) {
     e->screen = screen;
 
     e->userdata_destroy = free;
+}
+
+void perform_actions(UIElement *e){
+    if (e->action){
+        e->action(e, NULL);
+    }
+
+    if(e->actions){
+        for(int i = 0; i < e->action_count; i++){
+            if(e->actions[i].action){
+                e->actions[i].action(e, &e->actions[i].args);
+            }
+        }
+    }
 }

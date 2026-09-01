@@ -14,16 +14,16 @@ static UIScreen screen = {
 static UILabel *error_label;
 static UILabel *title;
 
-void exit_online_errorbox(UIElement* e) {
+void exit_online_errorbox(UIElement* e, const UIPropertyList *args) {
     yes_exit = true;
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     { "exit", exit_online_errorbox },
 };
 
 void online_errorbox_init(char error[64]) {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/info_card.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/info_card.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     error_label = (UILabel *) ui_get_element_by_tag(&screen, "content");
     title = (UILabel *) ui_get_element_by_tag(&screen, "title");
@@ -42,7 +42,7 @@ int online_errorbox_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
+    
     touch.interacted = false;
     ui_screen_update(&screen, &touch);
 

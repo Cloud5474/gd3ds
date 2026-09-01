@@ -12,5 +12,5 @@ void ui_icon_set_p2(UIIcon *e, u32 color);
 void ui_icon_set_glow(UIIcon *e, u32 color);
 
 void ui_icon_set_gamemode_index(UIIcon *e, int gamemode, int index);
-UIIcon *ui_create_icon(const UIScreen *screen);
-UIElement *ui_create_icon_from_props(const UIScreen *screen, const UIPropertyList *props);
+UIIcon *ui_create_icon(UIScreen *screen);
+UIElement *ui_create_icon_from_props(UIScreen *screen, const UIPropertyList *props);

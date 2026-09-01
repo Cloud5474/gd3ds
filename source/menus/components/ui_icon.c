@@ -92,7 +92,7 @@ void ui_icon_set_glow(UIIcon *e, u32 color) {
     e->glow_color = color;
 }
 
-UIIcon *ui_create_icon(const UIScreen *screen) {
+UIIcon *ui_create_icon(UIScreen *screen) {
     UIIcon *e = malloc(sizeof(UIIcon));
 
     if (!e) return NULL;
@@ -120,7 +120,7 @@ UIIcon *ui_create_icon(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_icon_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_icon_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIIcon *icon = ui_create_icon(screen);
 
     if (!icon) return NULL;

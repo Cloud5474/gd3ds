@@ -57,11 +57,6 @@ typedef struct {
 } UITransition;
 
 typedef struct {
-    const char* name;
-    UIActionFn fn;
-} UIActionDef;
-
-typedef struct {
     const char* path;
 
     void (*load)(UIScreen *);
@@ -91,7 +86,7 @@ typedef struct UIScreen {
 
 typedef void (*UIElementVisitor)(UIElement *element, void *userdata);
 typedef bool (*UIElementPredicate)(UIElement *, void *);
-typedef UIElement *(*UICreateFn)(const UIScreen *screen, const UIPropertyList *);
+typedef UIElement *(*UICreateFn)(UIScreen *screen, const UIPropertyList *);
 
 extern C2D_SpriteSheet ui_sheet;
 extern C2D_SpriteSheet ui_2_sheet;
@@ -122,12 +117,12 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation);
 void ui_screen_close(UIScreen *screen);
 
 UIElement *ui_get_element_by_tag(UIScreen *screen, const char *tag);
-void ui_run_func_on_tag(const UIScreen *screen, const char *tag, void (*func)(UIElement *e));
+void ui_run_func_on_tag(UIScreen *screen, const char *tag, void (*func)(UIElement *e));
 
-void ui_set_pos_on_tag(const UIScreen *screen, float x, float y, const char *tag);
+void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag);
 
 char* next_token(char** cursor);
-void collect_properties(UIPropertyList *props, char *token, char **cursor, bool strip);
+void collect_properties(UIPropertyList *props, char *token, char **cursor);
 
 void add_ui_particle_system(ParticleSystem *particle);
 void free_ui_particle_systems();

@@ -33,7 +33,7 @@ static void ui_rectangle_destroy(UIElement *e) {
     }
 }
 
-UIRectangle *ui_create_rectangle(const UIScreen *screen) {
+UIRectangle *ui_create_rectangle(UIScreen *screen) {
     UIRectangle *e = malloc(sizeof(UIRectangle));
 
     if (!e) return NULL;
@@ -52,7 +52,7 @@ UIRectangle *ui_create_rectangle(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_rectangle_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_rectangle_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIRectangle *rectangle = ui_create_rectangle(screen);
 
     if (!rectangle) return NULL;

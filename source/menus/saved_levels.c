@@ -33,7 +33,7 @@ static UIImage *bg_gradient_top;
 
 static UIList *list;
 
-void action_open_level_menu(UIElement* e, UIPropertyList *props) {
+void action_open_level_menu(UIElement* e, const UIPropertyList *props) {
     new_state = STATE_ONLINE_LEVEL;
     set_fade_status(FADE_STATUS_OUT);
 }

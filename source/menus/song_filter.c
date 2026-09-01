@@ -29,7 +29,7 @@ void switch_song(int song) {
     }
 }
 
-void action_left_song(UIElement *e, UIPropertyList *props) {
+void action_left_song(UIElement *e, const UIPropertyList *props) {
     filters.mainSong--;
     if (filters.mainSong < 0) {
         filters.mainSong = ARRAY_LEN(main_songs) - 1;
@@ -38,7 +38,7 @@ void action_left_song(UIElement *e, UIPropertyList *props) {
     switch_song(filters.mainSong);
 }
 
-void action_right_song(UIElement *e, UIPropertyList *props) {
+void action_right_song(UIElement *e, const UIPropertyList *props) {
     filters.mainSong++;
     if (filters.mainSong >= ARRAY_LEN(main_songs)) {
         filters.mainSong = 0;
@@ -73,7 +73,7 @@ void select_custom() {
     filters.customSong = true;
 }
 
-void song_filter(UIElement *e, UIPropertyList *props) {
+void song_filter(UIElement *e, const UIPropertyList *props) {
     filters.songFilter = ((UICheckBox *)e)->checked;
     UITextbox *textbox = ((UITextbox *)ui_get_element_by_tag(&screen, "songinput"));
 
@@ -99,7 +99,7 @@ void song_filter(UIElement *e, UIPropertyList *props) {
     ui_run_func_on_tag(&screen, "button", filters.songFilter ? ui_enable_element : ui_disable_element);
 }
 
-void action_custom_song_query(UIElement *e, UIPropertyList *props){
+void action_custom_song_query(UIElement *e, const UIPropertyList *props){
     snprintf(filters.customSongQuery, sizeof(filters.customSongQuery), "%.*s", (int)sizeof(filters.customSongQuery) - 1, ((UITextbox *)e)->text);
 }
 

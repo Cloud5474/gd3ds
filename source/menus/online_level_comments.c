@@ -47,7 +47,7 @@ static NetworkTask comments_task = {
     .func = get_comments
 };
 
-void action_exit_comments(UIElement* e, UIPropertyList *args) {
+void action_exit_comments(UIElement* e, const UIPropertyList *args) {
     if (comments_task.running) {
         comments_task.cancelled = true;
         threadJoin(thread, U64_MAX);
@@ -102,13 +102,13 @@ void populate_comments() {
         float list_width = list->base.w * 0.5f;
         float list_height = 86 * 0.5f;
 
-        UIElement *card = (UIElement *)ui_create_rectangle(&default_screen.ctx);
+        UIElement *card = (UIElement *)ui_create_rectangle(&default_screen);
 
         if (card) {
             ui_rectangle_set_color((UIRectangle *)card, (i & 1 ? C2D_Color32(194, 114, 62, 255) : C2D_Color32(161, 88, 44, 255)));
             ui_element_set_size(card, 0, 86);
 
-            UIWindow *bg_window = ui_create_window(&default_screen.ctx);
+            UIWindow *bg_window = ui_create_window(&default_screen);
             if (bg_window) {
                 ui_element_set_size((UIElement *)bg_window, 2 * list_width - 10, 2 * list_height - 10);
                 ui_element_set_position((UIElement *)bg_window, 0, 0);
@@ -120,7 +120,7 @@ void populate_comments() {
             }
 
             // Commenter's icon (robtop server exclusive)
-            UIIcon *user_icon = ui_create_icon(&default_screen.ctx);
+            UIIcon *user_icon = ui_create_icon(&default_screen);
             if (user_icon && !gdps) {
                 //output_log("icon type: %d\nicon id: %d\nicon p1: %d\n icon p2: %d\n\n", comment_entries[i].iconType, comment_entries[i].playerIcon, comment_entries[i].col1, comment_entries[i].col2);
                 int iconType = comment_entries[i].iconType;
@@ -146,7 +146,7 @@ void populate_comments() {
             }
 
             // Comment author
-            UILabel *username_label = ui_create_label(&default_screen.ctx);
+            UILabel *username_label = ui_create_label(&default_screen);
             if (username_label) {
                 ui_label_set_text(username_label, username);
                 ui_element_set_position((UIElement *)username_label, -list_width + (gdps ? 10 : 30), -list_height + 15);
@@ -159,7 +159,7 @@ void populate_comments() {
 
             // Mod badge
 
-            UIImage *badge = ui_create_image(&default_screen.ctx);
+            UIImage *badge = ui_create_image(&default_screen);
             if (badge && comment_entries[i].modBadge > 0) {
                 int badgeOffset = 0;
                 badgeOffset += comment_entries[i].modBadge;
@@ -172,7 +172,7 @@ void populate_comments() {
             }
 
             // Comment content
-            UILabel *content_label = ui_create_label(&default_screen.ctx);
+            UILabel *content_label = ui_create_label(&default_screen);
             if (content_label) {
                 char *wrapped_content = wrap_text(&chatFont_fontCharset, content_label->base.scaleX, comment_entries[i].content, 270);
                 char *desc = strdup(wrapped_content);
@@ -189,7 +189,7 @@ void populate_comments() {
             }
 
             // Comment percent
-            UILabel *percent_label = ui_create_label(&default_screen.ctx);
+            UILabel *percent_label = ui_create_label(&default_screen);
             if (percent_label && percent > 0) {
                 char tmp_value[24];
 
@@ -206,7 +206,7 @@ void populate_comments() {
 
             // Comment likes
 
-            UIImage *like_icon = ui_create_image(&default_screen.ctx);
+            UIImage *like_icon = ui_create_image(&default_screen);
             if (like_icon) {
                 ui_image_set_image(like_icon, 97, 0);
                 ui_element_set_position((UIElement *)like_icon, -list_width + 18, list_height - 16);
@@ -219,7 +219,7 @@ void populate_comments() {
                 ui_element_add_child(card, (UIElement *)like_icon);
             }
 
-            UILabel *like_value = ui_create_label(&default_screen.ctx);
+            UILabel *like_value = ui_create_label(&default_screen);
             if (like_value) {
                 char tmp_value[16];
 
@@ -236,7 +236,7 @@ void populate_comments() {
 
             // Comment timestamp
             if(!gdps){
-                UILabel *timestamp_value = ui_create_label(&default_screen.ctx);
+                UILabel *timestamp_value = ui_create_label(&default_screen);
                 if (timestamp_value) {
                     char tmp_value[sizeof(timestamp) + 14 - 1];
                     snprintf(tmp_value, sizeof(tmp_value), "<#0000007D>%s", timestamp);
@@ -256,7 +256,7 @@ void populate_comments() {
     }
 }
 
-static void action_refresh_comments(UIElement* e) {
+static void action_refresh_comments(UIElement* e, const UIPropertyList *args) {
     int buttonType = ui_prop_int(&e->custom_properties, "sorttype", 0);
 
     if (buttonType != -1) {
@@ -275,7 +275,7 @@ static void action_refresh_comments(UIElement* e) {
     thread = create_network_thread(&comments_task);
 }
 
-static void action_change_comments_page(UIElement* e) {
+static void action_change_comments_page(UIElement* e, const UIPropertyList *args) {
     current_comments_page += ui_prop_int(&e->custom_properties, "page", 0);
     
     ui_list_reset(list);
@@ -284,14 +284,14 @@ static void action_change_comments_page(UIElement* e) {
     thread = create_network_thread(&comments_task);
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     { "exit", action_exit_comments },
     { "refresh", action_refresh_comments },
     { "changepage", action_change_comments_page }
 };
 
 void online_comments_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_comments.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_comments.txt");
     ui_screen_open(&screen, ANIM_ZOOM_SUBTLE);
 
     list = (UIList *) ui_get_element_by_tag(&screen, "list");

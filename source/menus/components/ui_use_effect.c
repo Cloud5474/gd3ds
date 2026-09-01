@@ -70,7 +70,7 @@ static void ui_use_effect_destroy(UIElement *e) {
     }
 }
 
-UIUseEffect *ui_create_use_effect(const UIScreen *screen) {
+UIUseEffect *ui_create_use_effect(UIScreen *screen) {
     UIUseEffect *e = malloc(sizeof(UIUseEffect));
 
     if (!e) return NULL;
@@ -97,7 +97,7 @@ UIUseEffect *ui_create_use_effect(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_use_effect_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_use_effect_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIUseEffect *use_effect = ui_create_use_effect(screen);
 
     if (!use_effect) return NULL;

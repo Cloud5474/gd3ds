@@ -87,19 +87,19 @@ typedef struct {
     float version;
 } VersionWarningData;
 
-static void action_exit(UIElement *e) {
+static void action_exit(UIElement *e, const UIPropertyList *args) {
     exit_flag = true;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static void action_open_online_level_menu(UIElement* e) {
+static void action_open_online_level_menu(UIElement* e, const UIPropertyList *args) {
     OnlineCardData *entry = e->userdata;
     curr_search_id = entry->entryId;
     new_state = STATE_ONLINE_LEVEL;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static void action_open_version_warning(UIElement *e) {
+static void action_open_version_warning(UIElement *e, const UIPropertyList *args) {
     VersionWarningData *data = e->userdata;
     if (data) {
         char buffer[256];
@@ -163,14 +163,14 @@ static void populate_list() {
 
         float list_width = list->base.w * 0.5f;
 
-        UIElement *card = (UIElement *)ui_create_rectangle(&default_screen.ctx);
+        UIElement *card = (UIElement *)ui_create_rectangle(&default_screen);
 
         if (card) {
             ui_rectangle_set_color((UIRectangle *)card, (i & 1 ? C2D_Color32(194, 114, 62, 255) : C2D_Color32(161, 88, 48, 255)));
             ui_element_set_size(card, 0, 60);
 
             // Level name
-            UILabel *name_label = ui_create_label(&default_screen.ctx);
+            UILabel *name_label = ui_create_label(&default_screen);
 
             if (name_label) {
                 ui_label_set_text(name_label, tmp_name);
@@ -181,7 +181,7 @@ static void populate_list() {
             }
 
             // Level creator
-            UILabel *creator_label = ui_create_label(&default_screen.ctx);
+            UILabel *creator_label = ui_create_label(&default_screen);
             if (creator_label) {
                 ui_label_set_text(creator_label, tmp_creator);
                 ui_element_set_position((UIElement *)creator_label, -list_width + 48, -4.5f);
@@ -193,7 +193,7 @@ static void populate_list() {
             }
 
             // copy icon
-            UIImage *collaboration_icon = ui_create_image(&default_screen.ctx);
+            UIImage *collaboration_icon = ui_create_image(&default_screen);
             if (collaboration_icon && entry->originalId != 0) {
                 ui_image_set_image(collaboration_icon, 213, 0);
                 ui_element_set_position((UIElement *)collaboration_icon, -list_width + 48 + get_text_length(&goldFont_fontCharset, 0.45f, false, creator_name) + 27, -4.5f);
@@ -203,7 +203,7 @@ static void populate_list() {
             }
 
             // high object count icon
-            UIImage *high_object_icon = ui_create_image(&default_screen.ctx);
+            UIImage *high_object_icon = ui_create_image(&default_screen);
             if (high_object_icon && (entry->objCount >= (is_N3DS ? 44000 : 14000))) {
                 ui_image_set_image(high_object_icon, 362, 0);
                 ui_element_set_position((UIElement *)high_object_icon, -list_width + 48 + get_text_length(&goldFont_fontCharset, 0.45f, false, creator_name) + 27 + ((entry->originalId != 0) ? 11 : 0), -4.5f);
@@ -213,7 +213,7 @@ static void populate_list() {
             }
 
             // Level song
-            UILabel *song_label = ui_create_label(&default_screen.ctx);
+            UILabel *song_label = ui_create_label(&default_screen);
             if (song_label) {
                 ui_label_set_text(song_label, tmp_song);
                 ui_element_set_position((UIElement *)song_label, -list_width + 48, 7);
@@ -223,7 +223,7 @@ static void populate_list() {
             }
 
             // Level length
-            UILabel *length_label = ui_create_label(&default_screen.ctx);
+            UILabel *length_label = ui_create_label(&default_screen);
             if (length_label) {
                 char *level_length = "Unkn.";
                 if (IN_BOUNDS(entry->lengthNum, level_lengths)) {
@@ -238,7 +238,7 @@ static void populate_list() {
             }
 
             // Downloads
-            UILabel *download_value = ui_create_label(&default_screen.ctx);
+            UILabel *download_value = ui_create_label(&default_screen);
             if (download_value) {
                 char *tmp_value = truncate_number(entry->downloads);
 
@@ -250,7 +250,7 @@ static void populate_list() {
             }
 
             // Likes
-            UILabel *like_value = ui_create_label(&default_screen.ctx);
+            UILabel *like_value = ui_create_label(&default_screen);
             if (like_value) {
                 char *tmp_value = truncate_number(entry->likes);
 
@@ -262,7 +262,7 @@ static void populate_list() {
             }
 
             // Stars
-            UILabel *star_value = ui_create_label(&default_screen.ctx);
+            UILabel *star_value = ui_create_label(&default_screen);
             if (star_value && entry->stars > 0) {
                 char tmp_value[16];
 
@@ -277,7 +277,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)star_value);
             }
 
-            UIImage *featured_glow = ui_create_image(&default_screen.ctx);
+            UIImage *featured_glow = ui_create_image(&default_screen);
             if (featured_glow && entry->featureScore > 0) {
                 int featured_id = 0;
                 int yOffset = 0;
@@ -298,7 +298,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)featured_glow);
             }
 
-            UIImage *difficulty_face = ui_create_image(&default_screen.ctx);
+            UIImage *difficulty_face = ui_create_image(&default_screen);
             if (difficulty_face) {
                 int difficulty_id = NA_FACE;
 
@@ -319,7 +319,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)difficulty_face);
             }
 
-            UIImage *star_icon = ui_create_image(&default_screen.ctx);
+            UIImage *star_icon = ui_create_image(&default_screen);
             if (star_icon && entry->stars > 0) {
                 ui_image_set_image(star_icon, 170, 0);
                 ui_element_set_position((UIElement *)star_icon, -list_width + 29, 20);
@@ -328,7 +328,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)star_icon);
             }
 
-            UIImage *length_icon = ui_create_image(&default_screen.ctx);
+            UIImage *length_icon = ui_create_image(&default_screen);
             if (length_icon) {
                 ui_image_set_image(length_icon, 197, 0);
                 ui_element_set_position((UIElement *)length_icon, -list_width + 53, 20);
@@ -337,7 +337,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)length_icon);
             }
 
-            UIImage *download_icon = ui_create_image(&default_screen.ctx);
+            UIImage *download_icon = ui_create_image(&default_screen);
             if (download_icon) {
                 ui_image_set_image(download_icon, 163, 0);
                 ui_element_set_position((UIElement *)download_icon, -list_width + 103, 20);
@@ -346,7 +346,7 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)download_icon);
             }
 
-            UIImage *like_icon = ui_create_image(&default_screen.ctx);
+            UIImage *like_icon = ui_create_image(&default_screen);
             if (like_icon) {
                 ui_image_set_image(like_icon, 97, 0);
                 ui_element_set_position((UIElement *)like_icon, -list_width + 153, 19);
@@ -362,7 +362,7 @@ static void populate_list() {
             // Exclamation mark
             float version = derive_gj_version(entry->gameVersion);
             if (version > GD_VERSION) {
-                UIButton *v_warn_button = ui_create_button(&default_screen.ctx);
+                UIButton *v_warn_button = ui_create_button(&default_screen);
                 if (v_warn_button) {
                     VersionWarningData *data = malloc(sizeof(*data));
                     data->version = version;
@@ -385,7 +385,7 @@ static void populate_list() {
                 }
             }
 
-            UIWindowButton *button = ui_create_window_button(&default_screen.ctx);
+            UIWindowButton *button = ui_create_window_button(&default_screen);
             if (button) {
                 // Store in the user data
                 OnlineCardData *data = malloc(sizeof(*data));
@@ -432,7 +432,7 @@ static void handle_errors(int code) {
     }
 }
 
-static void action_change_page(UIElement* e) {
+static void action_change_page(UIElement* e, const UIPropertyList *args) {
     filters.currentPage += ui_prop_int(&e->custom_properties, "page", 0);
     search_needs_refresh = true;
     update_arrows();
@@ -441,7 +441,7 @@ static void action_change_page(UIElement* e) {
     if (list) ui_list_reset(list);
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     {"exit", action_exit },
     {"open_level_menu", action_open_online_level_menu },
     {"changepage", action_change_page }
@@ -459,8 +459,8 @@ void online_menu_loop() {
     new_state = 0;
     exit_flag = false;
 
-    ui_load_screen(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels.txt");
-    ui_load_screen(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels_top.txt");
+    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels.txt");
+    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels_top.txt");
 
     spinner = (UISpinner *) ui_get_element_by_tag(&default_screen, "spinner");
 
@@ -499,7 +499,7 @@ void online_menu_loop() {
         touchPosition touchPos;
         hidTouchRead(&touchPos);
         touch.touchPosition = touchPos;
-        touch.did_something = false;
+        
         touch.interacted = false;
         
         // Run when finished

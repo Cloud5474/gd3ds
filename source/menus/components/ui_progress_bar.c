@@ -128,7 +128,7 @@ void ui_progress_bar_set_images(UIProgressBar *e, int style) {
     }
 }
 
-UIProgressBar *ui_create_progress_bar(const UIScreen *screen) {
+UIProgressBar *ui_create_progress_bar(UIScreen *screen) {
     UIProgressBar *e = malloc(sizeof(UIProgressBar));
 
     if (!e) return NULL;
@@ -149,7 +149,7 @@ UIProgressBar *ui_create_progress_bar(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_progress_bar_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_progress_bar_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIProgressBar *progress_bar = ui_create_progress_bar(screen);
 
     if (!progress_bar) return NULL;

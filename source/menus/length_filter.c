@@ -33,12 +33,12 @@ static void update_length_tints(){
     ui_run_func_on_tag(&screen, "lengthbtn", update_length_tint);
 }
 
-void action_set_length(UIElement* e, UIPropertyList *props) {
+void action_set_length(UIElement* e, const UIPropertyList *props) {
     filters.lengthFilters ^= ui_prop_int(&e->custom_properties, "lengthval", 0);
     update_length_tints();
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     { "length", action_set_length },
 };
 

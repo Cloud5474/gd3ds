@@ -166,7 +166,7 @@ static void ui_slider_init_graphics(UISlider *e) {
     e->base.h = e->track.image.subtex->height;
 }
 
-UISlider *ui_create_slider(const UIScreen *screen) {
+UISlider *ui_create_slider(UIScreen *screen) {
     UISlider *e = malloc(sizeof(UISlider));
 
     if (!e) return NULL;
@@ -189,7 +189,7 @@ UISlider *ui_create_slider(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_slider_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_slider_from_props(UIScreen *screen, const UIPropertyList *props) {
     UISlider *slider = ui_create_slider(screen);
 
     if (!slider) return NULL;

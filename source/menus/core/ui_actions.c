@@ -16,7 +16,7 @@ const UIIntEnumEntry screen_enum[] = {
 
 static void action_open_menu(UIElement *e, const UIPropertyList *args){
     bool anchor = ui_prop_bool(args, "anchor", false);
-    const UIScreenDefPair *def = ui_get_screen_def(ui_prop_string(args, "screen", "Soggy"));
+    const UIScreenDefPair *def = ui_get_screen_def(ui_prop_string(args, "screen", "soggy"));
     if(anchor){
         ui_stack_push_anchor(def, false);
     } else{
@@ -33,7 +33,7 @@ static void action_close_menu(UIElement *e, const UIPropertyList *args){
 static void action_disable_tag(UIElement *e, const UIPropertyList *args){
     int screen = ui_prop_int_enum(args, "screen", screen_enum, ARRAY_LEN(screen_enum), -1);
     if(screen >= 0 && screen < 2){
-        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}FuckYou"), ui_disable_element);
+        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_disable_element);
         return;
     }
     ui_run_func_on_tag(e->screen, ui_prop_string(args, "tag", "unused"), ui_disable_element);
@@ -42,7 +42,7 @@ static void action_disable_tag(UIElement *e, const UIPropertyList *args){
 static void action_enable_tag(UIElement *e, const UIPropertyList *args){
     int screen = ui_prop_int_enum(args, "screen", screen_enum, ARRAY_LEN(screen_enum), -1);
     if(screen >= 0 && screen < 2){
-        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}FuckYou"), ui_enable_element);
+        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_enable_element);
         return;
     }
     ui_run_func_on_tag(e->screen, ui_prop_string(args, "tag", "unused"), ui_enable_element);
@@ -56,6 +56,6 @@ const UIActionDef base_actions[] = {
     { "open_menu", action_open_menu },
     { "close_menu", action_close_menu },
     { "disable_tag", action_disable_tag },
-    { "disable_tag", action_enable_tag },
+    { "enable_tag", action_enable_tag },
     { "play_sound", action_play_sound }
 };

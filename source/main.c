@@ -1435,35 +1435,8 @@ int main(int argc, char* argv[]) {
                 test_loop();
                 //main_menu_loop();
                 break;
-            case STATE_LEVEL_SELECT:
-                level_select_loop();
-                break;
-            case STATE_ICON_KIT:
-                icon_kit_loop();
-                break;
             case STATE_GAME:
                 game_loop();
-                break;
-            case STATE_CREATOR_MENU:
-                creator_menu_loop();
-                break;
-            case STATE_SEARCH_MENU:
-                search_menu_loop();
-                break;
-            case STATE_SAVED_LEVELS:
-                saved_levels_loop();
-                break;
-            case STATE_ONLINE_LEVEL:
-                online_level_menu_loop();
-                break;
-            case STATE_EXTERNAL_LEVELS:
-                external_levels_loop();
-                break;
-            case STATE_ONLINE:
-                online_menu_loop();
-                break;
-            case STATE_SOGGY: // Sog
-                soggy_menu_loop();
                 break;
             case STATE_EXIT:
                 exit = true;

@@ -55,7 +55,7 @@ void ui_init_particle_definition(UIParticle *e, const ParticleDefinition *def) {
     p->stationary = true;
 }
 
-UIParticle *ui_create_particle(const UIScreen *screen) {
+UIParticle *ui_create_particle(UIScreen *screen) {
     UIParticle *e = malloc(sizeof(UIParticle));
 
     if (!e) return NULL;
@@ -74,7 +74,7 @@ UIParticle *ui_create_particle(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_particle_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_particle_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIParticle *particle = ui_create_particle(screen);
 
     if (!particle) return NULL;

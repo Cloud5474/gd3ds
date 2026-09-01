@@ -436,7 +436,7 @@ static void handle_song_data_errors(int code) {
     ui_label_set_text(song_status_label, message);
 }
 
-static void action_refresh_level(UIElement *e, UIPropertyList *props) {
+static void action_refresh_level(UIElement *e, const UIPropertyList *props) {
     result = -2;
     refresh = true;
     ui_enable_element((UIElement *)spinner);
@@ -457,7 +457,7 @@ static void play_level() {
     playing_menu_loop = false;
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     {"exit", action_exit },
     {"info", action_open_info },
     {"comments", action_open_comments },

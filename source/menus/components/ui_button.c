@@ -36,9 +36,7 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     if(button->keyPressTimer > 0){
         if(button->keyPressTimer == 44){
             pressedKey = false;
-            if (e->action){
-                e->action(e, NULL);
-            }
+            perform_actions(e);
         }
         if(--(button->keyPressTimer) == 0){
             button->pressed = false;
@@ -91,8 +89,7 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
             button->pre_action(e, NULL);
         }
 
-        if (e->action)
-            e->action(e, NULL);
+        perform_actions(e);
     }
     
     // Unpress the button
@@ -186,7 +183,7 @@ void ui_button_set_image(UIButton *e, int sprite_index, int sheet) {
     e->base.h = e->image.sprite.image.subtex->height;
 }
 
-UIButton *ui_create_button(const UIScreen *screen) {
+UIButton *ui_create_button(UIScreen *screen) {
     UIButton *e = malloc(sizeof(UIButton));
 
     if (!e) return NULL;
@@ -217,7 +214,7 @@ UIButton *ui_create_button(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_button_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_button_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIButton *button = ui_create_button(screen);
 
     if (!button) return NULL;

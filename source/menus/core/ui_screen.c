@@ -2,7 +2,6 @@
 #include "main.h"
 #include "menus/components/ui_spinner.h"
 #include "menus/core/common_setters.h"
-#include "ui_props.h"
 #include "ui_element.h"
 #include "ui_screen.h"
 
@@ -499,7 +498,7 @@ static void visit_tag(UIElement *element, void *userdata) {
 }
 
 // Run a function on each element with an specific tag
-void ui_run_func_on_tag(const UIScreen *screen, const char *tag, void (*func)(UIElement *e)) {
+void ui_run_func_on_tag(UIScreen *screen, const char *tag, void (*func)(UIElement *e)) {
     UITagVisitorData data = { .tag = tag, .func = func };
 
     for (int i = 0; i < screen->count; i++) {
@@ -508,7 +507,7 @@ void ui_run_func_on_tag(const UIScreen *screen, const char *tag, void (*func)(UI
 }
 
 // DEPRECATED: use child elements and just move the parent
-void ui_set_pos_on_tag(const UIScreen *screen, float x, float y, const char *tag) {
+void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag) {
     bool found_parent = false;
     float movement_x = 0;
     float movement_y = 0;
@@ -578,7 +577,7 @@ void ui_screen_add_element(UIScreen *screen, UIElement *element) {
     element->screen = screen;
 }
 
-void collect_properties(UIPropertyList *props, char *token, char **cursor, bool strip){
+void collect_properties(UIPropertyList *props, char *token, char **cursor){
     while ((token = next_token(cursor)) != NULL) {
         char* equal = strchr(token, '=');
         if (!equal) continue;
@@ -666,7 +665,7 @@ void ui_load_screen(UIScreen* screen) {
         UIPropertyList props = ui_create_proplist(MAX_ELEMENT_PROPERTIES, false);
 
         // Parse element parameters
-        collect_properties(&props, token, &cursor, true);
+        collect_properties(&props, token, &cursor);
 
         // Execute the element constructor
         for (int i = 0; i < ARRAY_LEN(element_constructors); i++) {
@@ -784,7 +783,7 @@ void ui_load_screen_old(UIScreen* screen, const UIActionDef* actions, size_t act
         UIPropertyList props = ui_create_proplist(MAX_ELEMENT_PROPERTIES, false);
 
         // Parse element parameters
-        collect_properties(&props, token, &cursor, true);
+        collect_properties(&props, token, &cursor);
 
         // Execute the element constructor
         for (int i = 0; i < ARRAY_LEN(element_constructors); i++) {

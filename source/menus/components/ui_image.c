@@ -4,7 +4,7 @@
 #include "menus/core/ui_props.h"
 #include "math_helpers.h"
 
-static void ui_image_draw(UIElement* e, UITransform *transform) {
+void ui_image_draw(UIElement* e, UITransform *transform) {
     UIImage *image = (UIImage *) e;
 
     C2D_SpriteSetCenter(&image->image.sprite, 0.5f, 0.5f);
@@ -42,7 +42,7 @@ void ui_image_set_image(UIImage *e, int sprite_index, int sheet) {
     e->base.h = e->image.sprite.image.subtex->height;
 }
 
-UIImage *ui_create_image(const UIScreen *screen) {
+UIImage *ui_create_image(UIScreen *screen) {
     UIImage *e = malloc(sizeof(UIImage));
 
     if (!e) return NULL;
@@ -61,7 +61,7 @@ UIImage *ui_create_image(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_image_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_image_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIImage *image = ui_create_image(screen);
     
     if (!image) return NULL;

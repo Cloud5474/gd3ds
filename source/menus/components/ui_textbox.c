@@ -23,9 +23,7 @@ static void ui_textbox_update(UIElement* e, UIInput* touch, UITransform *transfo
 
         if (hidKeysDown() & KEY_TOUCH) {
             read_text(textbox->text, textbox->title, textbox->character_limit);
-            if(e->action){
-                e->action(e);
-            }
+            perform_actions(e);
         }
     }
 }
@@ -56,7 +54,7 @@ static void ui_textbox_destroy(UIElement *e) {
     }
 }
 
-UITextbox *ui_create_textbox(const UIScreen *screen) {
+UITextbox *ui_create_textbox(UIScreen *screen) {
     UITextbox *e = malloc(sizeof(UITextbox));
 
     if (!e) return NULL;
@@ -76,7 +74,7 @@ UITextbox *ui_create_textbox(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_textbox_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_textbox_from_props(UIScreen *screen, const UIPropertyList *props) {
     UITextbox *textbox = ui_create_textbox(screen);
 
     if (!textbox) return NULL;

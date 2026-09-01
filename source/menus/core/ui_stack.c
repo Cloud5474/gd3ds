@@ -179,7 +179,7 @@ static void draw_stack_debug(){
         pos += snprintf(
             debug + pos,
             sizeof(debug) - pos,
-            "<%d,%d,%d>%s</><p>",
+            "<%d,%d,%d>%s</>\n",
             r, gb, gb,
             scene->name ? scene->name : "(unnamed)"
         );

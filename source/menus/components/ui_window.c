@@ -39,7 +39,7 @@ static void ui_window_destroy(UIElement *e) {
     }
 }
 
-UIWindow *ui_create_window(const UIScreen *screen) {
+UIWindow *ui_create_window(UIScreen *screen) {
     UIWindow *e = malloc(sizeof(UIWindow));
 
     if (!e) return NULL;
@@ -59,7 +59,7 @@ UIWindow *ui_create_window(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_window_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_window_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIWindow *window = ui_create_window(screen);
 
     if (!window) return NULL;

@@ -35,7 +35,7 @@ static void ui_palette_icons(UIElement *e) {
     }
 }
 
-UIPaletteIcons *ui_create_palette_icons(const UIScreen *screen) {
+UIPaletteIcons *ui_create_palette_icons(UIScreen *screen) {
     UIPaletteIcons *e = malloc(sizeof(UIPaletteIcons));
 
     if (!e) return NULL;
@@ -52,7 +52,7 @@ UIPaletteIcons *ui_create_palette_icons(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_palette_icons_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_palette_icons_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIPaletteIcons *palette_icons = ui_create_palette_icons(screen);
 
     if (!palette_icons) return NULL;

@@ -61,7 +61,7 @@ void ui_window_button_set_style(UIWindowButton *e, int style) {
     e->border = e->atlas.subtex->width / 3;
 }
 
-UIWindowButton *ui_create_window_button(const UIScreen *screen) {
+UIWindowButton *ui_create_window_button(UIScreen *screen) {
     UIWindowButton *e = malloc(sizeof(UIWindowButton));
 
     if (!e) return NULL;
@@ -91,7 +91,7 @@ UIWindowButton *ui_create_window_button(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_window_button_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_window_button_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIWindowButton *window_button = ui_create_window_button(screen);
 
     if (!window_button) return NULL;

@@ -120,12 +120,7 @@ static void action_set_difficulty(UIElement *e, const UIPropertyList *args){
     update_difficulty_tints();
 }
 
-static void action_exit(UIElement *e, UIPropertyList *props) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-void action_open_disclaimer(UIElement* e, UIPropertyList *props) {
+void action_open_disclaimer(UIElement* e, const UIPropertyList *props) {
     in_disclaimer = true;
     disclaimer_init();
 }
@@ -157,7 +152,7 @@ void action_search(UIElement* e, const UIPropertyList *args) {
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     {"disclaimer", action_open_disclaimer },
     {"serverswitcher", action_open_server_switcher },
     {"openfilters", action_open_filters },

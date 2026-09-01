@@ -34,7 +34,7 @@
 #include "menus/statistics.h"
 
 const UIScreenDefPair soggy_def = {
-    .name = "Soggy",
+    .name = "soggy",
     .top = {
         .path = "romfs:/menus/soggy_top.txt"
     },
@@ -44,7 +44,7 @@ const UIScreenDefPair soggy_def = {
 };
 
 const UIScreenDefPair credits_def = {
-    .name = "Credits",
+    .name = "credits",
     .top = {
         0
     },

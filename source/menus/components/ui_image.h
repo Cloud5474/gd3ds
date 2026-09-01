@@ -8,5 +8,5 @@ void ui_image_set_image(UIImage *e, int sprite_index, int sheet);
 
 void ui_image_draw(UIElement* e, UITransform *transform);
 
-UIImage *ui_create_image(const UIScreen *screen);
-UIElement *ui_create_image_from_props(const UIScreen *screen, const UIPropertyList *props);
+UIImage *ui_create_image(UIScreen *screen);
+UIElement *ui_create_image_from_props(UIScreen *screen, const UIPropertyList *props);

@@ -29,6 +29,10 @@ static void ui_darken_update(UIElement* e, UIInput* touch, UITransform *transfor
             time = duration;
         }
 
+        if(duration == 0.f){
+            duration = 1.f;
+        }
+
         if(!e->screen->transition.done){
             float fade = 0.f;
             switch(e->screen->transition.state){
@@ -42,6 +46,11 @@ static void ui_darken_update(UIElement* e, UIInput* touch, UITransform *transfor
                     fade = 0.f;
                     break;
             }
+
+            if(fade < 0.f){
+                fade = 0.f;
+            }
+
             e->opacity = fade * darken->opacity;
         }
     }
@@ -71,7 +80,7 @@ static void ui_darken_destroy(UIElement *e) {
     }
 }
 
-UIDarken *ui_create_darken(const UIScreen *screen) {
+UIDarken *ui_create_darken(UIScreen *screen) {
     UIDarken *e = malloc(sizeof(UIDarken));
 
     if (!e) return NULL;
@@ -95,7 +104,7 @@ UIDarken *ui_create_darken(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_darken_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_darken_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIDarken *darken = ui_create_darken(screen);
 
     if (!darken) return NULL;
@@ -106,7 +115,7 @@ UIElement *ui_create_darken_from_props(const UIScreen *screen, const UIPropertyL
         darken->fullScreen = true;
     }
 
-    float opacity = ui_prop_float(props, "opacity", 0.4f);
+    darken->opacity = ui_prop_float(props, "opacity", 0.4f);
 
     C2D_PlainImageTint(&darken->image.tint, C2D_Color32f(0.f, 0.f, 0.f, darken->base.opacity), 1.0f);
 

@@ -54,7 +54,7 @@ static void ui_color_button_destroy(UIElement *e) {
     }
 }
 
-UIColor *ui_create_color_button(const UIScreen *screen) {
+UIColor *ui_create_color_button(UIScreen *screen) {
     UIColor *e = malloc(sizeof(UIColor));
 
     if (!e) return NULL;
@@ -83,7 +83,7 @@ UIColor *ui_create_color_button(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_color_button_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_color_button_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIColor *color_button = ui_create_color_button(screen);
 
     if (!color_button) return NULL;

@@ -176,7 +176,7 @@ static void ui_list_destroy(UIElement *e) {
     }
 }
 
-UIList *ui_create_list(const UIScreen *screen) {
+UIList *ui_create_list(UIScreen *screen) {
     UIList *e = malloc(sizeof(UIList));
 
     if (!e) return NULL;
@@ -196,7 +196,7 @@ UIList *ui_create_list(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_list_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_list_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIList *list = ui_create_list(screen);
 
     if (!list) return NULL;

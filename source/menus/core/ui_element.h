@@ -39,6 +39,18 @@ typedef struct UITransform UITransform;
 typedef struct UIElement UIElement;
 typedef struct UIScreen UIScreen;
 
+typedef void (*UIActionFn)(UIElement *e, const UIPropertyList *args);
+
+typedef struct UIAction {
+    UIActionFn action;
+    UIPropertyList args;
+} UIAction;
+
+typedef struct UIActionDef {
+    const char* name;
+    UIActionFn fn;
+} UIActionDef;
+
 void ui_element_set_userdata(UIElement *element, void *userdata);
 
 bool ui_element_basic_bound_check(UIElement *e, UIInput *touch, UITransform *transform);
@@ -58,8 +70,12 @@ void ui_element_remove(UIElement *element);
 
 UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type);
 
-void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen);
-void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props);
+UIActionFn ui_find_action(const UIActionDef* actions, size_t count, const char* name);
+
+void ui_element_apply_default_properties(UIElement *e, UIScreen *screen);
+void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props);
+
+void perform_actions(UIElement *e);
 
 typedef struct UITransform {
     float x;
@@ -78,13 +94,6 @@ typedef struct UIInput {
     //used for lists
     bool dragging;
 } UIInput;
-
-typedef void (*UIActionFn)(UIElement *e, const UIPropertyList *args);
-
-typedef struct {
-    UIActionFn action;
-    UIPropertyList args;
-} UIAction;
 
 struct UIElement {
     UIElementType type;
@@ -107,7 +116,7 @@ struct UIElement {
     //old version (not as cool)
     UIActionFn action;
 
-    const UIScreen *screen;
+    UIScreen *screen;
 
     UIPropertyList custom_properties;
 

@@ -46,7 +46,7 @@ void ui_label_set_text(UILabel *e, const char *text) {
     strncpy(e->text, text, sizeof(e->text) - 1);
 }
 
-UILabel *ui_create_label(const UIScreen *screen) {
+UILabel *ui_create_label(UIScreen *screen) {
     UILabel *e = malloc(sizeof(UILabel));
 
     if (!e) return NULL;
@@ -65,7 +65,7 @@ UILabel *ui_create_label(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_label_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_label_from_props(UIScreen *screen, const UIPropertyList *props) {
     UILabel *label = ui_create_label(screen);
 
     if (!label) return NULL;

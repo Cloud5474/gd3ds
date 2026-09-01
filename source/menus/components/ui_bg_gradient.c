@@ -25,7 +25,7 @@ static void ui_bg_gradient_destroy(UIElement *e) {
     }
 }
 
-UIImage *ui_create_bg_gradient(const UIScreen *screen) {
+UIImage *ui_create_bg_gradient(UIScreen *screen) {
     UIImage *e = malloc(sizeof(UIImage));
 
     if (!e) return NULL;
@@ -53,7 +53,7 @@ UIImage *ui_create_bg_gradient(const UIScreen *screen) {
     return e;
 }
 
-UIElement *ui_create_bg_gradient_from_props(const UIScreen *screen, const UIPropertyList *props) {
+UIElement *ui_create_bg_gradient_from_props(UIScreen *screen, const UIPropertyList *props) {
     UIImage *bg_gradient = ui_create_bg_gradient(screen);
 
     if (!bg_gradient) return NULL;

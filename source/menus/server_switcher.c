@@ -45,7 +45,7 @@ static void update_server_buttons(){
     ui_run_func_on_tag(&screen, "servertext", darken_text);
 }
 
-static void action_switch_server(UIElement* e) {
+static void action_switch_server(UIElement* e, const UIPropertyList *args) {
     int target = ui_prop_int(&e->custom_properties, "server", 0);
     bool gdps_before = gdps;
     gdps = (target == 1);
@@ -73,18 +73,13 @@ static void action_switch_server(UIElement* e) {
     update_server_buttons();
 }
 
-void exit_server_switcher(UIElement* e) {
-    yes_exit = true;
-}
+static UIActionDef actions[] = {
 
-static UIAction actions[] = {
-
-    { "change_server", action_switch_server},
-    { "exit", exit_server_switcher }
+    { "change_server", action_switch_server}
 };
 
 void server_switcher_init() {
-    ui_load_screen(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/server_switcher_pop_up.txt");
+    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/server_switcher_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     update_server_buttons();
@@ -103,7 +98,7 @@ int server_switcher_loop() {
     touchPosition touchPos;
     hidTouchRead(&touchPos);
     touch.touchPosition = touchPos;
-    touch.did_something = false;
+    
     touch.interacted = false;
     ui_screen_update(&screen, &touch);
 
