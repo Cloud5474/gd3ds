@@ -4,6 +4,7 @@
 #include "menus/core/ui_screen.h"
 #include "text.h"
 #include "utils/string_helpers.h"
+#include "level_loading.h"
 
 UIPropertyList ui_create_proplist(size_t capacity, bool duplicate) {
     UIPropertyList props;
@@ -147,4 +148,10 @@ UIPropertyList ui_prop_list(const UIPropertyList *props, const char *key){
     collect_properties(&property_list, token, &cursor, true);
 
     return property_list;
+}
+
+UIAction *ui_prop_actions(const UIPropertyList *props, const char *key){
+    char *value = (char *) ui_prop_string(props, key, NULL);
+
+    if(!value) return NULL;
 }

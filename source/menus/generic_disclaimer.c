@@ -23,16 +23,8 @@ static UIScreen screen = {
     .isBottom = true
 };
 
-void exit_disclaimer(UIElement* e) {
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_disclaimer },
-};
-
 void disclaimer_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/generic_disclaimer.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/generic_disclaimer.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     yes_exit = false;
 }

@@ -27,27 +27,22 @@ static bool in_delete = false;
 static UIImage *bg_gradient;
 static UIImage *bg_gradient_top;
 
-static void action_exit(UIElement *e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-static void action_open_info(UIElement *e) {
+static void action_open_info(UIElement *e, const UIPropertyList *args) {
     in_info_box = true;
     online_level_infobox_init();
 }
 
-static void action_open_comments(UIElement *e) {
+static void action_open_comments(UIElement *e, const UIPropertyList *args) {
     in_comments = true;
     online_comments_init();
 }
 
-static void action_refresh_level(UIElement *e) {
+static void action_refresh_level(UIElement *e, const UIPropertyList *args) {
     in_refresh = true;
     refresh_level_init();
 }
 
-static void action_delete_level(UIElement *e) {
+static void action_delete_level(UIElement *e, const UIPropertyList *args) {
     in_delete = true;
     delete_level_init();
 }
@@ -57,8 +52,7 @@ void delete_level(){
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static UIAction actions[] = {
-    {"exit", action_exit },
+static UIActionDef creator_menu_actions[] = {
     {"info", action_open_info },
     {"comments", action_open_comments },
     {"reload", action_refresh_level },
@@ -72,8 +66,8 @@ void online_menu_loop() {
     in_refresh = false;
     in_info_box = false;
 
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_menu.txt");
-    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_menu_top.txt");
+    ui_load_screen_old(&default_screen, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/online_level_menu.txt");
+    ui_load_screen_old(&default_screen_top, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/online_level_menu_top.txt");
 
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
     bg_gradient_top = (UIImage *) ui_get_element_by_tag(&default_screen_top, "gradient_top");

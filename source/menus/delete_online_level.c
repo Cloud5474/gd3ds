@@ -14,21 +14,16 @@ static UIScreen screen = {
 static UIScreen screen_top = {
 };
 
-void exit_delete_level(UIElement* e) {
-    yes_exit = true;
-}
-
-void action_delete_level(UIElement* e) {
+void action_delete_level(UIElement* e, const UIPropertyList *args) {
     delete_level();
 }
 
-static UIAction actions[] = {
-    { "exit", exit_delete_level },
+static UIActionDef clear_search_filter_actions[] = {
     { "delete", action_delete_level },
 };
 
 void delete_level_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/delete_level.txt");
+    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/delete_level.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     yes_exit = false;

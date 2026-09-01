@@ -27,21 +27,13 @@ static UIScreen screen = {
 };
 static UILabel *content;
 
-void exit_info_card(UIElement* e) {
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_info_card},
-};
-
 void set_info_content(const char *text) {
     content = (UILabel *) ui_get_element_by_tag(&screen, "content");
     ui_label_set_text(content, text);
 }
 
 void info_card_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/info_card.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/info_card.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     yes_exit = false;
 }

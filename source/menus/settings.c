@@ -336,10 +336,6 @@ typedef struct InfoButtonData {
     const char *text;
 } InfoButtonData;
 
-void exit_settings(UIElement* e) {
-    yes_exit = true;
-}
-
 UICheckBox *get_setting_checkbox_by_id(const char *id) {
     if (list) {
         // Iterate through list children
@@ -399,7 +395,7 @@ void practiceMusicSync_setting(bool checked) {
     }
 }
 
-static void checkbox_action(UIElement *e) {
+static void checkbox_action(UIElement *e, const UIPropertyList* args) {
     CheckboxData *data = e->userdata;
     bool checked = ((UICheckBox *)e)->checked;
     if (data) {
@@ -408,7 +404,7 @@ static void checkbox_action(UIElement *e) {
     }
 }
 
-static void info_action(UIElement *e) {
+static void info_action(UIElement *e, const UIPropertyList* args) {
     InfoButtonData *data = e->userdata;
     if (data) {
         action_open_info_card_text(data->text);
@@ -421,7 +417,7 @@ static void set_button_style(UIElement *e) {
     ui_window_button_set_style(button, (page == current_page ? 10 : 5));
 }
 
-void action_category(UIElement *e) {
+void action_category(UIElement *e, const UIPropertyList *args) {
     current_page = ui_prop_int(&e->custom_properties, "page", 0);
     request_list_reload = true;
 }
@@ -507,13 +503,12 @@ void load_category(SettingPage page) {
     }
 }
 
-static UIAction actions[] = {
-    { "exit", exit_settings },
+static UIActionDef clear_search_filter_actions[] = {
     {"category", action_category}
 };
 
 void settings_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/settings.txt");
+    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/settings.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     yes_exit = false;
 

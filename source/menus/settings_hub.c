@@ -35,33 +35,27 @@ static UIScreen screen = {
 static UISlider *music_slider_bar;
 static UISlider *sound_slider_bar;
 
-void exit_settings_hub(UIElement* e) {
-    exiting = true;
-}
-
-
-static void open_settings(UIElement *e) {
+static void open_settings(UIElement *e, const UIPropertyList *args) {
     in_settings = true;
     settings_init();
 }
 
-static void open_credits(UIElement *e) {
+static void open_credits(UIElement *e, const UIPropertyList *args) {
     in_credits = true;
     credits_init();
 }
 
-static void open_songs(UIElement *e) {
+static void open_songs(UIElement *e, const UIPropertyList *args) {
     switch_to_soundtrack = true;
     exiting = true;
 }
 
-static void open_how_to_play(UIElement *e) {
+static void open_how_to_play(UIElement *e, const UIPropertyList *args) {
     in_how_to_play = true;
     how_to_play_init();
 }
 
-static UIAction actions[] = {
-    { "exit", exit_settings_hub },
+static UIActionDef creator_menu_actions[] = {
     { "credits", open_credits },
     { "settings", open_settings },
     { "howtoplay", open_how_to_play },
@@ -69,7 +63,7 @@ static UIAction actions[] = {
 };
 
 void settings_hub_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/settings_hub.txt");
+    ui_load_screen_old(&screen, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/settings_hub.txt");
 
     ui_screen_open(&screen, ANIM_SLIDE_DOWN);
 

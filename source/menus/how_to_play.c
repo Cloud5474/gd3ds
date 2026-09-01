@@ -43,11 +43,7 @@ void switch_page2(int page) {
     }
 }
 
-void exit_how_to_play(UIElement* e) {
-    yes_exit = true;
-}
-
-void action_go_next(UIElement *e) {
+void action_go_next(UIElement *e, const UIPropertyList *args) {
     current_page++;
     if (current_page >= ARRAY_LEN(pages_tags2)) {
         yes_exit = true;
@@ -57,14 +53,13 @@ void action_go_next(UIElement *e) {
 }
 
 
-static UIAction actions[] = {
-    { "exit", exit_how_to_play },
-    { "next", action_go_next},
+static UIActionDef clear_search_filter_actions[] = {
+    { "next", action_go_next}
 };
 
 void how_to_play_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/how_to_play.txt");
-    ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/how_to_play_top.txt");
+    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/how_to_play.txt");
+    ui_load_screen_old(&screen_top, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/how_to_play_top.txt");
 
     ui_screen_open(&screen, ANIM_ZOOM);
     ui_screen_open(&screen_top, ANIM_ZOOM);

@@ -41,17 +41,12 @@ static bool in_disclaimer = false;
 static UIImage *bg_gradient;
 static UIImage *bg_gradient_top;
 
-static void action_exit(UIElement *e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-static void action_open_external_menu(UIElement *e) {
+static void action_open_external_menu(UIElement *e, const UIPropertyList *args) {
     new_state = STATE_EXTERNAL_LEVELS;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static void action_open_saved_menu(UIElement *e) {
+static void action_open_saved_menu(UIElement *e, const UIPropertyList *args) {
     //disabled for release build
     // new_state = STATE_SAVED_LEVELS;
     // set_fade_status(FADE_STATUS_OUT);
@@ -59,7 +54,7 @@ static void action_open_saved_menu(UIElement *e) {
     disclaimer_init();
 }
 
-static void action_open_search_menu(UIElement *e) {
+static void action_open_search_menu(UIElement *e, const UIPropertyList *args) {
     // disabled for release build
     // new_state = STATE_SEARCH_MENU;
     // set_fade_status(FADE_STATUS_OUT);
@@ -67,14 +62,13 @@ static void action_open_search_menu(UIElement *e) {
     disclaimer_init();
 }
 
-static void action_open_soggy_menu(UIElement *e) {
+static void action_open_soggy_menu(UIElement *e, const UIPropertyList *args) {
     new_state = STATE_SOGGY;
     set_fade_status(FADE_STATUS_OUT);
     playing_menu_loop = false;
 }
 
-static UIAction actions[] = {
-    {"exit", action_exit },
+static UIActionDef creator_menu_actions[] = {
     {"external", action_open_external_menu},
     {"saved", action_open_saved_menu},
     {"search", action_open_search_menu},
@@ -85,9 +79,9 @@ void creator_menu_loop() {
     exit_flag = false;
     new_state = STATE_CREATOR_MENU;
 
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/creator_menu.txt");
+    ui_load_screen_old(&default_screen, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/creator_menu.txt");
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
-    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/creator_menu_top.txt");
+    ui_load_screen_old(&default_screen_top, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/creator_menu_top.txt");
     bg_gradient_top = (UIImage *) ui_get_element_by_tag(&default_screen_top, "gradient_top");
 
     ui_image_set_tint(bg_gradient, C2D_Color32(50, 110, 255, 255));

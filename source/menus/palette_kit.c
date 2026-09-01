@@ -262,7 +262,7 @@ static void reset_indices(){
     ui_run_func_on_tag(&screen, "color", set_color_index);
 }
 
-static void action_category_selected(UIElement *e){
+static void action_category_selected(UIElement *e, const UIPropertyList *args){
     UIColor *color = (UIColor *) e;
 
     selected_category = color->index;
@@ -270,17 +270,13 @@ static void action_category_selected(UIElement *e){
     reset_indices();
 }
 
-static void action_color_selected(UIElement *e) {
+static void action_color_selected(UIElement *e, const UIPropertyList *args) {
     UIColor *color = (UIColor *) e;
 
     *current_colors[color_page] = color->color_index;
     update_player_colors();
 
     reset_indices();
-}
-
-void exit_palette_kit(UIElement* e) {
-    yes_exit = true;
 }
 
 static void disable_all_color_buttons(UIElement *e) {
@@ -301,7 +297,7 @@ static void reset_selected_category(){
     }
 }
 
-static void set_p1_page(UIElement *e) {    
+static void set_p1_page(UIElement *e, const UIPropertyList *args) {    
     ui_run_func_on_tag(&screen, "color_buttons", disable_all_color_buttons);
     ui_window_button_set_style((UIWindowButton *) e, 5);
     color_page = 0;
@@ -310,7 +306,7 @@ static void set_p1_page(UIElement *e) {
     reset_indices();
 }
 
-static void set_p2_page(UIElement *e) {
+static void set_p2_page(UIElement *e, const UIPropertyList *args) {
     ui_run_func_on_tag(&screen, "color_buttons", disable_all_color_buttons);
     ui_window_button_set_style((UIWindowButton *) e, 5);
     color_page = 1;
@@ -319,7 +315,7 @@ static void set_p2_page(UIElement *e) {
     reset_indices();
 }
 
-static void set_glow_page(UIElement *e) {
+static void set_glow_page(UIElement *e, const UIPropertyList *args) {
     ui_run_func_on_tag(&screen, "color_buttons", disable_all_color_buttons);
     ui_window_button_set_style((UIWindowButton *) e, 5);
     color_page = 2;
@@ -328,13 +324,12 @@ static void set_glow_page(UIElement *e) {
     reset_indices();
 }
 
-void player_glow_settings(UIElement* e) {
+void player_glow_settings(UIElement* e, const UIPropertyList *args) {
     UICheckBox *checkbox = (UICheckBox *) e;
     player_glow_enabled = checkbox->checked;
 }
 
-static UIAction actions[] = {
-    {"exit", exit_palette_kit},
+static UIActionDef actions[] = {
     {"color_selected", action_color_selected},
     {"action_p1", set_p1_page},
     {"action_p2", set_p2_page},

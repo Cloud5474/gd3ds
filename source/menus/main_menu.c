@@ -58,33 +58,33 @@ bool in_songs = false;
 
 static float bg_scroll = 0;
 
-void action_open_level_select(UIElement* e) {
+void action_open_level_select(UIElement* e, const UIPropertyList *args) {
     curr_level_id = 0;
     new_state = STATE_LEVEL_SELECT;
     set_fade_status(FADE_STATUS_OUT);
 }
-void action_open_creator_menu(UIElement* e) {
+void action_open_creator_menu(UIElement* e, const UIPropertyList *args) {
     //new_state = STATE_EXTERNAL_LEVELS;
     new_state = STATE_CREATOR_MENU;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-void action_open_icon_kit(UIElement* e) {
+void action_open_icon_kit(UIElement* e, const UIPropertyList *args) {
     new_state = STATE_ICON_KIT;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-void action_open_settings(UIElement* e) {
+void action_open_settings(UIElement* e, const UIPropertyList *args) {
     in_settings_hub = true;
     settings_hub_init();
 }
 
-void action_open_statistics(UIElement* e) {
+void action_open_statistics(UIElement* e, const UIPropertyList *args) {
     in_statistics = true;
     statistics_init();
 }
 
-void action_open_credits(UIElement* e) {
+void action_open_credits(UIElement* e, const UIPropertyList *args) {
     in_credits = true;
     credits_init();
 }
@@ -163,7 +163,7 @@ void open_soundtrack() {
     songs_init();
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     { "level_select", action_open_level_select },
     { "creator_menu", action_open_creator_menu },
     { "settings", action_open_settings },
@@ -172,7 +172,7 @@ static UIAction actions[] = {
     { "credits", action_open_credits },
 };
 
-static UIAction actions_top[] = {
+static UIActionDef actions_top[] = {
 
 };
 

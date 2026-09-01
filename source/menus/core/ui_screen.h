@@ -59,10 +59,9 @@ typedef struct {
 typedef struct {
     const char* name;
     UIActionFn fn;
-} UIAction;
+} UIActionDef;
 
 typedef struct {
-    const char* name;
     const char* path;
 
     void (*load)(UIScreen *);
@@ -70,7 +69,7 @@ typedef struct {
     void (*draw)(UIScreen *, UIDrawPhase);
     void (*unload)(UIScreen *);
 
-    const UIAction* actions;
+    const UIActionDef* actions;
     size_t action_count;
 } UIScreenDefinition;
 
@@ -123,40 +122,18 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation);
 void ui_screen_close(UIScreen *screen);
 
 UIElement *ui_get_element_by_tag(UIScreen *screen, const char *tag);
-void ui_run_func_on_tag(UIScreen *screen, const char *tag, void (*func)(UIElement *e));
+void ui_run_func_on_tag(const UIScreen *screen, const char *tag, void (*func)(UIElement *e));
 
-void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag);
-
-// Premade functions for on "ui_run_func_on_tag"
-void ui_enable_element(UIElement *e);
-void ui_disable_element(UIElement *e);
-
-void ui_element_set_userdata(UIElement *element, void *userdata);
-
-bool ui_element_basic_bound_check(UIElement *e, UIInput *touch, UITransform *transform);
+void ui_set_pos_on_tag(const UIScreen *screen, float x, float y, const char *tag);
 
 char* next_token(char** cursor);
 void collect_properties(UIPropertyList *props, char *token, char **cursor, bool strip);
 
-UITransform ui_transform_combine(UITransform *parent, UIElement *e);
-
-void ui_update_tree(UIElement *e, UIInput *input, UITransform *parent);
-void ui_draw_tree(UIElement *e, UITransform *parent);
-void ui_destroy_tree(UIElement *e);
-
-void ui_element_add_child(UIElement *parent, UIElement *child);
-void ui_element_remove(UIElement *element);
-
 void add_ui_particle_system(ParticleSystem *particle);
 void free_ui_particle_systems();
 
-UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type);
-
-void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen);
-void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props);
-
 void ui_load_screen(UIScreen* screen);
-void ui_load_screen_old(UIScreen* screen, const UIAction* actions, size_t action_count, const char* path);
+void ui_load_screen_old(UIScreen* screen, const UIActionDef* actions, size_t action_count, const char* path);
 void ui_screen_update_transition(UIScreen *screen, float dt);
 void ui_screen_update(UIScreen* screen, UIInput* touch);
 void ui_screen_draw(UIScreen* screen);

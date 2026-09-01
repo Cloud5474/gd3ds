@@ -42,18 +42,12 @@ static const SavedLevelsEntries saved_levels[] = {
 
 UIElement entries1[ARRAY_LEN(saved_levels)];
 
-static void action_exit(UIElement *e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-void action_open_level_menu(UIElement* e) {
+void action_open_level_menu(UIElement* e, const UIPropertyList *args) {
     new_state = STATE_ONLINE_LEVEL;
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static UIAction actions[] = {
-    {"exit", action_exit },
+static UIActionDef clear_search_filter_actions[] = {
     {"open_level_menu", action_open_level_menu },
 };
 
@@ -69,9 +63,9 @@ void saved_levels_loop() {
     new_state = 0;
     exit_flag = false;
 
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/saved_levels.txt");
+    ui_load_screen_old(&default_screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/saved_levels.txt");
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
-    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/saved_levels_top.txt");
+    ui_load_screen_old(&default_screen_top, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/saved_levels_top.txt");
     bg_gradient_top = (UIImage *) ui_get_element_by_tag(&default_screen_top, "gradient_top");
 
     ui_image_set_tint(bg_gradient, C2D_Color32(50, 110, 255, 255));

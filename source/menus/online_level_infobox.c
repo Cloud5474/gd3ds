@@ -13,19 +13,11 @@ static UIScreen screen = {
 static UIScreen screen_top = {
 };
 
-void exit_online_level_infobox(UIElement* e) {
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_online_level_infobox },
-};
-
 void online_level_infobox_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_info_pop_up.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/online_level_info_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
-    ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_level_info_pop_up_top.txt");
+    ui_load_screen_old(&screen_top, NULL, 0, "romfs:/menus/online_level_info_pop_up_top.txt");
     ui_screen_open(&screen_top, ANIM_ZOOM);
 
     yes_exit = false;

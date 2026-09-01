@@ -78,11 +78,7 @@ const int difficulty_stars[MAX_STARS + 1] = {
 
 void external_popup_enter_from_level();
 
-void exit_external_popup(UIElement* e) {
-    yes_exit = true;
-}
-
-static void open_level(UIElement *e) {
+static void open_level(UIElement *e, const UIPropertyList *args) {
     play_sfx(&play_sound, 1);
 
     state.custom_level = true;
@@ -93,13 +89,12 @@ static void open_level(UIElement *e) {
     external_popup_enter_from_level();
 }
 
-static void open_info(UIElement *e) {
+static void open_info(UIElement *e, const UIPropertyList *args) {
     in_infobox = true;
     external_level_infobox_init();
 }
 
-static UIAction actions[] = {
-    { "exit", exit_external_popup },
+static UIActionDef actions[] = {
     { "play", open_level },
     { "info", open_info }
 };

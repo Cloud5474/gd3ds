@@ -23,24 +23,19 @@ const char *length_tags[] = {
     "xl",
 };
 
-void exit_length_filter(UIElement* e) {
-    yes_exit = true;
-}
-
-void length_filter(UIElement *e) {
+void length_filter(UIElement *e, const UIPropertyList *args) {
     length_filter_enabled = ((UICheckBox *)e)->checked;
 
     ui_run_func_on_tag(&screen, "button", length_filter_enabled ? ui_enable_element : ui_disable_element);
 }
 
-static UIAction actions[] = {
-    { "length", length_filter},
-    { "exit", exit_length_filter },
+static UIActionDef clear_search_filter_actions[] = {
+    { "length", length_filter }
 };
 
 void length_filter_init() {
 
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/length_filter_pop_up.txt");
+    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/length_filter_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
     
     ui_run_func_on_tag(&screen, "button", length_filter_enabled ? ui_enable_element : ui_disable_element);

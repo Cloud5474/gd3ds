@@ -48,7 +48,7 @@ void switch_song(int song) {
     }
 }
 
-void action_left_song(UIElement *e) {
+void action_left_song(UIElement *e, const UIPropertyList *args) {
     normal_song_id_selected--;
     if (normal_song_id_selected < 0) {
         normal_song_id_selected = ARRAY_LEN(song_names) - 1;
@@ -57,17 +57,13 @@ void action_left_song(UIElement *e) {
     switch_song(normal_song_id_selected);
 }
 
-void action_right_song(UIElement *e) {
+void action_right_song(UIElement *e, const UIPropertyList *args) {
     normal_song_id_selected++;
     if (normal_song_id_selected >= ARRAY_LEN(song_names)) {
         normal_song_id_selected = 0;
     }
 
     switch_song(normal_song_id_selected);
-}
-
-void exit_song_filter(UIElement* e) {
-    yes_exit = true;
 }
 
 void select_normal() {
@@ -93,7 +89,7 @@ void select_custom() {
     custom_song = true;
 }
 
-void song_filter(UIElement *e) {
+void song_filter(UIElement *e, const UIPropertyList *args) {
     song_filter_enabled = ((UICheckBox *)e)->checked;
 
     if (song_filter_enabled){
@@ -116,11 +112,10 @@ void song_filter(UIElement *e) {
     ui_run_func_on_tag(&screen, "button", song_filter_enabled ? ui_enable_element : ui_disable_element);
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     { "song", song_filter},
     { "selectnormal", select_normal },
     { "selectcustom", select_custom },
-    { "exit", exit_song_filter },
     { "left", action_left_song},
     { "right", action_right_song}
 };
@@ -144,7 +139,7 @@ void song_filter_init() {
         ui_set_checkbox_checked(checkbox, checkbox->checked);
     }
 
-    song_filter((UIElement *)checkbox);
+    song_filter((UIElement *)checkbox, NULL);
 
     yes_exit = false;
 }

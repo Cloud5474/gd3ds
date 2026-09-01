@@ -137,7 +137,7 @@ static void disable_all_icon_buttons() {
     ui_button_set_image((UIButton *) ui_get_element_by_tag(&default_screen, "trail"), button_images[5], 0);
 }
 
-static void set_cube_page(UIElement *e) {
+static void set_cube_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 0;
     last_displayed_gamemode = 0;
     disable_all_icon_buttons();
@@ -145,7 +145,7 @@ static void set_cube_page(UIElement *e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void set_ship_page(UIElement *e) {
+static void set_ship_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 1;
     last_displayed_gamemode = 1;
     disable_all_icon_buttons();
@@ -153,7 +153,7 @@ static void set_ship_page(UIElement *e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void set_ball_page(UIElement *e) {
+static void set_ball_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 2;
     last_displayed_gamemode = 2;
     disable_all_icon_buttons();
@@ -161,7 +161,7 @@ static void set_ball_page(UIElement *e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void set_ufo_page(UIElement *e) {
+static void set_ufo_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 3;
     last_displayed_gamemode = 3;
     disable_all_icon_buttons();
@@ -169,7 +169,7 @@ static void set_ufo_page(UIElement *e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void set_wave_page(UIElement *e) {
+static void set_wave_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 4;
     last_displayed_gamemode = 4;
     disable_all_icon_buttons();
@@ -177,19 +177,14 @@ static void set_wave_page(UIElement *e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void set_trail_page(UIElement *e) {
+static void set_trail_page(UIElement *e, const UIPropertyList *args) {
     gamemode_page = 5;
     disable_all_icon_buttons();
     ui_button_set_image((UIButton *) e, button_images[5] + 1, 0);
     ui_run_func_on_tag(&default_screen, "icon", set_trail_index); 
 }
 
-static void action_exit(UIElement* e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-static void move_index_left(UIElement* e) {
+static void move_index_left(UIElement* e, const UIPropertyList *args) {
     *current_pages[gamemode_page] -= 1;
     if (*current_pages[gamemode_page] < 0) {
         *current_pages[gamemode_page] = (gamemode_icon_count[gamemode_page] - 2) / ICONS_PER_PAGE;
@@ -198,7 +193,7 @@ static void move_index_left(UIElement* e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void move_index_right(UIElement* e) {
+static void move_index_right(UIElement* e, const UIPropertyList *args) {
     *current_pages[gamemode_page] += 1;
     if ((*current_pages[gamemode_page] * ICONS_PER_PAGE) + 1 >= gamemode_icon_count[gamemode_page]) {
         *current_pages[gamemode_page] = 0;
@@ -207,19 +202,18 @@ static void move_index_right(UIElement* e) {
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void action_icon_selected(UIElement *e) {
+static void action_icon_selected(UIElement *e, const UIPropertyList *args) {
     *current_icons[((UIIcon *) e)->gamemode] = ((UIIcon *) e)->index;
     icon_counter = (gamemode_page == TRAIL ? 0 : 1);
     ui_run_func_on_tag(&default_screen, "icon", set_icon_index); 
 }
 
-static void action_open_palette_kit(UIElement* e) {
+static void action_open_palette_kit(UIElement* e, const UIPropertyList *args) {
     in_palette_kit = true;
     palette_kit_init();
 }
 
-static UIAction actions[] = {
-    {"exit", action_exit},
+static UIActionDef actions[] = {
     {"action_cube", set_cube_page },
     {"action_ship", set_ship_page },
     {"action_ball", set_ball_page },
@@ -232,7 +226,7 @@ static UIAction actions[] = {
     {"palette", action_open_palette_kit }
 };
 
-static UIAction actions_top[] = {
+static UIActionDef actions_top[] = {
 
 };
 
@@ -251,7 +245,7 @@ void icon_kit_loop() {
     ui_window_set_tint(bg_window, C2D_Color32(0, 0, 0, 64));
     ui_image_set_tint(bg_gradient_top, C2D_Color32(167, 167, 167, 255));
 
-    set_cube_page(ui_get_element_by_tag(&default_screen, "cube"));
+    set_cube_page(ui_get_element_by_tag(&default_screen, "cube"), NULL);
 
     char stars[32];
     snprintf(stars, sizeof(stars), "%d", total_stars);

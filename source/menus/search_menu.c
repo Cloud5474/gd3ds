@@ -24,33 +24,27 @@ static bool exit_flag = false;
 static UIImage *bg_gradient;
 static UIImage *bg_gradient_top;
 
-static void action_exit(UIElement *e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-void action_open_disclaimer(UIElement* e) {
+void action_open_disclaimer(UIElement* e, const UIPropertyList *args) {
     in_disclaimer = true;
     disclaimer_init();
 }
 
-void action_open_server_switcher(UIElement* e) {
+void action_open_server_switcher(UIElement* e, const UIPropertyList *args) {
     // in_server_switcher = true;
     // server_switcher_init();
 }
 
-void action_open_filters(UIElement* e) {
+void action_open_filters(UIElement* e, const UIPropertyList *args) {
     in_filters = true;
     search_filters_init();
 }
 
-void action_clear_filters(UIElement* e) {
+void action_clear_filters(UIElement* e, const UIPropertyList *args) {
     in_clear_search_filters = true;
     clear_search_filters_init();
 }
 
-static UIAction actions[] = {
-    {"exit", action_exit },
+static UIActionDef creator_menu_actions[] = {
     {"disclaimer", action_open_disclaimer },
     {"serverswitcher", action_open_server_switcher },
     {"openfilters", action_open_filters },
@@ -61,9 +55,9 @@ void search_menu_loop() {
 
     exit_flag = false;
 
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/search_menu.txt");
+    ui_load_screen_old(&default_screen, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/search_menu.txt");
     bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
-    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/search_menu_top.txt");
+    ui_load_screen_old(&default_screen_top, creator_menu_actions, sizeof(creator_menu_actions) / sizeof(creator_menu_actions[0]), "romfs:/menus/search_menu_top.txt");
     bg_gradient_top = (UIImage *) ui_get_element_by_tag(&default_screen_top, "gradient_top");
 
     ui_image_set_tint(bg_gradient, C2D_Color32(50, 110, 255, 255));

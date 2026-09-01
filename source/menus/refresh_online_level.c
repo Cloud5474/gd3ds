@@ -13,16 +13,8 @@ static UIScreen screen = {
 static UIScreen screen_top = {
 };
 
-void exit_refresh_level(UIElement* e) {
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_refresh_level },
-};
-
 void refresh_level_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/refresh_level.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/refresh_level.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     yes_exit = false;

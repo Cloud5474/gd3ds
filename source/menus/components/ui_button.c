@@ -37,7 +37,7 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
         if(button->keyPressTimer == 44){
             pressedKey = false;
             if (e->action){
-                e->action(e);
+                e->action(e, NULL);
             }
         }
         if(--(button->keyPressTimer) == 0){
@@ -88,11 +88,11 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
         
         // This lets subclasses do something before the real action (checkbox uses it to flip the texture)
         if (button->pre_action) {
-            button->pre_action(e);
+            button->pre_action(e, NULL);
         }
 
         if (e->action)
-            e->action(e);
+            e->action(e, NULL);
     }
     
     // Unpress the button

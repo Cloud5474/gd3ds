@@ -46,17 +46,8 @@ static const SongEntries songs[] = {
     { "Theory of Everything 2", "DJ-Nate" },
 };
 
-void exit_songs(UIElement* e) {
-    //start exit animation
-    exiting = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_songs }
-};
-
 void songs_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/soundtrack.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/soundtrack.txt");
     ui_screen_open(&screen, ANIM_SLIDE_DOWN);
 
     list = (UIList *) ui_get_element_by_tag(&screen, "list");

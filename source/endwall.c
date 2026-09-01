@@ -4,7 +4,6 @@
 #include "math_helpers.h"
 #include "mp3_player.h"
 #include "utils/gfx.h"
-#include "wav_player.h"
 #include "particles/circles.h"
 
 #include "endwall.h"

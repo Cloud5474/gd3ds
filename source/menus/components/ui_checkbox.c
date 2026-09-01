@@ -50,7 +50,7 @@ static void ui_checkbox_destroy(UIElement *e) {
     }
 }
 
-static void ui_checkbox_pre_action(UIElement *e) {
+static void ui_checkbox_pre_action(UIElement *e, const UIPropertyList *args) {
     UICheckBox *checkbox = (UICheckBox *) e;
 
     checkbox->checked ^= 1;

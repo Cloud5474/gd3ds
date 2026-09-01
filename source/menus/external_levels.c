@@ -69,15 +69,15 @@ typedef struct {
     bool is_dir;
 } LevelCardData;
 
-static void open_folder(UIElement *e);
+static void open_folder(UIElement *e, const UIPropertyList* args);
 
-static void action_exit(UIElement *e) {
+static void action_exit(UIElement *e, const UIPropertyList *args) {
     exit_flag = true;
     current_path[0] = '\0'; // Reset it
     set_fade_status(FADE_STATUS_OUT);
 }
 
-static void open_external_popup(UIElement *e) {
+static void open_external_popup(UIElement *e, const UIPropertyList* args) {
     LevelCardData *entry = e->userdata;
     strcpy(state.custom_level_path, entry->path);
     external_popup_init();
@@ -180,7 +180,7 @@ void load_level_folder(char *folder) {
     strncpy(last_path, current_path, sizeof(last_path));
 }
 
-static void action_go_back(UIElement *e) {
+static void action_go_back(UIElement *e, const UIPropertyList *args) {
     if (strlen(current_path) > 0) {
         go_back_directory(current_path);
         load_level_folder(current_path);
@@ -191,7 +191,7 @@ static void action_go_back(UIElement *e) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-truncation"
 
-static void open_folder(UIElement *e) {
+static void open_folder(UIElement *e, const UIPropertyList* args) {
     LevelCardData *entry = e->userdata;
     char tmp[320];
 
@@ -211,7 +211,7 @@ static void open_folder(UIElement *e) {
 
 #pragma GCC diagnostic pop
 
-static UIAction actions[] = {
+static UIActionDef clear_search_filter_actions[] = {
     {"exit", action_exit },
     {"go_back", action_go_back },
 };
@@ -250,9 +250,9 @@ void external_levels_loop() {
     external_start_level = false;
     exit_flag = false;
     if (first_time_loaded) {
-        ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels.txt");
+        ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/external_levels.txt");
         bg_gradient = (UIImage *) ui_get_element_by_tag(&screen, "gradient");
-        ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels_top.txt");
+        ui_load_screen_old(&screen_top, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/external_levels_top.txt");
         bg_gradient_top = (UIImage *) ui_get_element_by_tag(&screen_top, "gradient_top");
         list = (UIList *) ui_get_element_by_tag(&screen, "list");
         first_time_loaded = false;

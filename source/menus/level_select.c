@@ -231,7 +231,7 @@ void update_level_top(int level){
     ui_label_set_text((UILabel *) ui_get_element_by_tag(&default_screen_top, "practiceprogress"), practice);
 }
 
-void action_open_level(UIElement* e) { 
+void action_open_level(UIElement* e, const UIPropertyList *args) { 
     play_sfx(&play_sound, 1);
     set_fade_status(FADE_STATUS_OUT);
     start_level = true; 
@@ -272,7 +272,7 @@ void handle_card_movement() {
     }
 }
 
-void action_move_right(UIElement* e) { 
+void action_move_right(UIElement* e, const UIPropertyList *args) { 
     curr_level_id++;
     scroll_dir = -1;
     anim_time = 0;
@@ -298,7 +298,7 @@ void action_move_right(UIElement* e) {
     update_level_progress(curr_level_id, 1);
 };
 
-void action_move_left(UIElement* e) { 
+void action_move_left(UIElement* e, const UIPropertyList *args) { 
     curr_level_id--;
     scroll_dir = 1;
     anim_time = 0;
@@ -361,24 +361,18 @@ void peek_left(){
     lerp_level_colors(col1, col2);
 }
 
-void action_exit(UIElement* e) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
 void tint_ground(UIElement *e) {
     ColorChannel channel = channels[0];
     ui_image_set_tint((UIImage *) e, C2D_Color32(channel.color.r, channel.color.g, channel.color.b, 255));
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     {"open_level", action_open_level},
-    {"exit", action_exit},
     {"move_right", action_move_right},
     {"move_left", action_move_left}
 };
 
-static UIAction actions_top[] = {
+static UIActionDef actions_top[] = {
 
 };
 
@@ -472,7 +466,7 @@ void level_select_loop() {
         u32 kUp = hidKeysUp();
 
         if (kDown & (KEY_START | KEY_A)) {
-            action_open_level(NULL);
+            action_open_level(NULL, NULL);
         }
 
         UIInput touch;
@@ -541,10 +535,10 @@ void level_select_loop() {
         if((kUp & KEY_TOUCH)){
             if(dragging){
                 if(dragDir == -1){
-                    action_move_left(NULL);
+                    action_move_left(NULL, NULL);
                     anim_duration = 0.5f;
                 } else if(dragDir == 1){
-                    action_move_right(NULL);
+                    action_move_right(NULL, NULL);
                     anim_duration = 0.5f;
                 } else{
                     scroll_dir = 0;

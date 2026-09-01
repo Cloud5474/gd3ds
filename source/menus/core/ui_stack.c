@@ -39,6 +39,9 @@ static void open_anchor(){
     ui_load_screen(top);
     ui_load_screen(btm);
 
+    finish_animation(top);
+    finish_animation(btm);
+
     stack.current_anchor = index;
     stack.active_scene_count = 1;
 }
@@ -67,7 +70,7 @@ static void close_anchor(){
         for(int j = 0; j < 2; j++){
             UIScreen *screen = &scene->screens[j];
             ui_load_screen(screen);
-            screen->transition.time = screen->transition.duration;
+            finish_animation(screen);
         }
     }
 
@@ -89,7 +92,7 @@ void ui_stack_update(UIInput *input){
 
             UIInput dummy_input = { 0 };
             //only update top screen with input
-            UIInput *input_to_use = updating_topmost && (screen->transition.state == UI_TRANSITION_NONE) ? input : &dummy_input;
+            UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
 
             if(screen && screen->loaded){
                 ui_screen_update(screen, input_to_use);
@@ -222,9 +225,10 @@ void ui_stack_draw(Screens target){
     if(target == SCREEN_TOP) draw_stack_debug();
 }
 
+//this kinda just assumes the new capacity is only 1 plus the current capacity since you can only push that many at a time
 static bool resize_stack(size_t new_capacity){
     //thanks advexed 
-    if(new_capacity > 64){
+    if(new_capacity > 32){
         return false;
     }
 

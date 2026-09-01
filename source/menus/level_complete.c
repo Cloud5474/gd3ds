@@ -104,7 +104,7 @@ char *completion_texts[] = {
 };
 
 
-static void exit_level_complete(UIElement* e) {
+static void exit_level_complete(UIElement* e, const UIPropertyList *args) {
     if (!animating_up) {
         play_sfx(&quit_sound, 1);
         yes_exit = true;
@@ -114,7 +114,7 @@ static void exit_level_complete(UIElement* e) {
     }
 }
 
-static void restart_level(UIElement* e) {
+static void restart_level(UIElement* e, const UIPropertyList *args) {
     if (!animating_up) {
         ui_get_element_by_tag(&screen, "endDarken")->opacity = 0.f;
         
@@ -134,7 +134,7 @@ static void scale_bottom_buttons_anim(UIElement* e){
     ui_element_set_scale((UIElement *) button, fade_value_scale);
 }
 
-static UIAction actions[] = {
+static UIActionDef clear_search_filter_actions[] = {
     { "restart", restart_level },
     { "exit", exit_level_complete },
 };
@@ -284,8 +284,8 @@ void level_complete_init() {
     ui_unload_screen(&screen);
     ui_unload_screen(&screen_top);
     
-    ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete_top.txt");
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_complete.txt");
+    ui_load_screen_old(&screen_top, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/level_complete_top.txt");
+    ui_load_screen_old(&screen, clear_search_filter_actions, sizeof(clear_search_filter_actions) / sizeof(clear_search_filter_actions[0]), "romfs:/menus/level_complete.txt");
 
     state.current_data.time_end = svcGetSystemTick() / (CPU_TICKS_PER_MSEC * 1000);
 

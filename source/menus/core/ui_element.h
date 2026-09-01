@@ -11,13 +11,6 @@
 #define TAGS_PER_ELEMENT 5
 #define TAG_LENGTH 32
 
-typedef struct {
-    float x;
-    float y;
-    float scaleX;
-    float scaleY;
-} UITransform;
-
 typedef enum {
     UI_BUTTON,
     UI_IMAGE,
@@ -41,7 +34,41 @@ typedef enum {
     UI_RECTANGLE,
 } UIElementType;
 
-typedef struct {
+typedef struct UIInput UIInput;
+typedef struct UITransform UITransform;
+typedef struct UIElement UIElement;
+typedef struct UIScreen UIScreen;
+
+void ui_element_set_userdata(UIElement *element, void *userdata);
+
+bool ui_element_basic_bound_check(UIElement *e, UIInput *touch, UITransform *transform);
+
+UITransform ui_transform_combine(UITransform *parent, UIElement *e);
+
+void ui_update_tree(UIElement *e, UIInput *input, UITransform *parent);
+void ui_draw_tree(UIElement *e, UITransform *parent);
+void ui_destroy_tree(UIElement *e);
+
+// Premade functions for on "ui_run_func_on_tag"
+void ui_enable_element(UIElement *e);
+void ui_disable_element(UIElement *e);
+
+void ui_element_add_child(UIElement *parent, UIElement *child);
+void ui_element_remove(UIElement *element);
+
+UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type);
+
+void ui_element_apply_default_properties(UIElement *e, const UIScreen *screen);
+void ui_element_apply_properties(UIElement *e, const UIScreen *screen, const UIPropertyList *props);
+
+typedef struct UITransform {
+    float x;
+    float y;
+    float scaleX;
+    float scaleY;
+} UITransform;
+
+typedef struct UIInput {
     u32 down;
     u32 held;
     u32 up;
@@ -52,10 +79,12 @@ typedef struct {
     bool dragging;
 } UIInput;
 
-typedef struct UIElement UIElement;
-typedef struct UIScreen UIScreen;
+typedef void (*UIActionFn)(UIElement *e, const UIPropertyList *args);
 
-typedef void (*UIActionFn)(UIElement* e);
+typedef struct {
+    UIActionFn action;
+    UIPropertyList args;
+} UIAction;
 
 struct UIElement {
     UIElementType type;
@@ -71,6 +100,11 @@ struct UIElement {
 
     bool draws_children;
 
+    //array of actions to call
+    UIAction *actions;
+    size_t action_count;
+
+    //old version (not as cool)
     UIActionFn action;
 
     const UIScreen *screen;
@@ -281,40 +315,3 @@ typedef struct {
 
     u32 color;
 } UIRectangle;
-/*
-typedef struct {
-    
-    UIImageData icon;
-    UILabelData label;
-    UIButtonData button;
-    float button_w;
-    float button_h;
-    char path[256];
-    bool swap_color;
-} UIExternalLevelCardData;
-
-typedef struct {
-    UILabelData stat_name;
-    int value;
-    bool swap_color;
-} UIStatisticCardData;
-
-typedef struct {
-    UILabelData name;
-    UILabelData creator;
-    UILabelData song;
-    UILabelData length;
-    int downloads;
-    int likes;
-    int stars;
-    bool swap_color;
-    UIWindowButtonData windowbutton;
-    float windowbutton_w;
-    float windowbutton_h;
-    UIImageData difficulty;
-    UIImageData stars_icon;
-    UIImageData downloads_icon;
-    UIImageData likes_icon;
-    UIImageData length_icon;
-} UIOnlineLevelCardData;
-*/

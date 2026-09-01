@@ -66,46 +66,41 @@ void reset_search_filters() {
     cfg_save();
 }
 
-void exit_search_filters(UIElement* e) {
-    yes_exit = true;
-}
-
-void uncompleted_filter(UIElement* e) {
+void uncompleted_filter(UIElement* e, const UIPropertyList *args) {
     uncompletedFilter = ((UICheckBox *)e)->checked;
 }
 
-void completed_filter(UIElement* e) {
+void completed_filter(UIElement* e, const UIPropertyList *args) {
     completedFilter = ((UICheckBox *)e)->checked;
 }
 
-void original_filter(UIElement* e) {
+void original_filter(UIElement* e, const UIPropertyList *args) {
     originalFilter = ((UICheckBox *)e)->checked;
 }
 
-void unrated_filter(UIElement* e) {
+void unrated_filter(UIElement* e, const UIPropertyList *args) {
     unratedFilter = ((UICheckBox *)e)->checked;
 }
 
-void rated_filter(UIElement* e) {
+void rated_filter(UIElement* e, const UIPropertyList *args) {
     ratedFilter = ((UICheckBox *)e)->checked;
 }
 
-void featured_filter(UIElement* e) {
+void featured_filter(UIElement* e, const UIPropertyList *args) {
     featuredFilter = ((UICheckBox *)e)->checked;
 }
 
-void open_song(UIElement* e) {
+void open_song(UIElement* e, const UIPropertyList *args) {
     in_song_pop_up = true;
     song_filter_init();
 }
 
-void open_length(UIElement* e) {
+void open_length(UIElement* e, const UIPropertyList *args) {
     in_length_pop_up = true;
     length_filter_init();
 }
 
-static UIAction actions[] = {
-    { "exit", exit_search_filters },
+static UIActionDef actions[] = {
     { "uncompleted", uncompleted_filter },
     { "completed", completed_filter },
     { "original", original_filter },

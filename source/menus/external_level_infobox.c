@@ -13,16 +13,8 @@ static UIScreen screen = {
 
 static UILabel *name;
 
-void exit_external_level_infobox(UIElement* e) {
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_external_level_infobox },
-};
-
 void external_level_infobox_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/level_info_pop_up.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/level_info_pop_up.txt");
     ui_screen_open(&screen, ANIM_ZOOM);
 
     name = (UILabel *) ui_get_element_by_tag(&screen, "levelname");

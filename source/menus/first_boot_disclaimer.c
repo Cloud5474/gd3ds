@@ -26,17 +26,8 @@ static UIScreen screen = {
     .isBottom = true
 };
 
-void exit_first_boot_disclaimer(UIElement* e) {
-    initialDisclaimerAccepted = true;
-    yes_exit = true;
-}
-
-static UIAction actions[] = {
-    { "exit", exit_first_boot_disclaimer },
-};
-
 void first_boot_disclaimer_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/first_boot_disclaimer.txt");
+    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/first_boot_disclaimer.txt");
     ui_screen_open(&screen, ANIM_ZOOM_SUBTLE);
     
     yes_exit = false;

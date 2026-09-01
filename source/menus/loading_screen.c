@@ -67,17 +67,9 @@ char *splash_texts[] = {
     "No consistent naming conventions!"
 };
 
-static UIAction actions[] = {
-
-};
-
-static UIAction actions_top[] = {
-
-};
-
 void loading_screen_init() {
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/loading_screen.txt");
-    ui_load_screen_old(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/loading_screen_top.txt");
+    ui_load_screen_old(&default_screen, NULL, 0, "romfs:/menus/loading_screen.txt");
+    ui_load_screen_old(&default_screen_top, NULL, 0, "romfs:/menus/loading_screen_top.txt");
 
     Color col;
     col.r = 0;

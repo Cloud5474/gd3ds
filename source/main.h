@@ -1,7 +1,7 @@
 #pragma once
 #include <citro2d.h>
 #include "level_loading.h"
-#include "wav_player.h"
+#include "sounds.h"
 
 #include "particles/particles.h"
 #include "color_channels.h"
@@ -100,13 +100,6 @@ extern C3D_RenderTarget* bot;
 
 extern int game_state;
 extern bool playing_menu_loop;
-
-extern SFX play_sound;
-extern SFX quit_sound;
-extern SFX explode_sound;
-extern SFX end_sound;
-extern SFX honk;
-extern SFX coin_sound;
 
 extern int level_result;
 

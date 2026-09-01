@@ -190,44 +190,44 @@ void open_settings() {
     settings_init();
 }
 
-static void action_pause(UIElement *e) { 
+static void action_pause(UIElement *e, const UIPropertyList *args) { 
     pause_game();
 }
 
-static void action_unpause(UIElement *e) {
+static void action_unpause(UIElement *e, const UIPropertyList *args) {
     unpause_game();
 }
 
-static void action_exit(UIElement *e) {
+static void action_exit(UIElement *e, const UIPropertyList *args) {
     exit_level();
 }
 
-static void action_restart(UIElement *e) {
+static void action_restart(UIElement *e, const UIPropertyList *args) {
     restart_level();
 }
 
-static void action_open_settings(UIElement *e) {
+static void action_open_settings(UIElement *e, const UIPropertyList *args) {
     open_settings();
 }
 
-static void action_practice_mode(UIElement *e) {
+static void action_practice_mode(UIElement *e, const UIPropertyList *args) {
     if (!state.practice_mode) {
         start_practice_mode();
     } else {
         exit_practice_mode();
     }
 
-    action_unpause(e);
+    action_unpause(e, NULL);
 }
 
-static void action_add_checkpoint(UIElement *e) {
+static void action_add_checkpoint(UIElement *e, const UIPropertyList *args) {
     new_checkpoint();
 }
-static void action_remove_checkpoint(UIElement *e) {
+static void action_remove_checkpoint(UIElement *e, const UIPropertyList *args) {
     delete_last_checkpoint();
 }
 
-static UIAction actions[] = {
+static UIActionDef actions[] = {
     {"pause", action_pause },
     {"unpause", action_unpause },
     {"exit", action_exit },
