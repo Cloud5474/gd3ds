@@ -1,5 +1,5 @@
 #pragma once
-#include "menus/core/ui_element.h"
+
 #include "menus/core/ui_screen.h"
 
 void ui_progress_bar_set_tint(UIProgressBar* e, u32 color);

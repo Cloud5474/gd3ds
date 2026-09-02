@@ -59,14 +59,19 @@ typedef struct {
 typedef struct {
     const char* path;
 
-    void (*load)(UIScreen *);
+    void (*init)(UIScreen *);
     void (*update)(UIScreen *, UIInput *);
     void (*draw)(UIScreen *, UIDrawPhase);
-    void (*unload)(UIScreen *);
+    void (*exit)(UIScreen *);
 
-    const UIActionDef* actions;
-    size_t action_count;
+    UIActionList action_list;
 } UIScreenDefinition;
+
+typedef struct {
+    const char *name;
+    UIScreenDefinition top;
+    UIScreenDefinition btm;
+} UIScreenDefPair;
 
 typedef struct UIScreen {
     UIScene *scene;

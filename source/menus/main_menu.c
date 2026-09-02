@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "menus/core/ui_element.h"
+
 #include "menus/core/ui_screen.h"
 #include "math_helpers.h"
 #include "menus/components/ui_list.h"
@@ -42,52 +42,16 @@ static bool old_pressing = false;
 static bool started = false;
 static bool holding = false;
 
+bool in_info_card;
+
 static float death_wait_timer = 0;
 
 static int main_menu_color_index = 0;
 
-static int new_state = 0;
-static bool exit_flag = false;
-
-static bool in_settings_hub = false;
-static bool in_statistics = false;
-static bool in_credits = false;
-static bool in_first_boot_disclaimer = false;
-bool in_info_card = false;
-bool in_songs = false;
-
 static float bg_scroll = 0;
 
-void action_open_level_select(UIElement* e, const UIPropertyList *args) {
-    curr_level_id = 0;
-    new_state = STATE_LEVEL_SELECT;
-    set_fade_status(FADE_STATUS_OUT);
-}
-void action_open_creator_menu(UIElement* e, const UIPropertyList *args) {
-    //new_state = STATE_EXTERNAL_LEVELS;
-    new_state = STATE_CREATOR_MENU;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-void action_open_icon_kit(UIElement* e, const UIPropertyList *args) {
-    new_state = STATE_ICON_KIT;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
-void action_open_settings(UIElement* e, const UIPropertyList *args) {
-    in_settings_hub = true;
-    settings_hub_init();
-}
-
-void action_open_statistics(UIElement* e, const UIPropertyList *args) {
-    in_statistics = true;
-    statistics_init();
-}
-
-void action_open_credits(UIElement* e, const UIPropertyList *args) {
-    in_credits = true;
-    credits_init();
-}
+bool old_wide;
+bool old_stereo;
 
 void action_open_info_card_text(const char *text) {
     info_card_init();
@@ -157,24 +121,6 @@ void action_open_info_card(int id) {
     }
     in_info_card = true;
 }
-
-void open_soundtrack() {
-    in_songs = true;
-    songs_init();
-}
-
-static UIActionDef actions[] = {
-    { "level_select", action_open_level_select },
-    { "creator_menu", action_open_creator_menu },
-    { "settings", action_open_settings },
-    { "statistics", action_open_statistics },
-    { "icon_kit", action_open_icon_kit },
-    { "credits", action_open_credits },
-};
-
-static UIActionDef actions_top[] = {
-
-};
 
 void handle_title_screen_player(Player *player) {
     if (state.input.holdJump) {
@@ -297,12 +243,9 @@ static void handle_players() {
     }
 }
 
-void main_menu_loop() {
-    exit_flag = false;
-    new_state = 0;
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/main_menu.txt");
-    ui_load_screen_old(&default_screen_top, actions_top, sizeof(actions_top) / sizeof(actions_top[0]), "romfs:/menus/main_menu_top.txt");
-    
+static void main_menu_init(UIScreen *s){
+    play_menu_song();
+
     main_menu_color_index = 0;
     u32 color = default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS];
     main_menu_color_index++;
@@ -320,16 +263,6 @@ void main_menu_loop() {
     channels[chan_ground].color = col;
     channels[chan_line].color = white;
 
-    UIImage *title = (UIImage *) ui_get_element_by_tag(&default_screen_top, "title");
-
-    if (title && alt_title_screen) {
-        ui_image_set_image(title, 3, 1);
-    }
-
-    set_fade_status(FADE_STATUS_IN);
-
-    play_menu_song();
-
     get_buffer(CHANNEL_BG)->active = false;
     get_buffer(CHANNEL_GROUND)->active = false;
     get_buffer(CHANNEL_LINE)->active = false;
@@ -342,253 +275,186 @@ void main_menu_loop() {
     trail = &trail_p1;
     wave_trail = &wave_trail_p1;
 
-    bool old_wide = settingsState.wideEnabled;
-    bool old_stereo = settingsState.stereoEnabled;
+    old_wide = settingsState.wideEnabled;
+    old_stereo = settingsState.stereoEnabled;
+}
 
-    //disabled in preparation for release
+static void main_menu_init_top(UIScreen *s){
+    UIImage *title = (UIImage *) ui_get_element_by_tag(s, "title");
+
+    if (title && alt_title_screen) {
+        ui_image_set_image(title, 3, 1);
+    }
+}
+
+static void main_menu_update(UIScreen *s, UIInput *input){
+    if (input->down & KEY_SELECT) {
+        game_state = STATE_EXIT;
+        stop_mp3();
+        return;
+    }
+
+    if (settingsState.wideEnabled != old_wide || settingsState.stereoEnabled != old_stereo) {
+        gspWaitForVBlank();
+        apply_screen_modes();
+        gspWaitForVBlank();
+        reinitialize_screens();
+        old_wide = settingsState.wideEnabled;
+        old_stereo = settingsState.stereoEnabled;
+    }
+
+    //icons slop
+    float delta = 1/60.f;
+
+    state.old_input = state.input;
+    state.input.pressedJump = (started) == true;
+    state.input.holdJump = (state.input.pressedJump || holding) == true;
+
+    for (int i = 0; i < 2; i++) {
+        drag_particles[i].emitting = false;
+        drag_particles_2[i].stationary = true;
+        drag_particles_2[i].emitting = false;
+        ship_fire_particles[i].emitting = false;
+        secondary_particles[i].emitting = false;
+        ship_secondary_particles[i].emitting = false;
+        burst_particles[i].emitting = false;
+        land_particles[i].emitting = false;
+    }
     
-    // if (initialDisclaimerAccepted == false) {
-    //     in_first_boot_disclaimer = true;
-    //     first_boot_disclaimer_init();
-    // }
+    brick_destroy_particles.emitting = false;
+    slow_speed_particles_bottom.emitting = false;
+    normal_speed_particles_bottom.emitting = false;
+    fast_speed_particles_bottom.emitting = false;
+    faster_speed_particles_bottom.emitting = false;
 
-    while (aptMainLoop()) {
-        float delta = 1/60.f;
-        hidScanInput();
-        u32 kDown = hidKeysDown();
+    p1_trail = false;
 
-        if (kDown & KEY_SELECT) {
-            game_state = STATE_EXIT;
-            stop_mp3();
-            break; // break in order to return to hbmenu
-        }
+    handle_input();
 
-        state.old_input = state.input;
-        state.input.pressedJump = (started) == true;
-        state.input.holdJump = (state.input.pressedJump || holding) == true;
-
-        for (int i = 0; i < 2; i++) {
-            drag_particles[i].emitting = false;
-            drag_particles_2[i].stationary = true;
-            drag_particles_2[i].emitting = false;
-            ship_fire_particles[i].emitting = false;
-            secondary_particles[i].emitting = false;
-            ship_secondary_particles[i].emitting = false;
-            burst_particles[i].emitting = false;
-            land_particles[i].emitting = false;
-        }
-        
-        brick_destroy_particles.emitting = false;
-        slow_speed_particles_bottom.emitting = false;
-        normal_speed_particles_bottom.emitting = false;
-        fast_speed_particles_bottom.emitting = false;
-        faster_speed_particles_bottom.emitting = false;
-
-        p1_trail = false;
-
-        handle_input();
-
-        if (!state.dead) {
-            for (int i = 0; i < 4; i++) {
-                handle_players();
-            }
-        }
-        
-        glitter_particles.emitting = false;
-        glitter_particles_bottom.emitting = false;
-
-        // Fade wave trail
-        if (title_screen_player.gamemode == GAMEMODE_DART && (state.dead || title_screen_player.x >= SCREEN_WIDTH_AREA)) {
-            if (wave_trail->opacity > 0) wave_trail->opacity -= 0.08f;
-            
-            if (wave_trail->opacity <= 0) {
-                wave_trail->opacity = 0;
-                wave_trail->nuPoints = 0;
-            }
-        }
-    
-        MotionTrail_Update(&trail_p1, delta);
-        MotionTrail_UpdateWaveTrail(&wave_trail_p1, delta);
-        update_player_effects(delta);
-        update_use_effects(delta, get_use_effect_array_ptr(GFX_TOP));
-
-        UIInput touch;
-        touchPosition touchPos;
-        hidTouchRead(&touchPos);
-        touch.touchPosition = touchPos;
-        touch.interacted = false;
-
-        float touch_x = touchPos.px/SCALE;
-        float touch_y = SCREEN_HEIGHT - touchPos.py/SCALE;
-
-        bool kill = (hidKeysDown() & KEY_TOUCH) && intersect(
-            title_screen_player.x, title_screen_player.y, title_screen_player.width, title_screen_player.height, 0,
-            touch_x, touch_y, 9, 9, 0
-        );
-
-        bool in_menu = in_settings_hub || in_first_boot_disclaimer || in_statistics || in_songs || in_credits || in_info_card;
-
-        // Ded
-        if (kill && !state.dead && !in_menu) {
-            kill_player(DEATH_TITLE_SCREEN_KILL);
-            players_destroyed++;
-            handle_death(&title_screen_player, false);
-            death_wait_timer = DEATH_WAITING_TIME;
-        } 
-
-        // Wait to reset the player
-        if (death_wait_timer) {
-            death_wait_timer -= delta;
-            if (death_wait_timer <= 0) {
-                reset_players();
-                death_wait_timer = 0;
-                state.dead = false;
-            }
-        }
-
-        handle_col_channel(CHANNEL_BG);
-        handle_col_channel(CHANNEL_GROUND);
-
-        ColTriggerBuffer *trig = get_buffer(CHANNEL_BG);
-        if (!trig->active) {
-            upload_color_to_buffer(CHANNEL_BG, default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS], 4.f);
-            upload_color_to_buffer(CHANNEL_GROUND, default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS], 4.f);
-            main_menu_color_index++;
-        }
-
-        if (settingsState.wideEnabled != old_wide || settingsState.stereoEnabled != old_stereo) {
-            gspWaitForVBlank();
-            apply_screen_modes();
-            gspWaitForVBlank();
-            reinitialize_screens();
-            old_wide = settingsState.wideEnabled;
-            old_stereo = settingsState.stereoEnabled;
-        }
-
-        // Frees a render target, so keep it out of the frame below
-        update_stereo_target();
-
-        if (!in_menu) ui_screen_update(&default_screen, &touch);
-        ui_screen_update(&default_screen_top, &touch);
-        do {
-            update_touch_effect(DT);
-            
-            bg_scroll += 5.19300155f;
-            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            
-            // Top screen, drawn once per eye when 3D is on
-            for (int eye = 0; begin_top_eye(eye); eye++) {
-                draw_fade();
-
-                begin_eye_layer(DEPTH_BACKGROUND);
-                draw_background(-40 + (bg_scroll / 8), 0);
-                end_eye_layer();
-
-                C2D_ViewScale(SCALE, SCALE);
-                state.camera_x = -((SCREEN_WIDTH_AREA - SCREEN_WIDTH_AREA_BOT)/2);
-                state.camera_y = SCREEN_HEIGHT_AREA;
-
-                // Same trick as in game, the player floats in front of the screen
-                begin_eye_layer(DEPTH_LEVEL);
-                draw_player_effects();
-                change_blending(true);
-                draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
-
-                change_blending(false);
-                draw_player(&title_screen_player);
-                end_eye_layer();
-
-                C2D_ViewScale(1/SCALE, 1/SCALE);
-
-                begin_eye_layer(DEPTH_UI);
-                ui_screen_draw(&default_screen_top);
-                end_eye_layer();
-
-                begin_eye_layer(DEPTH_POPUP);
-                if (in_how_to_play) draw_how_to_play_top();
-                end_eye_layer();
-            }
-
-            // Bottom Screen
-            C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-            C2D_SceneBegin(bot);
-
-            draw_background(bg_scroll / 8, SCREEN_HEIGHT);
-            C2D_ViewScale(SCALE, SCALE);
-            state.camera_x = 0;
-            state.camera_y = 0;
-            draw_player_effects();
-            change_blending(true);
-            draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
-
-            change_blending(false);
-            draw_player(&title_screen_player);
-            
-            draw_post_player_effects();
-            draw_ground(bg_scroll, 0, 0, false, 320);
-
-            C2D_ViewScale(1/SCALE, 1/SCALE);
-
-            ui_screen_draw(&default_screen);
-            if (in_settings_hub) {
-                int returned = settings_hub_loop();
-                if (returned) {
-                    in_settings_hub = false;
-                }
-            }
-
-            if (in_statistics) {
-                int returned = statistics_loop();
-                if (returned) {
-                    in_statistics = false;
-                }
-            }
-
-            if (in_songs) {
-                int returned = songs_loop();
-                if (returned) {
-                    in_songs = false;
-                }
-            }
-
-            if (in_credits) {
-                int returned = credits_loop();
-                if (returned) {
-                    in_credits = false;
-                }
-            }
-
-            if (in_first_boot_disclaimer) {
-                int returned = first_boot_disclaimer_loop();
-                if (returned) {
-                    in_first_boot_disclaimer = false;
-                }
-            }
-
-            if (in_info_card) {
-                int returned = info_card_loop();
-                if (returned) {
-                    in_info_card = false;
-                }
-            }
-
-            change_blending(true);
-            draw_touch_effect();
-            change_blending(false);
-
-            C2D_ViewReset();
-
-            C3D_FrameEnd(0);
-        } while (handle_fading());
-
-        if (new_state) {
-            game_state = new_state;
-            free_particles();
-            break;
+    if (!state.dead) {
+        for (int i = 0; i < 4; i++) {
+            handle_players();
         }
     }
-    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
     
-    ui_unload_screen(&default_screen);
-    ui_unload_screen(&default_screen_top);
+    glitter_particles.emitting = false;
+    glitter_particles_bottom.emitting = false;
+
+    // Fade wave trail
+    if (title_screen_player.gamemode == GAMEMODE_DART && (state.dead || title_screen_player.x >= SCREEN_WIDTH_AREA)) {
+        if (wave_trail->opacity > 0) wave_trail->opacity -= 0.08f;
+        
+        if (wave_trail->opacity <= 0) {
+            wave_trail->opacity = 0;
+            wave_trail->nuPoints = 0;
+        }
+    }
+
+    MotionTrail_Update(&trail_p1, delta);
+    MotionTrail_UpdateWaveTrail(&wave_trail_p1, delta);
+    update_player_effects(delta);
+    update_use_effects(delta, get_use_effect_array_ptr(GFX_TOP));
+
+    float touch_x = input->touchPosition.px/SCALE;
+    float touch_y = SCREEN_HEIGHT - input->touchPosition.py/SCALE;
+
+    bool kill = (hidKeysDown() & KEY_TOUCH) && intersect(
+        title_screen_player.x, title_screen_player.y, title_screen_player.width, title_screen_player.height, 0,
+        touch_x, touch_y, 9, 9, 0
+    );
+
+    if (kill && !state.dead) {
+        kill_player(DEATH_TITLE_SCREEN_KILL);
+        players_destroyed++;
+        handle_death(&title_screen_player, false);
+        death_wait_timer = DEATH_WAITING_TIME;
+    } 
+
+    // Wait to reset the player
+    if (death_wait_timer) {
+        death_wait_timer -= delta;
+        if (death_wait_timer <= 0) {
+            reset_players();
+            death_wait_timer = 0;
+            state.dead = false;
+        }
+    }
+
+    handle_col_channel(CHANNEL_BG);
+    handle_col_channel(CHANNEL_GROUND);
+
+    ColTriggerBuffer *trig = get_buffer(CHANNEL_BG);
+    if (!trig->active) {
+        upload_color_to_buffer(CHANNEL_BG, default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS], 4.f);
+        upload_color_to_buffer(CHANNEL_GROUND, default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS], 4.f);
+        main_menu_color_index++;
+    }
+
+    update_touch_effect(DT); 
+    bg_scroll += 5.19300155f;
 }
+
+//bottom screen
+static void main_menu_draw(UIScreen *s, UIDrawPhase phase){
+    if(phase == UI_DRAW_AFTER) return;
+
+    draw_background(bg_scroll / 8, SCREEN_HEIGHT);
+    C2D_ViewScale(SCALE, SCALE);
+    state.camera_x = 0;
+    state.camera_y = 0;
+    draw_player_effects();
+    change_blending(true);
+    draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
+
+    change_blending(false);
+    draw_player(&title_screen_player);
+    
+    draw_post_player_effects();
+    draw_ground(bg_scroll, 0, 0, false, 320);
+
+    C2D_ViewScale(1/SCALE, 1/SCALE);
+}
+
+static void main_menu_draw_top(UIScreen *s, UIDrawPhase phase){
+    if(phase == UI_DRAW_AFTER) return;
+
+    begin_eye_layer(DEPTH_BACKGROUND);
+    draw_background(-40 + (bg_scroll / 8), 0);
+    end_eye_layer();
+
+    C2D_ViewScale(SCALE, SCALE);
+    state.camera_x = -((SCREEN_WIDTH_AREA - SCREEN_WIDTH_AREA_BOT)/2);
+    state.camera_y = SCREEN_HEIGHT_AREA;
+
+    // Same trick as in game, the player floats in front of the screen
+    begin_eye_layer(DEPTH_LEVEL);
+    draw_player_effects();
+    change_blending(true);
+    draw_use_effects(get_use_effect_array_ptr(GFX_TOP));
+
+    change_blending(false);
+    draw_player(&title_screen_player);
+    end_eye_layer();
+
+    C2D_ViewScale(1/SCALE, 1/SCALE);
+}
+
+static void main_menu_exit(UIScreen *s) {
+    free_particles();
+}
+
+const UIScreenDefPair main_menu_def = {
+    .name = "main_menu",
+    .top = {
+        .path = "romfs:/menus/main_menu_top.txt",
+        .init = main_menu_init_top,
+        .draw = main_menu_draw_top
+    },
+    .btm = {
+        .path = "romfs:/menus/main_menu.txt",
+        .init = main_menu_init,
+        .update = main_menu_update,
+        .draw = main_menu_draw,
+        .exit = main_menu_exit
+    }
+};

@@ -1,6 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
-#include "menus/core/ui_element.h"
+
 #include "menus/core/ui_screen.h"
 #include "menus/components/ui_list.h"
 #include "main.h"
@@ -11,10 +11,22 @@
 
 bool gotSogged = false;
 
-void soggy_menu_loop(UIScreen *s) {
+static void soggy_menu_init(UIScreen *s) {
     gotSogged = true;
     cfg_save(); // You got sogged
 
     stop_mp3();
+    playing_menu_loop = false;
     play_mp3("romfs:/songs/SogLoop.mp3", true, 0);
 }
+
+const UIScreenDefPair soggy_def = {
+    .name = "soggy",
+    .top = {
+        .path = "romfs:/menus/soggy_top.txt"
+    },
+    .btm = {
+        .path = "romfs:/menus/soggy.txt",
+        .init = soggy_menu_init
+    },
+};

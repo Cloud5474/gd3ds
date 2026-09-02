@@ -1,5 +1,6 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
 extern bool gotSogged;
 
-void soggy_menu_loop();
+extern const UIScreenDefPair soggy_def;

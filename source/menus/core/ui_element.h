@@ -51,6 +51,11 @@ typedef struct UIActionDef {
     UIActionFn fn;
 } UIActionDef;
 
+typedef struct {
+    const UIActionDef *actions;
+    const size_t action_count;
+} UIActionList;
+
 void ui_element_set_userdata(UIElement *element, void *userdata);
 
 bool ui_element_basic_bound_check(UIElement *e, UIInput *touch, UITransform *transform);

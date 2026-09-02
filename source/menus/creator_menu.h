@@ -1,3 +1,3 @@
 #pragma once
 
-void creator_menu_loop();
+void creator_menu_init(UIScreen *s);

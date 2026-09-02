@@ -251,11 +251,11 @@ UIAction *ui_prop_actions(const UIPropertyList *props, const UIActionDef *action
             actions[i].args = ui_parse_prop_list(list);
         }
 
-        actions[i].action = ui_find_action(action_defs, actions_count, entry);
+        actions[i].action = ui_find_action(base_actions, BASE_ACTION_COUNT, entry);
 
-        //if not found in provided actions, search in base actions
+        //if not found in base actions, search in provided actions
         if(!actions[i].action){
-            actions[i].action = ui_find_action(base_actions, BASE_ACTION_COUNT, entry);
+            actions[i].action = ui_find_action(action_defs, actions_count, entry);
         }
     }
 

@@ -1,4 +1,4 @@
-bggradient tag="gradient_top"
+bggradient color=#326fff
 
 image x=200 y=120 id=9 sheet=1
 

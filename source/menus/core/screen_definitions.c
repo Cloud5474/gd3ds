@@ -33,29 +33,12 @@
 #include "menus/songs.h"
 #include "menus/statistics.h"
 
-const UIScreenDefPair soggy_def = {
-    .name = "soggy",
-    .top = {
-        .path = "romfs:/menus/soggy_top.txt"
-    },
-    .btm = {
-        .path = "romfs:/menus/soggy.txt"
-    },
-};
-
-const UIScreenDefPair credits_def = {
-    .name = "credits",
-    .top = {
-        0
-    },
-    .btm = {
-        .path = "romfs:/menus/credits.txt"
-    },
-};
-
 const UIScreenDefPair *defs[] = {
-    &soggy_def,
-    &credits_def
+    &main_menu_def,
+    &icon_kit_def,
+    &palette_kit_def,
+    &credits_def,
+    &soggy_def
 };
 
 const UIScreenDefPair *ui_get_screen_def(const char* name){

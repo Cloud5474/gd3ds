@@ -1,6 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
-#include "menus/core/ui_element.h"
+
 #include "menus/core/ui_screen.h"
 #include "math_helpers.h"
 #include "menus/components/ui_list.h"
@@ -18,14 +18,6 @@
 #include "main_menu.h"
 #include "level_select.h"
 #include "credits.h"
-
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true,
-};
-
-static UIList *list;
 
 typedef struct CreditsEntries {
     char *contributor;
@@ -47,12 +39,8 @@ static const CreditsEntries credits[] = {
     { "Crafty Jumper", "UI Assets", 0.5f}
 };
 
-void credits_init() {
-    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/credits.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-    yes_exit = false;
-
-    list = (UIList *) ui_get_element_by_tag(&screen, "list");
+void credits_init(UIScreen *s) {
+    UIList *list = (UIList *) ui_get_element_by_tag(s, "list");
 
     if (list) {
         float list_width = list->base.w * 0.5f;
@@ -62,14 +50,14 @@ void credits_init() {
             char *contribution = credits[i].contribution;
             float contributor_scale = credits[i].name_scale;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
+            UIElement *card = (UIElement *) ui_create_rectangle(s);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, C2D_Color32(0,34,65,0));
                 ui_element_set_size(card, 0, 17);
 
                 // Contibutor name
-                UILabel *name = ui_create_label(&screen);
+                UILabel *name = ui_create_label(s);
                 if (name) {
                     name->base.w = list->base.w - 12;
                     ui_label_set_text(name, contributor);
@@ -82,7 +70,7 @@ void credits_init() {
                 }
 
                 // Contribution name
-                UILabel *description = ui_create_label(&screen);
+                UILabel *description = ui_create_label(s);
                 if (description) {
                     char text[256];
                     snprintf(text, sizeof(text) - 1, "- %s", contribution);
@@ -101,20 +89,13 @@ void credits_init() {
     }
 }
 
-int credits_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-        return true;
-    }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
-}
+const UIScreenDefPair credits_def = {
+    .name = "credits",
+    .top = {
+        0
+    },
+    .btm = {
+        .path = "romfs:/menus/credits.txt",
+        .init = credits_init
+    },
+};

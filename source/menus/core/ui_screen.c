@@ -196,6 +196,9 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     screen->transition.animation = animation;
 
     //could probably use a table for this stuff but whatevs
+
+    screen->transition.in_duration = 0.f;
+    screen->transition.out_duration = 0.f;
     screen->transition.darken_frac = 1.f;
 
     if(animation == ANIM_SLIDE_DOWN){
@@ -209,8 +212,8 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     }
 
     screen->transition.state = UI_TRANSITION_OPENING;
-    screen->transition.time = 0.0f;
     screen->transition.duration = screen->transition.in_duration;
+    screen->transition.time = 0.0f;
     screen->transition.done = false;
 }
 
@@ -247,7 +250,6 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 void ui_screen_update(UIScreen* s, UIInput* touch) {
     ui_screen_update_transition(s, DT);
 
-    // The screen could have been unloaded by the closing animation
     if (!s->loaded) return;
 
     if(s->def->update){
@@ -600,13 +602,17 @@ void collect_properties(UIPropertyList *props, char *token, char **cursor){
 
 //UIScreenDefinition for the screen is already set at this point
 void ui_load_screen(UIScreen* screen) {
-    FILE* f = fopen(screen->def->path, "r");
-    if (!f) return;
+    if (!screen || !screen->def || !screen->def->path) {
+        return;
+    }
 
     // Unload screen if already loaded
     if (screen->loaded) {
         ui_unload_screen(screen);
     }
+
+    FILE* f = fopen(screen->def->path, "r");
+    if (!f) return;
 
     screen->loaded = true;
 
@@ -690,16 +696,16 @@ void ui_load_screen(UIScreen* screen) {
     
     fclose(f);
 
-    if(screen->def->load){
-        screen->def->load(screen);
+    if(screen->def->init){
+        screen->def->init(screen);
     }
 }
 
 void ui_unload_screen(UIScreen *screen) {
     if (!screen->loaded || !screen->elements) return;
 
-    if(screen->def->unload){
-        screen->def->unload(screen);
+    if(screen->def->exit){
+        screen->def->exit(screen);
     }
 
     for (int i = 0; i < screen->count; i++) {
@@ -732,9 +738,6 @@ void ui_load_screen_old(UIScreen* screen, const UIActionDef* actions, size_t act
     screen->count = 0;
     screen->capacity = 16;
     screen->elements = calloc(screen->capacity, sizeof(*screen->elements));
-
-    ((UIScreenDefinition *)screen->def)->actions = actions;
-    ((UIScreenDefinition *)screen->def)->action_count = action_count;
 
     char line[512];
 

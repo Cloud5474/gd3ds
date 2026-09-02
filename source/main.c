@@ -28,7 +28,7 @@
 #include "menus/icon_kit.h"
 #include "menus/gameplay.h"
 #include "menus/soggy.h"
-#include "menus/core/ui_stack.h"
+#include "menus/core/screen_definitions.h"
 
 #include "player/collision.h"
 #include "state.h"
@@ -551,6 +551,57 @@ void sync_precise_input(bool suppress_held) {
     if (suppress_held) {
         pi_suppress_until_release();
     }
+}
+
+void ui_loop(){
+    while (aptMainLoop()) {
+        hidScanInput();
+
+        UIInput touch;
+        touchPosition touchPos;
+        hidTouchRead(&touchPos);
+        touch.touchPosition = touchPos;
+        touch.interacted = false;
+        touch.down = hidKeysDown();
+        touch.held = hidKeysHeld();
+        touch.up = hidKeysUp();
+        hidCircleRead(&touch.cpad);
+
+        if (touch.down & KEY_SELECT) {
+            game_state = STATE_EXIT;
+            stop_mp3();
+            break; // break in order to return to hbmenu
+        }
+
+        ui_stack_update(&touch);
+        
+        // Frees a render target, so keep it out of the frame below
+        update_stereo_target();
+
+        update_touch_effect(DT);
+        
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        
+        // Bottom screen
+        C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
+        C2D_SceneBegin(bot);
+
+        ui_stack_draw(SCREEN_BTM);
+
+        change_blending(true);
+        draw_touch_effect();
+        change_blending(false);
+
+        // Top screen, drawn once per eye when 3D is on
+        for (int eye = 0; begin_top_eye(eye); eye++) {
+            begin_eye_layer(DEPTH_UI);
+            ui_stack_draw(SCREEN_TOP);
+            end_eye_layer();
+        }
+        C2D_ViewReset();
+        C3D_FrameEnd(0);
+    }
+    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
 }
 
 void game_loop() {
@@ -1430,9 +1481,11 @@ int main(int argc, char* argv[]) {
         faster_speed_particles_bottom.cfg.startColorGreen = 65 / 255.f;
         faster_speed_particles_bottom.cfg.startColorBlue = 255 / 255.f;
 
+        ui_stack_push_anchor(&main_menu_def, true);
+
         switch (game_state) {
             case STATE_MAIN_MENU:
-                test_loop();
+                ui_loop();
                 //main_menu_loop();
                 break;
             case STATE_GAME:
@@ -1443,6 +1496,8 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
+
+    ui_stack_fini();
 
     close_log_file();
 

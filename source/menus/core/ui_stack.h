@@ -11,12 +11,6 @@ typedef struct UIScene {
 } UIScene;
 
 typedef struct {
-    const char *name;
-    UIScreenDefinition top;
-    UIScreenDefinition btm;
-} UIScreenDefPair;
-
-typedef struct {
     UIScene *scenes;
     size_t stack_capacity;
 
@@ -45,4 +39,4 @@ void ui_stack_pop();
 
 void ui_stack_fini();
 
-void test_loop();
+void ui_loop();

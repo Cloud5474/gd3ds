@@ -1,5 +1,4 @@
 #pragma once
 #include <3ds.h>
 
-void credits_init();
-int credits_loop();
+extern const UIScreenDefPair credits_def;
