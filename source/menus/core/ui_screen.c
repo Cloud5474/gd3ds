@@ -193,28 +193,36 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     if (!screen)
         return;
 
-    screen->transition.animation = animation;
+    UITransition *t = &screen->transition;
+
+    t->animation = animation;
 
     //could probably use a table for this stuff but whatevs
 
-    screen->transition.in_duration = 0.f;
-    screen->transition.out_duration = 0.f;
-    screen->transition.darken_frac = 1.f;
+    t->in_duration = 0.f;
+    t->out_duration = 0.f;
+    t->darken_frac = 1.f;
 
     if(animation == ANIM_SLIDE_DOWN){
-        screen->transition.out_duration = 0.5;
+        t->out_duration = 0.5;
     } else{
-        screen->transition.darken_frac = 0.3;
+        t->darken_frac = 0.3;
     }
 
     if(animation != ANIM_NONE){
-        screen->transition.in_duration = 0.5;
+        t->in_duration = 0.5;
     }
 
-    screen->transition.state = UI_TRANSITION_OPENING;
-    screen->transition.duration = screen->transition.in_duration;
-    screen->transition.time = 0.0f;
-    screen->transition.done = false;
+    t->state = UI_TRANSITION_OPENING;
+
+    if(t->in_duration <= 0.f){
+        t->time = t->duration;
+        t->done = true;
+    }
+
+    t->duration = t->in_duration;
+    t->time = 0.0f;
+    t->done = false;
 }
 
 // Starts the opening animation in reverse
@@ -222,13 +230,25 @@ void ui_screen_close(UIScreen *screen) {
     if (!screen)
         return;
 
-    screen->transition.state = UI_TRANSITION_CLOSING;
-    screen->transition.duration = screen->transition.out_duration;
-    screen->transition.time = 0.0f;
-    screen->transition.done = false;
+    UITransition *t = &screen->transition;
+
+    t->state = UI_TRANSITION_CLOSING;
+
+    if(t->out_duration <= 0.f){
+        t->time = t->duration;
+        t->done = true;
+        screen->closing = true;
+    }
+
+    t->duration = t->out_duration;
+    t->time = 0.0f;
+    t->done = false;
 }
 
 void ui_screen_update_transition(UIScreen *screen, float dt) {
+    if (!screen)
+        return;
+
     UITransition *t = &screen->transition;
 
     if (t->done || t->state == UI_TRANSITION_NONE)
@@ -250,7 +270,7 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 void ui_screen_update(UIScreen* s, UIInput* touch) {
     ui_screen_update_transition(s, DT);
 
-    if (!s->loaded) return;
+    if (!s->loaded || s->closing) return;
 
     if(s->def->update){
         s->def->update(s, touch);
@@ -324,7 +344,7 @@ static void ui_screen_handle_anim(UIScreen* s, UITransform *root) {
 
 // Draw all screen characters
 void ui_screen_draw(UIScreen* s) {
-    if (!s->loaded) return;
+    if (!s->loaded || s->closing) return;
 
     bool customDraw = s->def->draw;
 

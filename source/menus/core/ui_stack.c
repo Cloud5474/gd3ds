@@ -79,27 +79,7 @@ static void close_anchor(){
     stack.current_anchor = new_anchor;
 }
 
-void ui_stack_update(UIInput *input){
-    if(stack.active_scene_count == 0) return;
-
-    for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScene *scene = &stack.scenes[i];
-
-        bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
-    
-        for(int j = 0; j < 2; j++) {
-            UIScreen *screen = &scene->screens[j];
-
-            UIInput dummy_input = { 0 };
-            //only update top screen with input
-            UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
-
-            if(screen && screen->loaded){
-                ui_screen_update(screen, input_to_use);
-            }
-        }
-    }
-
+static void attempt_close_top(){
     UIScene *max_scene = &stack.scenes[ui_stack_max_index()];
 
     if(!max_scene->anchor){
@@ -116,7 +96,9 @@ void ui_stack_update(UIInput *input){
             stack.active_scene_count--;
         }
     }
+}
 
+static void handle_stack_fading(){
     //anchor transition open/close slop
     bool transition_switch = false;
     if(stack.fade_time >= 255.f){
@@ -136,7 +118,7 @@ void ui_stack_update(UIInput *input){
         }
     }
 
-    //for when the fade is fully black
+    //when the fade is fully black, either go back to the previous anchor or open a new one depending on transition
     if(transition_switch) {
         switch(stack.transition){
             case UI_TRANSITION_OPENING:
@@ -155,6 +137,32 @@ void ui_stack_update(UIInput *input){
     }
 
     stack.fade_time += FADE_SPEED * DT;
+}
+
+void ui_stack_update(UIInput *input){
+    if(stack.active_scene_count == 0) return;
+
+    for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
+        UIScene *scene = &stack.scenes[i];
+
+        bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
+    
+        for(int j = 0; j < 2; j++) {
+            UIScreen *screen = &scene->screens[j];
+
+            UIInput dummy_input = { 0 };
+            //only update top screen with input
+            UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
+
+            if(screen){
+                ui_screen_update(screen, input_to_use);
+            }
+        }
+    }
+
+    attempt_close_top();
+
+    handle_stack_fading();
 }
 
 static void draw_stack_debug(){
