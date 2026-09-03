@@ -1,3 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void creator_menu_init(UIScreen *s);
+extern const UIScreenDefPair creator_menu_def;

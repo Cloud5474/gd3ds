@@ -10,18 +10,12 @@
 #include "search_filters.h"
 #include "utils/server_utils.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
 static UITextbox *song_input;
 static UIWindowButton *custom_button;
 static UIWindowButton *normal_button;
 
-void switch_song(int song) {
-    UILabel *label = (UILabel *)ui_get_element_by_tag(&screen, "normal_song_text");
+void switch_song(int song, UIScreen *s) {
+    UILabel *label = (UILabel *)ui_get_element_by_tag(s, "normal_song_text");
     if(label){
         char tmp[64];
         snprintf(tmp, sizeof(tmp) - 1, "%02d. %s\n", song + 1, main_songs[song].title);
@@ -29,81 +23,81 @@ void switch_song(int song) {
     }
 }
 
-void action_left_song(UIElement *e, const UIPropertyList *props) {
+void action_left_song(UIElement* e, const UIPropertyList *props) {
     filters.mainSong--;
     if (filters.mainSong < 0) {
         filters.mainSong = ARRAY_LEN(main_songs) - 1;
     }
 
-    switch_song(filters.mainSong);
+    switch_song(filters.mainSong, e->screen);
 }
 
-void action_right_song(UIElement *e, const UIPropertyList *props) {
+void action_right_song(UIElement* e, const UIPropertyList *props) {
     filters.mainSong++;
     if (filters.mainSong >= ARRAY_LEN(main_songs)) {
         filters.mainSong = 0;
     }
 
-    switch_song(filters.mainSong);
+    switch_song(filters.mainSong, e->screen);
 }
 
-void select_normal() {
+void select_normal(UIElement* e, const UIPropertyList *args) {
     ui_window_button_set_style(custom_button, 5);
     ui_window_button_set_style(normal_button, 10);
 
-    ui_run_func_on_tag(&screen, "songselector", ui_enable_element);
-    ui_run_func_on_tag(&screen, "normal_song_text", ui_enable_element);
-    ui_run_func_on_tag(&screen, "songinput", ui_disable_element);
+    ui_run_func_on_tag(e->screen, "songselector", ui_enable_element);
+    ui_run_func_on_tag(e->screen, "normal_song_text", ui_enable_element);
+    ui_run_func_on_tag(e->screen, "songinput", ui_disable_element);
 
     filters.customSongQuery[0] = '\0';
     song_input->text[0] = '\0';
 
-    switch_song(filters.mainSong);
+    switch_song(filters.mainSong, e->screen);
     filters.customSong = false;
 }
 
-void select_custom() {
+void select_custom(UIElement* e, const UIPropertyList *args) {
     ui_window_button_set_style(custom_button, 10);
     ui_window_button_set_style(normal_button, 5);
 
-    ui_run_func_on_tag(&screen, "songselector", ui_disable_element);
-    ui_run_func_on_tag(&screen, "normal_song_text", ui_disable_element);
-    ui_run_func_on_tag(&screen, "songinput", ui_enable_element);
+    ui_run_func_on_tag(e->screen, "songselector", ui_disable_element);
+    ui_run_func_on_tag(e->screen, "normal_song_text", ui_disable_element);
+    ui_run_func_on_tag(e->screen, "songinput", ui_enable_element);
     
     filters.customSong = true;
 }
 
-void song_filter(UIElement *e, const UIPropertyList *props) {
+void song_filter(UIElement* e, const UIPropertyList *props) {
     filters.songFilter = ((UICheckBox *)e)->checked;
-    UITextbox *textbox = ((UITextbox *)ui_get_element_by_tag(&screen, "songinput"));
+    UITextbox *textbox = ((UITextbox *)ui_get_element_by_tag(e->screen, "songinput"));
 
     if (filters.songFilter){
         if (filters.customSong) {
-            select_custom();
+            select_custom(e, NULL);
             snprintf(textbox->text, sizeof(textbox->text), "%s", filters.customSongQuery);
 
-        } else select_normal();
+        } else select_normal(e, NULL);
     } else {
-        ui_run_func_on_tag(&screen, "songselector", ui_disable_element);
-        ui_run_func_on_tag(&screen, "normal_song_text", ui_disable_element);
-        ui_run_func_on_tag(&screen, "songinput", ui_disable_element);
+        ui_run_func_on_tag(e->screen, "songselector", ui_disable_element);
+        ui_run_func_on_tag(e->screen, "normal_song_text", ui_disable_element);
+        ui_run_func_on_tag(e->screen, "songinput", ui_disable_element);
 
         textbox->text[0] = '\0';
         filters.customSongQuery[0] = '\0';
 
         filters.mainSong = 0;
 
-        switch_song(filters.mainSong);
+        switch_song(filters.mainSong, e->screen);
     }
 
-    ui_run_func_on_tag(&screen, "button", filters.songFilter ? ui_enable_element : ui_disable_element);
+    ui_run_func_on_tag(e->screen, "button", filters.songFilter ? ui_enable_element : ui_disable_element);
 }
 
-void action_custom_song_query(UIElement *e, const UIPropertyList *props){
+void action_custom_song_query(UIElement* e, const UIPropertyList *props){
     snprintf(filters.customSongQuery, sizeof(filters.customSongQuery), "%.*s", (int)sizeof(filters.customSongQuery) - 1, ((UITextbox *)e)->text);
 }
 
-static UIActionDef actions[] = {
+static UIActionDef song_filter_actions[] = {
     { "song", song_filter},
     { "selectnormal", select_normal },
     { "selectcustom", select_custom },
@@ -112,45 +106,30 @@ static UIActionDef actions[] = {
     { "customsongquery", action_custom_song_query }
 };
 
-void song_filter_init() {
+void song_filter_init(UIScreen *s) {
+    ui_run_func_on_tag(s, "button", filters.songFilter ? ui_enable_element : ui_disable_element);
 
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/song_filter_pop_up.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-    
-    ui_run_func_on_tag(&screen, "button", filters.songFilter ? ui_enable_element : ui_disable_element);
+    song_input = (UITextbox *)ui_get_element_by_tag(s, "songinput");
+    normal_button = (UIWindowButton *)ui_get_element_by_tag(s, "normalbutton");
+    custom_button = (UIWindowButton *)ui_get_element_by_tag(s, "custombutton");
 
-    song_input = (UITextbox *)ui_get_element_by_tag(&screen, "songinput");
-    normal_button = (UIWindowButton *)ui_get_element_by_tag(&screen, "normalbutton");
-    custom_button = (UIWindowButton *)ui_get_element_by_tag(&screen, "custombutton");
-
-    UICheckBox *checkbox = (UICheckBox *)ui_get_element_by_tag(&screen, "chk_song");
+    UICheckBox *checkbox = (UICheckBox *)ui_get_element_by_tag(s, "chk_song");
     if (checkbox) {
         checkbox->checked = filters.songFilter;
         ui_set_checkbox_checked(checkbox, checkbox->checked);
     }
 
     song_filter((UIElement *)checkbox, NULL);
-
-    yes_exit = false;
 }
 
-int song_filter_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-
-        return true;
-    };
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-
-    return false;
-}
-
-void song_filter_draw(){
-    ui_screen_draw(&screen);
-}
+const UIScreenDefPair song_filter_def = {
+    .name = "song_filter",
+    .btm = {
+        .path = "romfs:/menus/song_filter_pop_up.txt",
+        .init = song_filter_init,
+        .action_list = {
+            .action_count = ARRAY_LEN(song_filter_actions),
+            .actions = song_filter_actions
+        }
+    }
+};

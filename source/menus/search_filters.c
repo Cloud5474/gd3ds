@@ -12,38 +12,30 @@
 #include "song_filter.h"
 #include "utils/server_utils.h"
 
-static bool yes_exit = false;
-static bool in_song_pop_up = false;
-static bool in_length_pop_up = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
-static void toggle_gdps(){
+static void toggle_gdps(UIScreen *s){
     if(gdps){
-        ui_run_func_on_tag(&screen, "gdps", ui_enable_element);
-        ui_run_func_on_tag(&screen, "no_gdps", ui_disable_element);
+        ui_run_func_on_tag(s, "gdps", ui_enable_element);
+        ui_run_func_on_tag(s, "no_gdps", ui_disable_element);
     } else{
-        ui_run_func_on_tag(&screen, "gdps", ui_disable_element);
-        ui_run_func_on_tag(&screen, "no_gdps", ui_enable_element);
+        ui_run_func_on_tag(s, "gdps", ui_disable_element);
+        ui_run_func_on_tag(s, "no_gdps", ui_enable_element);
     }
 }
 
-static void reset_checkboxes(){
+static void reset_checkboxes(UIScreen *s){
     //set checkboxes to their saved values
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_uncompleted")), filters.uncompleted);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_completed")), filters.completed);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_original")), filters.original);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_unrated")), filters.noStar);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_rated")), filters.star);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_featured")), filters.featured);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_uncompleted")), filters.uncompleted);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_completed")), filters.completed);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_original")), filters.original);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_unrated")), filters.noStar);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_rated")), filters.star);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_featured")), filters.featured);
 
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_original_gdps")), filters.original);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_unrated_gdps")), filters.noStar);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_rated_gdps")), filters.star);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_featured_gdps")), filters.featured);
-    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(&screen, "chk_super")), filters.super);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_original_gdps")), filters.original);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_unrated_gdps")), filters.noStar);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_rated_gdps")), filters.star);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_featured_gdps")), filters.featured);
+    ui_set_checkbox_checked(((UICheckBox *)ui_get_element_by_tag(s, "chk_super")), filters.super);
 }
 
 void reset_search_filters() {
@@ -60,9 +52,6 @@ void reset_search_filters() {
     filters.difficultyFilters = 0;
     filters.customSongQuery[0] = '\0';
     update_difficulty_tints();
-
-    yes_exit = true;
-    cfg_save();
 }
 
 void uncompleted_filter(UIElement* e, const UIPropertyList *args) {
@@ -93,17 +82,7 @@ void super_filter(UIElement* e, const UIPropertyList *args) {
     filters.super = ((UICheckBox *)e)->checked;
 }
 
-void open_song(UIElement* e, const UIPropertyList *args) {
-    in_song_pop_up = true;
-    song_filter_init();
-}
-
-void open_length(UIElement* e, const UIPropertyList *args) {
-    in_length_pop_up = true;
-    length_filter_init();
-}
-
-static UIActionDef actions[] = {
+static UIActionDef search_filters_actions[] = {
     { "uncompleted", uncompleted_filter },
     { "completed", completed_filter },
     { "original", original_filter },
@@ -111,60 +90,22 @@ static UIActionDef actions[] = {
     { "rated", rated_filter },
     { "featured", featured_filter },
     { "super", super_filter },
-    { "song", open_song },
-    { "length", open_length },
 };
 
-void search_filters_init() {
-    in_song_pop_up = false;
-    in_length_pop_up = false;
+void search_filters_init(UIScreen *s) {
+    toggle_gdps(s);
 
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/search_filters_pop_up.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-
-    toggle_gdps();
-
-    reset_checkboxes();
-
-    yes_exit = false;
+    reset_checkboxes(s);
 }
 
-int search_filters_loop() {
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-
-    if (!in_length_pop_up && !in_song_pop_up) ui_screen_update(&screen, &touch);
-
-    if (yes_exit) {
-        cfg_save();
-
-        ui_unload_screen(&screen);
-
-        return true;
-    }
-
-    if (in_length_pop_up) {
-        int returned = length_filter_loop();
-        if (returned) {
-            in_length_pop_up = false;
+const UIScreenDefPair search_filters_def = {
+    .name = "search_filters",
+    .btm = {
+        .path = "romfs:/menus/search_filters_pop_up.txt",
+        .init = search_filters_init,
+        .action_list = {
+            .action_count = ARRAY_LEN(search_filters_actions),
+            .actions = search_filters_actions
         }
     }
-
-    if (in_song_pop_up) {
-        int returned = song_filter_loop();
-        if (returned) {
-            in_song_pop_up = false;
-        }
-    }
-
-    return false;
-}
-
-void search_filters_draw() {
-    ui_screen_draw(&screen);
-    if (in_length_pop_up) length_filter_draw();
-    if (in_song_pop_up) song_filter_draw();
-}
+};

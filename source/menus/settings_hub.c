@@ -20,91 +20,30 @@
 #include "songs.h"
 #include "state.h"
 
-static bool exiting = false;
-
-static bool in_credits = false;
-static bool in_settings = false;
-bool in_how_to_play = false;
-static bool in_songs = false;
 static bool switch_to_soundtrack = false;
-
-static UIScreen screen = {
-    .isBottom = true,
-};
 
 static UISlider *music_slider_bar;
 static UISlider *sound_slider_bar;
 
-void settings_hub_init() {
-    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/settings_hub.txt");
-
-    ui_screen_open(&screen, ANIM_SLIDE_DOWN);
-
-    music_slider_bar = (UISlider*) ui_get_element_by_tag(&screen, "music_slider");
-    sound_slider_bar = (UISlider*) ui_get_element_by_tag(&screen, "sound_slider");
+static void settings_hub_init(UIScreen *s) {
+    music_slider_bar = (UISlider*) ui_get_element_by_tag(s, "music_slider");
+    sound_slider_bar = (UISlider*) ui_get_element_by_tag(s, "sound_slider");
 
     if (music_slider_bar) music_slider_bar->value = music_volume;
     if (sound_slider_bar) sound_slider_bar->value = sound_volume;
-
-    exiting = false;
-    in_credits = false;
-    in_how_to_play = false;
-    in_settings = false;
-    in_songs = false;
 }
 
-int settings_hub_loop() {
-
-    if(exiting){
-        if (screen.transition.state != UI_TRANSITION_CLOSING) {
-            ui_screen_close(&screen);
-        }
-
-        if (screen.loaded) {
-            UIDarken *darken = (UIDarken *) ui_get_element_by_tag(&screen, "darken");
-            darken->base.opacity = ((0.5f - screen.transition.time) * 2.f) * darken->opacity;
-            ui_darken_reset_opacity(darken);
-        }
-    }
-
-    // The screen is unloaded by the call to ui_screen_close
-    if (!screen.loaded) {
-        if (switch_to_soundtrack) open_soundtrack();
-        switch_to_soundtrack = false;
-        return true;
-    }
-
+static void settings_hub_update() {
     if (music_slider_bar) music_volume = music_slider_bar->value;
     if (sound_slider_bar) sound_volume = sound_slider_bar->value;
-
     apply_volume_settings();
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    if (!in_settings && !in_credits && !in_how_to_play && !in_songs) ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    if (in_songs) {
-        int returned = songs_loop();
-        if (returned) {
-            in_songs = false;
-        }
-    } 
-    if (in_settings) {
-        int returned = settings_loop();
-        if (returned) {
-            in_settings = false;
-        }
-    } 
-    if (in_how_to_play) {
-        int returned = how_to_play_loop();
-        if (returned) {
-            in_how_to_play = false;
-        }
-    } 
-    return false;
 }
+
+const UIScreenDefPair settings_hub_def = {
+    .name = "settings_hub",
+    .btm = {
+        .path = "romfs:/menus/settings_hub.txt",
+        .init = settings_hub_init,
+        .update = settings_hub_update,
+    }
+};

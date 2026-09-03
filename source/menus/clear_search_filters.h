@@ -1,4 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void clear_search_filters_init();
-int clear_search_filters_loop();
+extern const UIScreenDefPair clear_filters_def;

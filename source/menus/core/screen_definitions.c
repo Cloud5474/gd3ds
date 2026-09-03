@@ -2,6 +2,7 @@
 
 #include "menus/clear_search_filters.h"
 #include "menus/creator_menu.h"
+#include "menus/online_menu.h"
 #include "menus/credits.h"
 #include "menus/delete_online_level.h"
 #include "menus/external_level_infobox.h"
@@ -25,6 +26,7 @@
 #include "menus/refresh_online_level.h"
 #include "menus/saved_levels.h"
 #include "menus/search_filters.h"
+#include "menus/server_switcher.h"
 #include "menus/search_menu.h"
 #include "menus/settings_hub.h"
 #include "menus/settings.h"
@@ -36,9 +38,25 @@
 const UIScreenDefPair *defs[] = {
     &main_menu_def,
     &icon_kit_def,
+    &creator_menu_def,
     &palette_kit_def,
     &credits_def,
-    &soggy_def
+    &soggy_def,
+    &search_menu_def,
+    &external_def,
+    &settings_hub_def,
+    &songs_def,
+    &statistics_def,
+    &how_to_play_def,
+    &settings_def,
+    &online_def,
+    &saved_levels_def,
+    &song_filter_def,
+    &length_filter_def,
+    &search_filters_def,
+    &server_switcher_def,
+    &delete_level_def,
+    &clear_filters_def,
 };
 
 const UIScreenDefPair *ui_get_screen_def(const char* name){

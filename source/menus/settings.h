@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h"
 #include <3ds.h>
+#include "menus/core/ui_stack.h"
 
 typedef enum {
     PAGE_GRAPHICS,
@@ -61,5 +62,4 @@ typedef struct {
 extern Setting settings[29];
 extern SettingState settingsState;
 
-void settings_init();
-int settings_loop();
+extern const UIScreenDefPair settings_def;

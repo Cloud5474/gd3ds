@@ -1,6 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void server_switcher_init();
-int server_switcher_loop();
-
-void server_switcher_draw();
+extern const UIScreenDefPair server_switcher_def;

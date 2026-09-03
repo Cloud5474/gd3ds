@@ -1,6 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void song_filter_init();
-int song_filter_loop();
-
-void song_filter_draw();
+extern const UIScreenDefPair song_filter_def;

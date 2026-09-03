@@ -3,4 +3,4 @@ button x=60 y=120 id=79 keyBinds="X" actions=open_menu[screen="icon_kit",anchor=
 button x=260 y=120 id=2 keyBinds="Y" sheet=1 actions=open_menu[screen="creator_menu",anchor=1]
 
 button x=190 y=208 id=12 sheet=1 actions=open_menu[screen="statistics",top_anim="slide_down",btm_anim="slide_down"]
-button x=130 y=208 id=11 sheet=1 actions=open_menu[screen="settings",top_anim="slide_down",btm_anim="slide_down"]
+button x=130 y=208 id=11 sheet=1 actions=open_menu[screen="settings_hub",btm_anim="slide_down"]

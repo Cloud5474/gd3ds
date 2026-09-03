@@ -1,5 +1,6 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
 extern bool external_start_level;
 
-void external_levels_loop();
+extern const UIScreenDefPair external_def;

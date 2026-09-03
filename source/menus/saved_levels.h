@@ -1,3 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void saved_levels_loop();
+extern const UIScreenDefPair saved_levels_def;

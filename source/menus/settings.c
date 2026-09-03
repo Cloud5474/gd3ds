@@ -22,13 +22,7 @@
 #include "utils/precise_input.h"
 #include "utils/utils.h"
 
-static bool yes_exit = false;
-
 static int current_page = 0;
-
-static UIScreen screen = {
-    .isBottom = true
-};
 
 SettingState settingsState;
 
@@ -464,17 +458,17 @@ void action_category(UIElement *e, const UIPropertyList *args) {
 }
 
 
-void create_setting(Setting *setting, int id) {
+void create_setting(Setting *setting, int id, UIScreen *s) {
     if (list) {
         float list_width = list->base.w * 0.5f;
 
-        UIElement *card = (UIElement *) ui_create_rectangle(&screen);
+        UIElement *card = (UIElement *) ui_create_rectangle(s);
 
         if (card) {
             ui_rectangle_set_color((UIRectangle *) card, (id & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
             ui_element_set_size(card, 0, 28);
 
-            UICheckBox *checkbox = ui_create_checkbox(&screen);
+            UICheckBox *checkbox = ui_create_checkbox(s);
             if (checkbox) {
                 // Store in the user data
                 CheckboxData *data = malloc(sizeof(*data));
@@ -490,7 +484,7 @@ void create_setting(Setting *setting, int id) {
                 ui_element_add_child(card, (UIElement *) checkbox);
             }
 
-            UILabel *name = ui_create_label(&screen);
+            UILabel *name = ui_create_label(s);
             if (name) {
                 name->base.w = list->base.w - 60;
                 ui_label_set_text(name, setting->label);
@@ -501,7 +495,7 @@ void create_setting(Setting *setting, int id) {
             }
 
             if (setting->additionalInfo) {
-                UIButton *info = ui_create_button(&screen);
+                UIButton *info = ui_create_button(s);
                 if (info) {
                     // Store the text pointer in the user data
                     InfoButtonData *data = malloc(sizeof(*data));
@@ -523,10 +517,10 @@ void create_setting(Setting *setting, int id) {
     }
 }
 
-void load_category(SettingPage page) {
+void load_category(SettingPage page, UIScreen *s) {
     ui_list_reset(list);
     ui_label_set_text(category_name, category_names[page]);
-    ui_run_func_on_tag(&screen, "category", set_button_style);
+    ui_run_func_on_tag(s, "category", set_button_style);
 
     int count = 0;
     for (int i = 0; i < ARRAY_LEN(settings); i++) {
@@ -538,50 +532,45 @@ void load_category(SettingPage page) {
         }
 
         if (setting->page == page) {
-            create_setting(setting, count);
+            create_setting(setting, count, s);
             count++;
         }
     }
 }
 
-static UIActionDef actions[] = {
+static UIActionDef settings_actions[] = {
     {"category", action_category}
 };
 
-void settings_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/settings.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-    yes_exit = false;
-
-    list = (UIList *) ui_get_element_by_tag(&screen, "list");
-    category_name = (UILabel *) ui_get_element_by_tag(&screen, "listlabel");
-
+static void settings_init(UIScreen *s) {
+    list = (UIList *) ui_get_element_by_tag(s, "list");
+    category_name = (UILabel *) ui_get_element_by_tag(s, "listlabel");
     current_page = 0;
-
-    load_category(current_page);
+    load_category(current_page, s);
 }
 
-int settings_loop() {
-    if (yes_exit) {
-        cfg_save();
-        
-        ui_unload_screen(&screen);
-        return true;
-    }
-
+static void settings_update(UIScreen *s, UIInput *i) {
     if (request_list_reload) {
-        load_category(current_page);
+        load_category(current_page, s);
         request_list_reload = false;
     }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    if (!in_info_card) ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
 }
+
+static void settings_exit() {
+    cfg_save();
+}
+
+
+const UIScreenDefPair settings_def = {
+    .name = "settings",
+    .btm = {
+        .path = "romfs:/menus/settings.txt",
+        .init = settings_init,
+        .update = settings_update,
+        .exit = settings_exit,
+        .action_list = {
+            .action_count = ARRAY_LEN(settings_actions),
+            .actions = settings_actions
+        }
+    }
+};

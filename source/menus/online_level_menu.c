@@ -188,11 +188,6 @@ static void action_open_comments(UIElement *e, const UIPropertyList *args) {
     online_comments_init();
 }
 
-static void action_delete_level(UIElement *e, const UIPropertyList *args) {
-    in_delete = true;
-    delete_level_init();
-}
-
 void delete_level(){
     exit_flag = true;
     set_fade_status(FADE_STATUS_OUT);
@@ -462,7 +457,6 @@ static UIActionDef actions[] = {
     {"info", action_open_info },
     {"comments", action_open_comments },
     {"reload", action_refresh_level },
-    {"deletelevel", action_delete_level },
     {"play", action_play },
     {"download", action_download },
 };
@@ -696,7 +690,6 @@ void online_level_menu_loop() {
             ui_screen_draw(&default_screen);
             if(in_info_box) online_level_infobox_draw_bot();
             if(in_comments) online_comments_draw();
-            if(in_delete) delete_level_draw_bot();
             if(in_warningbox) online_level_warningbox_draw_bot();
             if(in_errorbox) online_errorbox_draw_bot();
 
@@ -759,14 +752,6 @@ void online_level_menu_loop() {
             if (returned)
             {
                 in_comments = false;
-            }
-        }
-        if (in_delete)
-        {
-            int returned = delete_level_loop();
-            if (returned)
-            {
-                in_delete = false;
             }
         }
         if (in_warningbox)

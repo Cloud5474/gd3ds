@@ -12,13 +12,6 @@
 #include "save/saving.h"
 #include "songs.h"
 
-static bool yes_exit = false;
-static bool exiting = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
 static UIList *list;
 
 const SongEntries main_songs[] = {
@@ -43,12 +36,8 @@ const SongEntries main_songs[] = {
     { "Practice: Stay Inside Me", "OcularNebula"}
 };
 
-void songs_init() {
-    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/soundtrack.txt");
-    ui_screen_open(&screen, ANIM_SLIDE_DOWN);
-
-    list = (UIList *) ui_get_element_by_tag(&screen, "list");
-
+void songs_init(UIScreen *s) {
+    list = (UIList *) ui_get_element_by_tag(s, "list");
     if (list) {
         float list_width = list->base.w * 0.5f;
 
@@ -56,14 +45,14 @@ void songs_init() {
             char *title = main_songs[i].title;
             char *artist = main_songs[i].artist;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
+            UIElement *card = (UIElement *) ui_create_rectangle(s);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, (i & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
                 ui_element_set_size(card, 0, 46);
 
                 // Song name
-                UILabel *song = ui_create_label(&screen);
+                UILabel *song = ui_create_label(s);
                 if (song) {
                     song->base.w = list->base.w - 12;
                     ui_label_set_text(song, title);
@@ -76,7 +65,7 @@ void songs_init() {
                 }
 
                 // Song name
-                UILabel *creator = ui_create_label(&screen);
+                UILabel *creator = ui_create_label(s);
                 if (creator) {
                     ui_label_set_text(creator, artist);
                     ui_element_set_position((UIElement *) creator, -list_width + 6, + 7);
@@ -91,38 +80,12 @@ void songs_init() {
             }
         }
     }
-
-    exiting = false;
-    yes_exit = false;
 }
 
-int songs_loop() {
-    if(exiting){
-        if (screen.transition.state != UI_TRANSITION_CLOSING) {
-            ui_screen_close(&screen);
-        }
-
-        if (screen.loaded) {
-            UIDarken *darken = (UIDarken *) ui_get_element_by_tag(&screen, "darken");
-            darken->base.opacity = ((0.5f - screen.transition.time) * 2.f) * darken->opacity;
-            ui_darken_reset_opacity(darken);
-        }
+const UIScreenDefPair songs_def = {
+    .name = "songs",
+    .btm = {
+        .path = "romfs:/menus/soundtrack.txt",
+        .init = songs_init,
     }
-
-    // The screen is unloaded by the call to ui_screen_close
-    if (!screen.loaded) {
-        return true;
-    }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-
-    ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
-}
+};

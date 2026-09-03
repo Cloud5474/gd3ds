@@ -191,8 +191,8 @@ static void restart_level() {
 }
 
 void open_settings() {
-    in_settings = true;
-    settings_init();
+    // in_settings = true;
+    // settings_init();
 }
 
 static void action_pause(UIElement *e, const UIPropertyList *args) { 
@@ -411,18 +411,18 @@ int gameplay_screen_bot_loop() {
 
     touch.touchPosition = touchPos;
     touch.interacted = false;
-    if (!in_settings && !in_disclaimer && !in_info_card) {
+    // if (!in_settings && !in_disclaimer && !in_info_card) {
         ui_screen_update(&default_screen, &touch);
-    }
+    // }
 
     ui_screen_draw(&default_screen);
 
-    if (in_settings) {
-        int returned = settings_loop();
-        if (returned) {
-            in_settings = false;
-        }
-    }
+    // if (in_settings) {
+    //     int returned = settings_loop();
+    //     if (returned) {
+    //         in_settings = false;
+    //     }
+    // }
 
     if (in_disclaimer) {
         int returned = disclaimer_loop();
@@ -431,12 +431,12 @@ int gameplay_screen_bot_loop() {
         }
     }
 
-    if (in_info_card) {
-        int returned = info_card_loop();
-        if (returned) {
-            in_info_card = false;
-        }
-    }
+    // if (in_info_card) {
+    //     int returned = info_card_loop();
+    //     if (returned) {
+    //         in_info_card = false;
+    //     }
+    // }
 
     return false;
 }

@@ -8,12 +8,6 @@
 #include "search_filters.h"
 #include "utils/server_utils.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
 static void update_length_tint(UIElement *e){
     UILabel *l = (UILabel *)e;
     int opacity = (filters.lengthFilters & (ui_prop_int(&e->custom_properties, "lengthval", 0))) > 0 ? 255 : 127;
@@ -29,46 +23,31 @@ static void update_length_tint(UIElement *e){
     snprintf(l->text, sizeof(l->text), "<%d,%d,%d>%s</>", opacity, opacity, opacity, length_str);
 }
 
-static void update_length_tints(){
-    ui_run_func_on_tag(&screen, "lengthbtn", update_length_tint);
+static void update_length_tints(UIScreen *s){
+    ui_run_func_on_tag(s, "lengthbtn", update_length_tint);
 }
 
-void action_set_length(UIElement* e, const UIPropertyList *props) {
+static void action_set_length(UIElement* e, const UIPropertyList *props) {
     filters.lengthFilters ^= ui_prop_int(&e->custom_properties, "lengthval", 0);
-    update_length_tints();
+    update_length_tints(e->screen);
 }
 
-static UIActionDef actions[] = {
+static UIActionDef length_filter_actions[] = {
     { "length", action_set_length },
 };
 
-void length_filter_init() {
-
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/length_filter_pop_up.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-
-    update_length_tints();
-
-    yes_exit = false;
+void length_filter_init(UIScreen *s) {
+    update_length_tints(s);
 }
 
-int length_filter_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-
-        return true;
+const UIScreenDefPair length_filter_def = {
+    .name = "length_filter",
+    .btm = {
+        .path = "romfs:/menus/length_filter_pop_up.txt",
+        .init = length_filter_init,
+        .action_list = {
+            .action_count = ARRAY_LEN(length_filter_actions),
+            .actions = length_filter_actions
+        }
     }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-
-    return false;
-}
-
-void length_filter_draw() {
-    ui_screen_draw(&screen);
-}
+};

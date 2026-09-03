@@ -11,13 +11,6 @@
 
 #include "save/saving.h"
 
-static bool yes_exit = false;
-static bool exiting = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
 static UIList *list;
 
 typedef struct StatisticEntries {
@@ -36,11 +29,8 @@ static const StatisticEntries stats[] = {
     { "Players Destroyed", &players_destroyed }
 };
 
-void statistics_init() {
-    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/statistics.txt");
-    ui_screen_open(&screen, ANIM_SLIDE_DOWN);
-
-    list = (UIList *) ui_get_element_by_tag(&screen, "list");
+void statistics_init(UIScreen *s) {
+    list = (UIList *) ui_get_element_by_tag(s, "list");
 
     if (list) {
         float list_width = list->base.w * 0.5f;
@@ -49,14 +39,14 @@ void statistics_init() {
             char *name = stats[i].name;
             int value = *stats[i].value;
 
-            UIElement *card = (UIElement *) ui_create_rectangle(&screen);
+            UIElement *card = (UIElement *) ui_create_rectangle(s);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, (i & 1 ? C2D_Color32(194,114,62,255) :  C2D_Color32(161,88,48,255)));
                 ui_element_set_size(card, 0, 28);
 
                 // Stat name
-                UILabel *stat = ui_create_label(&screen);
+                UILabel *stat = ui_create_label(s);
                 if (stat) {
                     ui_label_set_text(stat, name);
                     ui_element_set_position((UIElement *) stat, -list_width + 6, 1);
@@ -68,7 +58,7 @@ void statistics_init() {
                 }
 
                 // Value name
-                UILabel *stat_value = ui_create_label(&screen);
+                UILabel *stat_value = ui_create_label(s);
                 if (stat_value) {
                     char tmp_value[16];
 
@@ -88,38 +78,12 @@ void statistics_init() {
             }
         }
     }
-
-    exiting = false;
-    yes_exit = false;
 }
 
-int statistics_loop() {
-    if(exiting){
-        if (screen.transition.state != UI_TRANSITION_CLOSING) {
-            ui_screen_close(&screen);
-        }
-
-        if (screen.loaded) {
-            UIDarken *darken = (UIDarken *) ui_get_element_by_tag(&screen, "darken");
-            darken->base.opacity = ((0.5f - screen.transition.time) * 2.f) * darken->opacity;
-            ui_darken_reset_opacity(darken);
-        }
+const UIScreenDefPair statistics_def = {
+    .name = "statistics",
+    .btm = {
+        .path = "romfs:/menus/statistics.txt",
+        .init = statistics_init,
     }
-
-    // The screen is unloaded by the call to ui_screen_close
-    if (!screen.loaded) {
-        return true;
-    }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-
-    ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
-}
+};

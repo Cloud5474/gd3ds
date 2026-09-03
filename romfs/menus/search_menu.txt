@@ -1,6 +1,6 @@
-bggradient tag="gradient"
+bggradient color=#326fff
 
-button x=24 y=28 id=6 action="exit" keyBinds="B"
+button x=24 y=28 id=6 actions="close_menu" keyBinds="B"
 
 image x=36 y=205 id=178
 image x=284 y=205 id=178 sx=-1.0
@@ -65,8 +65,8 @@ button x=242 y=170 id=258 scale=0.6 action="demon" tag="demon"
 #AUTO
 button x=275 y=170 id=267 scale=0.6 action="auto" tag="auto"
 
-button x=120 y=215 id=144 scale=0.8 action="openfilters"
-button x=160 y=215 id=31 scale=0.8 action="clearfilters"
-button x=200 y=215 id=424 scale=0.8 action="serverswitcher"
+button x=120 y=215 id=144 scale=0.8 actions="open_menu[screen="search_filters",btm_anim="zoom"]"
+button x=160 y=215 id=31 scale=0.8 actions="open_menu[screen="clear_filters",btm_anim="zoom"]"
+button x=200 y=215 id=424 scale=0.8 actions="open_menu[screen="server_switcher",btm_anim="zoom"]"
 
 

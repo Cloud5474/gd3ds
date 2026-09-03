@@ -1,6 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void how_to_play_init();
-int how_to_play_loop();
-
-void draw_how_to_play_top();
+extern const UIScreenDefPair how_to_play_def;

@@ -1,4 +1,4 @@
-bggradient tag="gradient_top"
+bggradient tag="gradient_top" color=#326fff
 
 image x=36 y=35 id=178 sy=-1.0
 image x=36 y=205 id=178

@@ -6,47 +6,21 @@
 #include "save/saving.h"
 #include "menus/online_level_menu.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-static UIScreen screen_top = {
-};
-
 void action_delete_level(UIElement* e, const UIPropertyList *args) {
     delete_level();
 }
 
-static UIActionDef actions[] = {
+static UIActionDef delete_level_actions[] = {
     { "delete", action_delete_level },
 };
 
-void delete_level_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/delete_level.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-
-    yes_exit = false;
-}
-
-int delete_level_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-        ui_unload_screen(&screen_top);
-        return true;
+const UIScreenDefPair delete_level_def = {
+    .name = "delete_level",
+    .btm = {
+        .path = "romfs:/menus/delete_level.txt",
+        .action_list = {
+            .action_count = ARRAY_LEN(delete_level_actions),
+            .actions = delete_level_actions
+        }
     }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-    ui_screen_update(&screen_top, &touch);
-
-    return false;
-}
-
-void delete_level_draw_bot() {
-    ui_screen_draw(&screen);
-}
+};

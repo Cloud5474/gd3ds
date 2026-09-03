@@ -42,8 +42,6 @@ static bool old_pressing = false;
 static bool started = false;
 static bool holding = false;
 
-bool in_info_card;
-
 static float death_wait_timer = 0;
 
 static int main_menu_color_index = 0;
@@ -54,72 +52,8 @@ bool old_wide;
 bool old_stereo;
 
 void action_open_info_card_text(const char *text) {
-    info_card_init();
+    // ui_stack_push()
     set_info_content(text);
-    in_info_card = true;
-}
-
-void action_open_info_card(int id) {
-    info_card_init();
-    switch (id) {
-        case 1:
-            // wide mode info
-            set_info_content("Doubles the top screen's horizontal\nresolution.");
-            break;
-        case 2:
-            // global tap effect info
-            set_info_content("Plays the tap effect across all menus.");
-            break;
-        case 3:
-            // more jump buttons info
-            set_info_content("Swaps your jump input to Y.");
-            break;
-        case 4:
-            // hitboxes info
-            set_info_content("Shows object hitboxes while in a level.\nWARNING: AFFECTS PERFORMANCE!");
-            break;
-        case 5:
-            // debug info
-            set_info_content("Enables debug key shortcuts.\n(B + L, B + R, X)");
-            break;
-        case 6:
-            // accurate percentage info
-            set_info_content("Shows level progress with 2 decimals.");
-            break;
-        case 7:
-            // ULTRA accurate percentage info
-            set_info_content("But mom, I want more decimals!!!!\n(use at your own risk)");
-            break;
-        case 8:
-            // Switch trail color
-            set_info_content("Makes the player trail use P1\ninstead of P2.");
-            break;
-        case 9:
-            // Switch wave trail color
-            set_info_content("Makes the wave trail use P1\ninstead of P2.");
-            break;
-        case 10:
-            // quick retry info
-            set_info_content("Restarts in 0.5 seconds instead of 1.");
-            break;
-        case 11:
-            // solid trail info
-            set_info_content("Disables blending for the wave trail.");
-            break;
-        case 12:
-            // no wave trail behind info
-            set_info_content("Disables player trail for the wave.");
-            break;
-        case 13:
-            // do not info
-            set_info_content("Doesn't do anything...\nWell, nothing useful.");
-            break;
-        case 14:
-            // stereoscopic 3D info
-            set_info_content("Adds depth to the top screen.\nUse the 3D slider, costs some FPS.");
-            break;
-    }
-    in_info_card = true;
 }
 
 void handle_title_screen_player(Player *player) {

@@ -5,20 +5,11 @@
 #include "main_menu.h"
 #include "menus/components/ui_button.h"
 
-static bool yes_exit = false;
-
 static int current_page = 0;
-
-static UIScreen screen_top = {
-};
-
-static UIScreen screen = {
-    .isBottom = true
-};
 
 static UIWindowButton *next_button;
 
-const char *pages_tags2[] = {
+const char *how_to_play_pages[] = {
     "page1",
     "page2",
     "page3",
@@ -30,72 +21,56 @@ const char *pages_tags2[] = {
 };
 
 
-void switch_page2(int page) {
-    for (int i = 0; i < ARRAY_LEN(pages_tags2); i++) {
+void switch_page2(int page, UIScreen *s) {
+    for (int i = 0; i < ARRAY_LEN(how_to_play_pages); i++) {
         if (i == page) {
-            ui_run_func_on_tag(&screen, pages_tags2[page], ui_enable_element);
-            ui_run_func_on_tag(&screen_top, pages_tags2[page], ui_enable_element);
+            ui_run_func_on_tag(s, how_to_play_pages[page], ui_enable_element);
+            ui_run_func_on_tag(&s->scene->screens[SCREEN_TOP], how_to_play_pages[page], ui_enable_element);
 
         } else {
-            ui_run_func_on_tag(&screen, pages_tags2[i], ui_disable_element);
-            ui_run_func_on_tag(&screen_top, pages_tags2[i], ui_disable_element);
+            ui_run_func_on_tag(s, how_to_play_pages[i], ui_disable_element);
+            ui_run_func_on_tag(&s->scene->screens[SCREEN_TOP], how_to_play_pages[i], ui_disable_element);
         }
     }
 }
 
 void action_go_next(UIElement *e, const UIPropertyList *args) {
     current_page++;
-    if (current_page >= ARRAY_LEN(pages_tags2)) {
-        yes_exit = true;
+    if (current_page >= ARRAY_LEN(how_to_play_pages)) {
+        ui_stack_pop();
     }
 
-    switch_page2(current_page);
+    switch_page2(current_page, e->screen);
 }
 
 
-static UIActionDef actions[] = {
+static UIActionDef how_to_play_actions[] = {
     { "next", action_go_next}
 };
 
-void how_to_play_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/how_to_play.txt");
-    ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/how_to_play_top.txt");
-
-    ui_screen_open(&screen, ANIM_ZOOM);
-    ui_screen_open(&screen_top, ANIM_ZOOM);
-
-    next_button = (UIWindowButton*) ui_get_element_by_tag(&screen, "nextbutton");
-
-    yes_exit = false;
-
+void how_to_play_init(UIScreen *s) {
+    next_button = (UIWindowButton*) ui_get_element_by_tag(s, "nextbutton");
     current_page = 0;
 
-    switch_page2(0);
+    switch_page2(current_page, s);
 }
 
-int how_to_play_loop() {
-    if (yes_exit) {  
-        ui_unload_screen(&screen);
-        ui_unload_screen(&screen_top);
-        return true;
-    }
-
+static void how_to_play_update() {
     if (current_page == 7) ui_button_set_text((UIButton *)next_button, "Exit");
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-
-    ui_screen_update(&screen, &touch);
-    ui_screen_update(&screen_top, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
 }
 
-void draw_how_to_play_top(){
-    ui_screen_draw(&screen_top);
-}
+const UIScreenDefPair how_to_play_def = {
+    .name = "how_to_play",
+    .top = {
+        .path = "romfs:/menus/how_to_play_top.txt",
+    },
+    .btm = {
+        .path = "romfs:/menus/how_to_play.txt",
+        .init = how_to_play_init,
+        .update = how_to_play_update,
+        .action_list = {
+            .action_count = ARRAY_LEN(how_to_play_actions),
+            .actions = how_to_play_actions
+        }
+    }
+};

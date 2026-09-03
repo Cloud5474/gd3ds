@@ -6,46 +6,21 @@
 #include "save/saving.h"
 #include "search_filters.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-static UIScreen screen_top = {
-};
-
 void action_clear_search_filters(UIElement* e, const UIPropertyList *args) {
     reset_search_filters();
-    yes_exit = true;
 }
 
-static UIActionDef actions[] = {
+static UIActionDef clear_fitlers_actions[] = {
     { "clear", action_clear_search_filters },
 };
 
-void clear_search_filters_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/clear_filters.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-    
-    yes_exit = false;
-}
-
-int clear_search_filters_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-        ui_unload_screen(&screen_top);
-        return true;
+const UIScreenDefPair clear_filters_def = {
+    .name = "clear_filters",
+    .btm = {
+        .path = "romfs:/menus/clear_filters.txt",
+        .action_list = {
+            .action_count = ARRAY_LEN(clear_fitlers_actions),
+            .actions = clear_fitlers_actions
+        }
     }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-    ui_screen_update(&screen_top, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
-}
+};

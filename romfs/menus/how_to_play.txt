@@ -3,7 +3,7 @@ darken opacity=0.4
 
 window x=160 y=120 w=240 h=140 style=0
 {
-    button x=-115 y=-67 id=31 scale=0.8 action="exit" keyBinds="B"
+    button x=-115 y=-67 id=31 scale=0.8 actions="close_menu" keyBinds="B"
     label x=0 y=-16 text="<#00FF00>Tap</> the screen or\n<#00FF00>press</> A to jump.\n\n<#00FF00>Hold</> down to keep\njumping." tag="page1" scale=0.55 align=CENTER
     label x=0 y=-16 text="<#00FF00>Hold</> to fly up.\n\n<#00FF00>Release</> to fly down." tag="page2" scale=0.55 align=CENTER
     label x=0 y=-16 text="<#00FF00>Tap</> to switch gravity." tag="page3" scale=0.55 align=CENTER

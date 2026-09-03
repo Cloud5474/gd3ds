@@ -32,16 +32,10 @@
 #include "online_menu.h"
 #include "components/ui_particle.h"
 
-static bool exit_flag = false;
-
-static int new_state;
 int curr_search_id;
 
 static UILabel *error_label;
 static UILabel *page_info_label;
-
-static UIImage *bg_gradient;
-static UIImage *bg_gradient_top;
 
 static UISpinner *spinner;
 
@@ -52,6 +46,8 @@ static Thread thread;
 static NetworkTask search_task = {
     .func = search_levels
 };
+
+int search_result = -2;
 
 const int demon_faces[] = {
     NA_FACE,
@@ -87,16 +83,10 @@ typedef struct {
     float version;
 } VersionWarningData;
 
-static void action_exit(UIElement *e, const UIPropertyList *args) {
-    exit_flag = true;
-    set_fade_status(FADE_STATUS_OUT);
-}
-
 static void action_open_online_level_menu(UIElement* e, const UIPropertyList *args) {
     OnlineCardData *entry = e->userdata;
     curr_search_id = entry->entryId;
-    new_state = STATE_ONLINE_LEVEL;
-    set_fade_status(FADE_STATUS_OUT);
+    // ui_stack_push_anchor(&online_level_def, false);
 }
 
 static void action_open_version_warning(UIElement *e, const UIPropertyList *args) {
@@ -112,9 +102,9 @@ static void action_open_version_warning(UIElement *e, const UIPropertyList *args
     }
 }
 
-static void update_arrows() {
-    if (searchEntriesLength == page_entry->amount) ui_run_func_on_tag(&default_screen, "nextpage", ui_enable_element); else ui_run_func_on_tag(&default_screen, "nextpage", ui_disable_element);
-    if ((filters.currentPage) >= 1) ui_run_func_on_tag(&default_screen, "prevpage", ui_enable_element); else ui_run_func_on_tag(&default_screen, "prevpage", ui_disable_element);
+static void update_arrows(UIScreen *s) {
+    if (searchEntriesLength == page_entry->amount) ui_run_func_on_tag(s, "nextpage", ui_enable_element); else ui_run_func_on_tag(s, "nextpage", ui_disable_element);
+    if ((filters.currentPage) >= 1) ui_run_func_on_tag(s, "prevpage", ui_enable_element); else ui_run_func_on_tag(s, "prevpage", ui_disable_element);
 
     char pageInfo[32];
     snprintf(pageInfo, 42 - 1, "%d to %d of %d", page_entry->currentOffset + 1, page_entry->currentOffset + page_entry->amount, page_entry->totalPages * page_entry->amount - 1);
@@ -435,74 +425,43 @@ static void handle_errors(int code) {
 static void action_change_page(UIElement* e, const UIPropertyList *args) {
     filters.currentPage += ui_prop_int(&e->custom_properties, "page", 0);
     search_needs_refresh = true;
-    update_arrows();
+    update_arrows(e->screen);
     thread = create_network_thread(&search_task);
     ui_enable_element((UIElement *) spinner);
     if (list) ui_list_reset(list);
 }
 
-static UIActionDef actions[] = {
-    {"exit", action_exit },
+static UIActionDef online_actions[] = {
     {"open_level_menu", action_open_online_level_menu },
     {"changepage", action_change_page }
 };
 
-void online_menu_loop() {
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-    C2D_SceneBegin(bot);
-    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-    C2D_Fade(0);
-    // Nothing to draw up there, just clear every eye
-    for (int eye = 0; begin_top_eye(eye); eye++) { }
-    C3D_FrameEnd(0);
+static void online_menu_init(UIScreen *s) {
+    spinner = (UISpinner *) ui_get_element_by_tag(s, "spinner");
 
-    new_state = 0;
-    exit_flag = false;
+    list = (UIList *) ui_get_element_by_tag(s, "list");
+    error_label = (UILabel *)ui_get_element_by_tag(s, "errorLabel");
+    page_info_label = (UILabel *)ui_get_element_by_tag(&s->scene->screens[SCREEN_TOP], "pageinfo");
 
-    ui_load_screen_old(&default_screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels.txt");
-    ui_load_screen_old(&default_screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/online_levels_top.txt");
+    ui_run_func_on_tag(s, "nextpage", ui_disable_element);
+    ui_run_func_on_tag(s, "prevpage", ui_disable_element);
 
-    spinner = (UISpinner *) ui_get_element_by_tag(&default_screen, "spinner");
-
-    bg_gradient = (UIImage *) ui_get_element_by_tag(&default_screen, "gradient");
-    bg_gradient_top = (UIImage *) ui_get_element_by_tag(&default_screen_top, "gradient_top");
-
-    ui_image_set_tint(bg_gradient, C2D_Color32(50, 110, 255, 255));
-    ui_image_set_tint(bg_gradient_top, C2D_Color32(50, 110, 255, 255));
-
-    list = (UIList *) ui_get_element_by_tag(&default_screen, "list");
-    error_label = (UILabel *)ui_get_element_by_tag(&default_screen, "errorLabel");
-    page_info_label = (UILabel *)ui_get_element_by_tag(&default_screen_top, "pageinfo");
-
-    ui_run_func_on_tag(&default_screen, "nextpage", ui_disable_element);
-    ui_run_func_on_tag(&default_screen, "prevpage", ui_disable_element);
-
-    int search_result = -2;
+    search_result = -2;
     
     if (search_needs_refresh) {
         thread = create_network_thread(&search_task);
     } else {
         if (list) { // No errors
             populate_list();
-            update_arrows();
+            update_arrows(s);
         }
     }
 
-    set_fade_status(FADE_STATUS_IN);
-
     play_menu_song();
+}
 
-    while (aptMainLoop()) {
-        hidScanInput();
-
-        UIInput touch;
-        touchPosition touchPos;
-        hidTouchRead(&touchPos);
-        touch.touchPosition = touchPos;
-        
-        touch.interacted = false;
-        
-        // Run when finished
+static void online_menu_update(UIScreen *s, UIInput *i) {
+    // Run when finished
         if (search_task.finished) {
             search_result = search_task.result;
             // Handle result
@@ -510,88 +469,52 @@ void online_menu_loop() {
                 handle_errors(search_result);
             } else if (list) { // No errors
                 populate_list();
-                update_arrows();
+                update_arrows(s);
                 search_needs_refresh = false;
             }
             search_task.finished = false;
         }
+}
 
-        if (!in_info_card) ui_screen_update(&default_screen, &touch);
-        
-        // Frees a render target, so keep it out of the frame below
-        update_stereo_target();
+static void online_menu_exit() {
+    if (search_task.running) {
+        search_task.cancelled = true;
+        threadJoin(thread, U64_MAX);
+    }
+    
+    if (search_entries) {
+        if (search_entries->description) free(search_entries->description);
+        free(search_entries);
+        search_entries = NULL;
+    }
+    if (creator_entries) {
+        free(creator_entries);
+        creator_entries = NULL;
+    }
+    if (song_entries) {
+        free(song_entries);
+        song_entries = NULL;
+    }
+    if(page_entry) {
+        free(page_entry);
+        page_entry = NULL;
+    }
+}
 
-        do {
-            update_touch_effect(DT);
-            
-            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            
-            // Bottom screen
-            C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-            C2D_SceneBegin(bot);
-            draw_fade();
 
-            ui_screen_draw(&default_screen);
-            
-            if (in_info_card) {
-                int returned = info_card_loop();
-                if (returned) {
-                    in_info_card = false;
-                }
-            }
-
-            change_blending(true);
-            draw_touch_effect();
-            change_blending(false);
-
-            // Top screen, drawn once per eye when 3D is on
-            for (int eye = 0; begin_top_eye(eye); eye++) {
-                draw_fade();
-
-                begin_eye_layer(DEPTH_UI);
-                ui_screen_draw(&default_screen_top);
-                end_eye_layer();
-            }
-            C2D_ViewReset();
-            C3D_FrameEnd(0);
-        } while (handle_fading());
-
-        if (new_state) {
-            game_state = new_state;
-            break;
-        }
-
-        if (exit_flag) {
-
-            if (search_task.running) {
-                search_task.cancelled = true;
-                threadJoin(thread, U64_MAX);
-            }
-
-            if (search_entries) {
-                if (search_entries->description) free(search_entries->description);
-                free(search_entries);
-                search_entries = NULL;
-            }
-            if (creator_entries) {
-                free(creator_entries);
-                creator_entries = NULL;
-            }
-            if (song_entries) {
-                free(song_entries);
-                song_entries = NULL;
-            }
-            if(page_entry) {
-                free(page_entry);
-                page_entry = NULL;
-            }
-
-            game_state = STATE_SEARCH_MENU;
-            break;
+const UIScreenDefPair online_def = {
+    .name = "online_menu",
+    .top = {
+        .path = "romfs:/menus/online_levels_top.txt",
+    },
+    .btm = {
+        .path = "romfs:/menus/online_levels.txt",
+        .init = online_menu_init,
+        .update = online_menu_update,
+        .exit = online_menu_exit,
+        .action_list = {
+            .action_count = ARRAY_LEN(online_actions),
+            .actions = online_actions
         }
     }
-    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-
-    ui_unload_screen(&default_screen);
-    ui_unload_screen(&default_screen_top);
-}
+};

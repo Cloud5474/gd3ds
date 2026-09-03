@@ -12,12 +12,6 @@
 #include "menus/components/ui_image.h"
 #include "menus/components/ui_window_button.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-
 static void darken_text(UIElement* e){
     UILabel *l = (UILabel *)e;
 
@@ -39,10 +33,10 @@ static void darken_button(UIElement* e){
     else ui_window_button_set_tint(b, C2D_Color32(255, 255, 255, 255));
 }
 
-static void update_server_buttons(){
-    ui_run_func_on_tag(&screen, "server", darken_button);
-    ui_run_func_on_tag(&screen, "serverimage", darken_image);
-    ui_run_func_on_tag(&screen, "servertext", darken_text);
+static void update_server_buttons(UIScreen *s){
+    ui_run_func_on_tag(s, "server", darken_button);
+    ui_run_func_on_tag(s, "serverimage", darken_image);
+    ui_run_func_on_tag(s, "servertext", darken_text);
 }
 
 static void action_switch_server(UIElement* e, const UIPropertyList *args) {
@@ -70,41 +64,25 @@ static void action_switch_server(UIElement* e, const UIPropertyList *args) {
 
     filters.super = filters.super && gdps;
 
-    update_server_buttons();
+    update_server_buttons(e->screen);
 }
 
-static UIActionDef actions[] = {
-
+static UIActionDef server_switcher_actions[] = {
     { "change_server", action_switch_server}
 };
 
-void server_switcher_init() {
-    ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/server_switcher_pop_up.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-
-    update_server_buttons();
-
-    yes_exit = false;
+void server_switcher_init(UIScreen *s) {
+    update_server_buttons(s);
 }
 
-int server_switcher_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-
-        return true;
+const UIScreenDefPair server_switcher_def = {
+    .name = "server_switcher",
+    .btm = {
+        .path = "romfs:/menus/server_switcher_pop_up.txt",
+        .init = server_switcher_init,
+        .action_list = {
+            .action_count = ARRAY_LEN(server_switcher_actions),
+            .actions = server_switcher_actions
+        }
     }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-
-    return false;
-}
-
-void server_switcher_draw() {
-    ui_screen_draw(&screen);
-}
+};

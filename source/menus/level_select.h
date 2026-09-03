@@ -1,8 +1,6 @@
 #pragma once
 #include "3ds/types.h"
 
-void level_select_loop();
-
 #define LEVEL_CARD_Y_POS 80
 
 #define MENU_COIN_FILLED_ID 33

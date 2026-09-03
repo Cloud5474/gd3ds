@@ -1,4 +1,5 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
 #define EASY_DEMON_FACE 260
 #define MEDIUM_DEMON_FACE 262
@@ -12,9 +13,9 @@
 #define LEGENDARY_GLOW 69
 #define MYTHIC_GLOW 70
 
-void online_menu_loop();
-
 extern int curr_search_id;
 
 extern const int difficulty_faces[6];
 extern const int epics[4];
+
+extern const UIScreenDefPair online_def;

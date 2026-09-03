@@ -1,6 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void settings_hub_init();
-int settings_hub_loop();
-
-extern bool in_how_to_play;
+extern const UIScreenDefPair settings_hub_def;

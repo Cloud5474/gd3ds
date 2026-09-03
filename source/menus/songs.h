@@ -1,5 +1,6 @@
 #pragma once
 #include <3ds.h>
+#include "menus/core/ui_stack.h"
 
 typedef struct SongEntries {
     char *title;
@@ -8,5 +9,4 @@ typedef struct SongEntries {
 
 extern const SongEntries main_songs[19];
 
-void songs_init();
-int songs_loop();
+extern const UIScreenDefPair songs_def;

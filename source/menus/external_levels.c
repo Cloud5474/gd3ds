@@ -42,22 +42,13 @@ const char *error_strings[] = {
     "Couldn't parse objects."
 };
 
-static bool exit_flag = false;
 bool external_start_level = false;
 
 static bool first_time_loaded = true;
 
-static bool in_external_popup = false;
-
 static bool reload_pending;
 static char reload_path[320];
 
-static UIScreen screen = {
-    .isBottom = true
-};
-static UIScreen screen_top;
-static UIImage *bg_gradient;
-static UIImage *bg_gradient_top;
 static UIList *list;
 static UILabel *path_label;
 
@@ -71,23 +62,19 @@ typedef struct {
 
 static void open_folder(UIElement *e, const UIPropertyList* args);
 
-static void action_exit(UIElement *e, const UIPropertyList *args) {
-    exit_flag = true;
+static void external_levels_exit() {
     current_path[0] = '\0'; // Reset it
-    set_fade_status(FADE_STATUS_OUT);
 }
 
 static void open_external_popup(UIElement *e, const UIPropertyList* args) {
     LevelCardData *entry = e->userdata;
     strcpy(state.custom_level_path, entry->path);
-    external_popup_init();
-    in_external_popup = true;
 }
 
-void load_level_folder(char *folder) {
+void load_level_folder(char *folder, UIScreen *s) {
     if (strncmp(last_path, current_path, sizeof(last_path)) == 0) return;
-    path_label = (UILabel *) ui_get_element_by_tag(&screen, "path");
-    ui_run_func_on_tag(&screen, "no_levels", ui_disable_element);
+    path_label = (UILabel *) ui_get_element_by_tag(s, "path");
+    ui_run_func_on_tag(s, "no_levels", ui_disable_element);
 
     char path[320+5];
     sprintf(path, "Root/%s", current_path);
@@ -123,13 +110,13 @@ void load_level_folder(char *folder) {
 
             float list_width = list->base.w * 0.5f;
 
-            card = (UIElement *) ui_create_rectangle(&screen);
+            card = (UIElement *) ui_create_rectangle(s);
 
             if (card) {
                 ui_rectangle_set_color((UIRectangle *) card, color);
                 ui_element_set_size(card, 0, 28);
                 
-                UIButton *button = ui_create_button(&screen);
+                UIButton *button = ui_create_button(s);
                 if (button) {
                     // Store in the user data
                     LevelCardData *data = malloc(sizeof(*data));
@@ -147,7 +134,7 @@ void load_level_folder(char *folder) {
                     ui_element_add_child(card, (UIElement *) button);
                 }
 
-                UIImage *icon = ui_create_image(&screen);
+                UIImage *icon = ui_create_image(s);
                 if (icon) {
                     ui_image_set_image(icon, (entry->is_dir ? 320 : 420), 0);
                     ui_element_set_position((UIElement *) icon, -list_width + 15, 0);
@@ -157,7 +144,7 @@ void load_level_folder(char *folder) {
                 }
 
                 // Name
-                UILabel *label = ui_create_label(&screen);
+                UILabel *label = ui_create_label(s);
                 if (label) {
                     ui_label_set_text(label, name);
                     ui_element_set_position((UIElement *) label, -list_width + 29, 1);
@@ -171,10 +158,10 @@ void load_level_folder(char *folder) {
         }
         
         if (count == 0) {
-            ui_run_func_on_tag(&screen, "no_levels", ui_enable_element);
+            ui_run_func_on_tag(s, "no_levels", ui_enable_element);
         }
     } else {
-        ui_run_func_on_tag(&screen, "no_levels", ui_enable_element);
+        ui_run_func_on_tag(s, "no_levels", ui_enable_element);
     }
 
     strncpy(last_path, current_path, sizeof(last_path));
@@ -183,7 +170,7 @@ void load_level_folder(char *folder) {
 static void action_go_back(UIElement *e, const UIPropertyList *args) {
     if (strlen(current_path) > 0) {
         go_back_directory(current_path);
-        load_level_folder(current_path);
+        load_level_folder(current_path, e->screen);
     }
 }
 
@@ -211,8 +198,7 @@ static void open_folder(UIElement *e, const UIPropertyList* args) {
 
 #pragma GCC diagnostic pop
 
-static UIActionDef actions[] = {
-    {"exit", action_exit },
+static UIActionDef external_actions[] = {
     {"go_back", action_go_back },
 };
 
@@ -231,130 +217,45 @@ static void show_error_message() {
     info_card_init();
     set_info_content(tmp);
 
-    in_info_card = true;
     level_result = 0;
 }
 
-void external_levels_loop() {
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-    C2D_SceneBegin(bot);
-    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-    C2D_Fade(0);
-    for (int eye = 0; begin_top_eye(eye); eye++) {
-        begin_eye_layer(DEPTH_UI);
-        draw_text(&bigFont_fontCharset, &bigFont_sheet, SCREEN_WIDTH - 10, SCREEN_HEIGHT - 10, 0.5f, 0.5f, 1.0f, true, "Loading...");
-        end_eye_layer();
-    }
-    C3D_FrameEnd(0);
-
+static void external_levels_init(UIScreen *s) {
     external_start_level = false;
-    exit_flag = false;
     if (first_time_loaded) {
-        ui_load_screen_old(&screen, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels.txt");
-        bg_gradient = (UIImage *) ui_get_element_by_tag(&screen, "gradient");
-        ui_load_screen_old(&screen_top, actions, sizeof(actions) / sizeof(actions[0]), "romfs:/menus/external_levels_top.txt");
-        bg_gradient_top = (UIImage *) ui_get_element_by_tag(&screen_top, "gradient_top");
-        list = (UIList *) ui_get_element_by_tag(&screen, "list");
+        list = (UIList *) ui_get_element_by_tag(s, "list");
         first_time_loaded = false;
     }
 
-    ui_image_set_tint(bg_gradient, C2D_Color32(50, 110, 255, 255));
-    ui_image_set_tint(bg_gradient_top, C2D_Color32(50, 110, 255, 255));
-
-    load_level_folder(current_path);
+    load_level_folder(current_path, s);
 
     if (level_result) {
         show_error_message();
     }
 
-    set_fade_status(FADE_STATUS_IN);
-    
     play_menu_song();
+}
 
-    while (aptMainLoop()) {
-        hidScanInput();
-        /*
-        if ((kDown & KEY_B) && !in_external_popup) {
-            action_exit(NULL);
-        }
-        */
+static void external_levels_update(UIScreen *s, UIInput *i) {
+    if (reload_pending) {
+    load_level_folder(reload_path, s);
+    reload_pending = false;
+    }
+}
 
-        UIInput touch;
-        touchPosition touchPos;
-        hidTouchRead(&touchPos);
-        touch.touchPosition = touchPos;
-        touch.interacted = false;
-
-        if (reload_pending) {
-            load_level_folder(reload_path);
-            reload_pending = false;
-        }
-
-        if (!in_external_popup) ui_screen_update(&screen, &touch);
-
-        if (in_external_popup) {
-            int returned = external_popup_loop();
-            if (returned) {
-                in_external_popup = false;
-            }
-        }
-        
-        // Frees a render target, so keep it out of the frame below
-        update_stereo_target();
-
-        do {
-            update_touch_effect(DT);
-            
-            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            
-            // Bottom screen
-            C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-            C2D_SceneBegin(bot);
-            draw_fade();
-
-            ui_screen_draw(&screen);
-            
-            if (in_external_popup) external_popup_draw_bot();
-
-
-            if (in_info_card) {
-                int returned = info_card_loop();
-                if (returned) {
-                    in_info_card = false;
-                }
-            }
-
-            change_blending(true);
-            draw_touch_effect();
-            change_blending(false);
-
-            // Top screen, drawn once per eye when 3D is on
-            for (int eye = 0; begin_top_eye(eye); eye++) {
-                draw_fade();
-
-                begin_eye_layer(DEPTH_UI);
-                ui_screen_draw(&screen_top);
-                end_eye_layer();
-
-                begin_eye_layer(DEPTH_POPUP);
-                if (in_external_popup) external_popup_draw_top();
-                end_eye_layer();
-            }
-            C2D_ViewReset();
-            C3D_FrameEnd(0);
-        } while (handle_fading());
-
-        if (external_start_level) {
-            stop_mp3();
-            game_state = STATE_GAME;
-            playing_menu_loop = false;
-            break;
-        }
-
-        if (exit_flag) {
-            game_state = STATE_CREATOR_MENU;
-            break;
+const UIScreenDefPair external_def = {
+    .name = "external_menu",
+    .top = {
+        .path = "romfs:/menus/external_levels_top.txt",
+    },
+    .btm = {
+        .path = "romfs:/menus/external_levels.txt",
+        .init = external_levels_init,
+        .update = external_levels_update,
+        .exit = external_levels_exit,
+        .action_list = {
+            .action_count = ARRAY_LEN(external_actions),
+            .actions = external_actions
         }
     }
-    C2D_TargetClear(bot, C2D_Color32(0, 0, 0, 255));
-}
+};

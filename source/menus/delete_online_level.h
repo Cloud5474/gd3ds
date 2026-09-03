@@ -1,6 +1,4 @@
 #pragma once
+#include "menus/core/ui_stack.h"
 
-void delete_level_init();
-int delete_level_loop();
-
-void delete_level_draw_bot();
+extern const UIScreenDefPair delete_level_def;
