@@ -181,19 +181,19 @@ static void action_icon_selected(UIElement *e, const UIPropertyList *args) {
 }
 
 static void icon_kit_init(UIScreen *s){
-    action_set_page(ui_get_element_by_tag(s, "cube"), NULL);
-
-    update_player_colors();
-    set_fade_status(FADE_STATUS_IN);
-
-    play_menu_song();
-
     gamemode_btns[0] = (UIButton *) ui_get_element_by_tag(s, "cube");
     gamemode_btns[1] = (UIButton *) ui_get_element_by_tag(s, "ship");
     gamemode_btns[2] = (UIButton *) ui_get_element_by_tag(s, "ball");
     gamemode_btns[3] = (UIButton *) ui_get_element_by_tag(s, "ufo");
     gamemode_btns[4] = (UIButton *) ui_get_element_by_tag(s, "dart");
     gamemode_btns[5] = (UIButton *) ui_get_element_by_tag(s, "trail");
+
+    action_set_page(ui_get_element_by_tag(s, "cube"), NULL);
+
+    update_player_colors();
+    set_fade_status(FADE_STATUS_IN);
+
+    play_menu_song();
 }
 
 static void icon_kit_init_top(UIScreen *s){

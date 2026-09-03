@@ -183,16 +183,17 @@ void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropert
     
     e->opacity = ui_prop_float(props, "opacity", 1);
 
+    const UIActionDef* actions = (screen->def && screen->def->action_list.actions) ? screen->def->action_list.actions : NULL;
+    const size_t action_count = (screen->def && screen->def->action_list.actions) ? screen->def->action_list.action_count : 0;
+
     e->action = ui_find_action(
-        screen->def->action_list.actions, 
-        screen->def->action_list.action_count,
+        actions, action_count,
         ui_prop_string(props, "action", "")
     );
 
     e->actions = ui_prop_actions(
         props, 
-        e->screen->def->action_list.actions, 
-        e->screen->def->action_list.action_count, 
+        actions, action_count,
         "actions",
         &e->action_count
     );

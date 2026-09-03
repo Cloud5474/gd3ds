@@ -600,7 +600,7 @@ void level_select_loop() {
         }
 
         if (exit_flag) {
-            game_state = STATE_MAIN_MENU;
+            game_state = STATE_MENU;
             break;
         }
     }

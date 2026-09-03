@@ -97,5 +97,5 @@ const UIScreenDefPair credits_def = {
     .btm = {
         .path = "romfs:/menus/credits.txt",
         .init = credits_init
-    },
+    }
 };

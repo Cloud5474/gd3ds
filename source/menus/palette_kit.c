@@ -434,8 +434,8 @@ static void set_glow_page(UIElement *e, const UIPropertyList *args) {
 
 void player_glow_settings(UIElement* e, const UIPropertyList *args) {
     UICheckBox *checkbox = (UICheckBox *) e;
-    show_glow = (player_glow_enabled || ((p1_color.r | p1_color.g | p1_color.b) == 0));
     player_glow_enabled = checkbox->checked;
+    show_glow = (player_glow_enabled || ((p1_color.r | p1_color.g | p1_color.b) == 0));
 }
 
 static void palette_kit_init(UIScreen *s) {

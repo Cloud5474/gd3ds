@@ -71,7 +71,7 @@
 #define CITRA_TYPE 0x20000
 #define CITRA_VERSION 11
 
-int game_state = STATE_MAIN_MENU;
+int game_state = STATE_MENU;
 
 bool playing_menu_loop = false;
 char menu_loop_path[32];
@@ -1484,9 +1484,8 @@ int main(int argc, char* argv[]) {
         ui_stack_push_anchor(&main_menu_def, true);
 
         switch (game_state) {
-            case STATE_MAIN_MENU:
+            case STATE_MENU:
                 ui_loop();
-                //main_menu_loop();
                 break;
             case STATE_GAME:
                 game_loop();

@@ -75,7 +75,7 @@ extern float faster_speed_particles_timer;
 #define SCREEN_HEIGHT 240
 
 enum GameState {
-    STATE_MAIN_MENU,
+    STATE_MENU,
     STATE_LEVEL_SELECT,
     STATE_ICON_KIT,
     STATE_GAME,

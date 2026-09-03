@@ -272,6 +272,10 @@ static bool resize_stack(size_t new_capacity){
 }
 
 static UIScene *ui_stack_push_base(const UIScreenDefPair* defs){
+    if(!defs){
+        return NULL;
+    }
+
     if(stack.transition != UI_TRANSITION_NONE) {
         printf("Cannot push to stack during transition!");
         return NULL;

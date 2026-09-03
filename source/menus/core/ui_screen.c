@@ -739,6 +739,11 @@ void ui_unload_screen(UIScreen *screen) {
     screen->loaded = false;
 }
 
+//please remember to remove eventually
+const UIScreenDefinition dummy_def_temp = {
+    0
+};
+
 // Load a screen from its file, needs a pointer to the actions table and the action count
 void ui_load_screen_old(UIScreen* screen, const UIActionDef* actions, size_t action_count, const char* path) {
     FILE* f = fopen(path, "r");
@@ -750,6 +755,8 @@ void ui_load_screen_old(UIScreen* screen, const UIActionDef* actions, size_t act
     }
 
     screen->loaded = true;
+
+    screen->def = &dummy_def_temp;
 
     screen->disable_element_update = false;
     screen->transition.time = 0.f;
