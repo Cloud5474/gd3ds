@@ -1,30 +1,30 @@
 #include <3ds.h>
 #include <citro2d.h>
-
 #include <stdlib.h>
 
-
-#include "menus/core/ui_screen.h"
 #include "math_helpers.h"
-#include "menus/components/ui_list.h"
-#include "menus/components/ui_image.h"
-#include "palette_kit.h"
 #include "main.h"
+#include "graphics.h"
+#include "state.h"
 #include "color_channels.h"
 #include "mp3_player.h"
-#include "graphics.h"
 
-#include "main_menu.h"
-#include "level_select.h"
-#include "settings_hub.h"
-#include "settings.h"
-#include "statistics.h"
-#include "credits.h"
-#include "songs.h"
-#include "how_to_play.h"
-#include "first_boot_disclaimer.h"
-#include "info_card.h"
-#include "state.h"
+#include "menus/components/ui_list.h"
+#include "menus/core/ui_screen.h"
+#include "menus/components/ui_image.h"
+
+#include "menus/palette_kit.h"
+#include "menus/main_menu.h"
+#include "menus/level_select.h"
+#include "menus/settings_hub/settings_hub.h"
+#include "menus/settings_hub/settings.h"
+#include "menus/statistics.h"
+#include "menus/settings_hub/credits.h"
+#include "menus/settings_hub/songs.h"
+#include "menus/settings_hub/how_to_play.h"
+#include "menus/first_boot_disclaimer.h"
+#include "menus/settings_hub/info_card.h"
+
 #include "particles/object_particles.h"
 #include "particles/circles.h"
 

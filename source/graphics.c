@@ -21,7 +21,7 @@
 #include "particles/circles.h"
 #include "particles/coin_effect.h"
 
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "menus/gameplay.h"
 
 #include "menus/core/ui_screen.h"

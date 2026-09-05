@@ -7,7 +7,7 @@
 #include <string.h>
 #include "main.h"
 #include <unistd.h>
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "state.h"
 
 #define THREAD_AFFINITY (is_N3DS ? 2 : 0)

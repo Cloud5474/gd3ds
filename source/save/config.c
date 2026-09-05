@@ -9,10 +9,10 @@
 
 #include "utils/gfx.h"
 #include "menus/icon_kit.h"
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "menus/first_boot_disclaimer.h"
-#include "menus/soggy.h"
-#include "menus/search_menu.h"
+#include "menus/creator_menu/soggy.h"
+#include "menus/creator_menu/search_menu.h"
 
 #include "save/saving.h"
 #include "utils/json_config.h"

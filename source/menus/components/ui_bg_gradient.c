@@ -6,7 +6,7 @@
 #include "menus/core/ui_props.h"
 #include "ui_bg_gradient.h"
 #include "math_helpers.h"
-#include "menus/search_menu.h"
+#include "menus/creator_menu/search_menu.h"
 
 static void ui_bg_gradient_draw(UIElement* e, UITransform *transform) {
     UIImage *image = (UIImage *) e;

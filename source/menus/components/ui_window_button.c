@@ -10,7 +10,7 @@
 #include "easing.h"
 #include "math_helpers.h"
 #include "menus/core/ui_screen.h"
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "menus/gameplay.h"
 #include "state.h"
 #include "menus/core/ui_props.h"

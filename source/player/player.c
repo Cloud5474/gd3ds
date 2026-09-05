@@ -14,7 +14,7 @@
 #include "main.h"
 
 #include "mp3_player.h"
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "utils/gfx.h"
 
 #include "easing.h"
