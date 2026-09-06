@@ -1,6 +1,6 @@
 bggradient color=#326fff
 
-button x=24 y=28 id=6 actions="close_menu" keyBinds="B"
+button x=24 y=28 id=6 actions=close_menu keyBinds="B"
 
 image x=36 y=205 id=178
 image x=284 y=205 id=178 sx=-1.0
@@ -18,11 +18,11 @@ label x=160 y=168 text="0%" scale=0.4 align=CENTER tag="level_card,practiceprogr
 button x=160 y=70 id=139 sheet=0 scale=1 action="play" keyBinds="A,START" tag="playbutton"
 spinner x=160 y=70 id=53 sheet=1 scale=1 speed=240 tag="spinner"
 
-button x=295 y=25 id=49 sheet=0 scale=1 actions="open_menu[screen="delete_level",btm_anim="zoom"]"
+button x=295 y=25 id=49 sheet=0 scale=1 actions=open_menu[screen="delete_level" btm_anim="zoom"]
 button x=295 y=75 id=202 sheet=0 scale=1 action="reload"
-button x=295 y=125 id=24 sheet=0 scale=1 actions="open_menu[screen="online_level_comments",btm_anim="zoom_subtle",top_anim="zoom_subtle"]"
+button x=295 y=125 id=24 sheet=0 scale=1 actions=open_menu[screen="online_level_comments" btm_anim="zoom_subtle" top_anim="zoom_subtle"]
 
-button x=25 y=215 id=90 sheet=0 scale=1 actions="open_menu[screen="online_infobox",btm_anim="zoom",top_anim="zoom"]"
+button x=25 y=215 id=90 sheet=0 scale=1 actions=open_menu[screen="online_infobox" btm_anim="zoom" top_anim="zoom"]
 
 #Song download
 

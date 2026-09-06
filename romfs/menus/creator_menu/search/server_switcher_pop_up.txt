@@ -8,7 +8,7 @@ window x=160 y=120 w=260 h=180 style=13
     image x=-105 y=-65 id=230 sy=-1.0
     image x=105 y=-65 id=230 sx=-1.0 sy=-1.0
 
-    button x=-127 y=-87 id=31 scale=0.8 actions="close_menu" keyBinds="B"
+    button x=-127 y=-87 id=31 scale=0.8 actions=close_menu keyBinds="B"
 
     # SERVERS
     image x=0 y=-55 id=56 sheet=1

@@ -17,5 +17,5 @@ window x=160 y=120 w=300 h=220 style=0
 
     label x=42 y=-92 scale=0.6 text="Graphics" tag="listlabel" align=CENTER
 
-    button x=-140 y=-100 id=31 scale=0.8 actions="close_menu" keyBinds="B"
+    button x=-140 y=-100 id=31 scale=0.8 actions=close_menu keyBinds="B"
 }

@@ -59,6 +59,9 @@ typedef struct {
 typedef struct {
     const char* path;
 
+    void *(*parse_data)(const UIPropertyList *props);
+    void (*free_data)();
+
     void (*init)(UIScreen *);
     void (*update)(UIScreen *, UIInput *);
     void (*draw)(UIScreen *, UIDrawPhase);
@@ -87,6 +90,8 @@ typedef struct UIScreen {
 
     bool loaded:1;
     bool closing:1;
+
+    void *data;
 } UIScreen;
 
 typedef void (*UIElementVisitor)(UIElement *element, void *userdata);

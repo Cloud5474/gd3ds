@@ -2,11 +2,11 @@ darken opacity=0.4
 
 window x=160 y=120 w=280 h=200 style=0
 
-button x=24 y=25 id=31 actions="close_menu" keyBinds="B"
+button x=24 y=25 id=31 actions=close_menu keyBinds="B"
 
 button x=160 y=80 id=139 sheet=0 scale=1 action="play" keyBinds="A,START"
 
-button x=295 y=25 id=90 sheet=0 scale=1 actions="open_menu[screen="external_infobox",btm_anim="zoom"]"
+button x=295 y=25 id=90 sheet=0 scale=1 actions=open_menu[screen="external_infobox" btm_anim="zoom"]
 
 label x=160 y=139 text="Normal mode" scale=0.45 align=CENTER tag="level_card"
 progressbar x=160 y=152 max_value=100 style=0 scale=0.65 tag="level_card,normalprogress"

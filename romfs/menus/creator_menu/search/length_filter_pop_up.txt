@@ -3,7 +3,7 @@ darken opacity=0.4
 window x=160 y=120 w=260 h=100 style=0
 {
 
-    button x=-127 y=-47 id=31 scale=0.8 actions="close_menu" keyBinds="B"
+    button x=-127 y=-47 id=31 scale=0.8 actions=close_menu keyBinds="B"
 
     label x=0 y=-28 font=2 text="Length Filter" scale=0.9 align=CENTER
 

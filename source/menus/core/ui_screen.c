@@ -37,6 +37,7 @@
 #include "fonts/chatFont.h"
 #include "fonts/goldFont.h"
 #include "utils/gfx.h"
+#include "utils/string_helpers.h"
 
 C2D_SpriteSheet ui_sheet;
 C2D_SpriteSheet ui_2_sheet;
@@ -383,21 +384,6 @@ static void trim_newline(char* s) {
         s[len - 1] = '\0';
 }
 
-// This strips any bracket or quote characters enclosing the value
-static void strip_enclosures(char* s) {
-    size_t length = strlen(s);
-
-    if (length < 2)
-        return;
-
-    if ((s[0] == '[' && s[length - 1] == ']') ||
-        (s[0] == '"' && s[length - 1] == '"'))
-    {
-        memmove(s, s + 1, length - 1);
-        s[length - 2] = '\0';
-    }
-}
-
 static void convert_new_line(char *str) {
     for (char *p = str; *p; p++) {
         if (*p == '\\' && p[1] == 'n') {
@@ -424,16 +410,16 @@ char* next_token(char** cursor) {
 
     char* start = s;
     bool inQuotes = false;
-    bool inBrackets = false;
+    int inBrackets = 0;
 
     // Search for quotes or brackets
     while (*s) {
-        if (*s == '"') {
+        if (*s == '['){
+            inBrackets++;
+        } else if (*s == ']'){
+            inBrackets--;
+        } else if (*s == '"' && !inBrackets) {
             inQuotes = !inQuotes;
-        } else if (!inQuotes && *s == '['){
-            inBrackets = true;
-        } else if (!inQuotes && *s == ']'){
-            inBrackets = false;
         }
         // If not in quotes or brackets and found delimiter, no more iterating
         else if ((*s == ' ' || *s == '\n' || *s == '\r') && !(inQuotes || inBrackets)) {

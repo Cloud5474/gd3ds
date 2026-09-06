@@ -229,26 +229,34 @@ UIAction *ui_prop_actions(const UIPropertyList *props, const UIActionDef *action
 
         if(!entry || !*entry) continue;
 
-        char *list = strchr(entry, '[');
+        actions[i].args = (UIPropertyList){ 0 };
+        //remove brackets
+        char *bracket = strchr(entry, '[');
+        char *props_start = NULL;
+        char *props_end = NULL;
+        int in_brackets = 0;
 
-        if (list) {
-            //kill [
-            *list = '\0';
-
-            list++;
-
-            //kill all commas
-            char *end = strrchr(list, ',');
-            while(end){
-                *end = ' ';
-                end = strrchr(list, ',');
+        while(bracket && *bracket){
+            if(*bracket == '['){
+                if(!in_brackets){
+                    props_start = bracket;
+                }
+                in_brackets++;
+            }
+            if(*bracket == ']'){
+                in_brackets--;
+                if(!in_brackets){
+                    props_end = bracket;
+                }
             }
 
-            //kill ]
-            end = strrchr(list, ']');
-            *end = '\0';
+            bracket++;
+        }
 
-            actions[i].args = ui_parse_prop_list(list);
+        if (props_start && props_end) {
+            *props_start = '\0';
+            *props_end = '\0';
+            actions[i].args = ui_parse_prop_list(++props_start);
         }
 
         actions[i].action = ui_find_action(base_actions, BASE_ACTION_COUNT, entry);
