@@ -3,7 +3,7 @@
 #include "graphics.h"
 #include "main.h"
 #include "state.h"
-#include "menus/settings.h"
+#include "menus/settings_hub/settings.h"
 #include "utils/utils.h"
 
 void set_scissor(GPU_SCISSORMODE mode, int x, int y, int width, int height) {

@@ -15,20 +15,12 @@
 #include "graphics.h"
 #include "color_channels.h"
 #include "mp3_player.h"
-#include "level/main_levels.h"
 #include "fonts/bigFont.h"
 
 #include "save/config.h"
 
 #include <curl/curl.h>
 #include "utils/network.h"
-
-#include "menus/main_menu.h"
-#include "menus/level_select.h"
-#include "menus/icon_kit.h"
-#include "menus/gameplay.h"
-#include "menus/soggy.h"
-#include "menus/core/screen_definitions.h"
 
 #include "player/collision.h"
 #include "state.h"
@@ -41,15 +33,23 @@
 
 #include "player/player.h"
 #include "particles/circles.h"
-#include "menus/settings.h"
-#include "menus/creator_menu.h"
-#include "menus/external_levels.h"
-#include "menus/search_menu.h"
-#include "menus/saved_levels.h"
+
+#include "level/main_levels.h"
+#include "menus/main_menu.h"
+#include "menus/level_select.h"
+#include "menus/icon_kit.h"
+#include "menus/gameplay.h"
+#include "menus/creator_menu/soggy.h"
+#include "menus/core/screen_definitions.h"
+#include "menus/settings_hub/settings.h"
+#include "menus/creator_menu/creator_menu.h"
+#include "menus/creator_menu/external/external_levels.h"
+#include "menus/creator_menu/search_menu.h"
+#include "menus/creator_menu/saved_levels.h"
 #include "menus/loading_screen.h"
 #include "menus/level_complete.h"
-#include "menus/online_level_menu.h"
-#include "menus/online_menu.h"
+#include "menus/creator_menu/online/online_level_menu.h"
+#include "menus/creator_menu/online/online_menu.h"
 
 #include "save/saving.h"
 

@@ -2,11 +2,11 @@
 
 #include <citro2d.h>
 #include "text.h"
-#include "ui_button.h"
 #include "easing.h"
 #include "math_helpers.h"
 #include "menus/core/ui_screen.h"
-#include "menus/settings.h"
+#include "menus/components/ui_button.h"
+#include "menus/settings_hub/settings.h"
 #include "menus/core/ui_props.h"
 
 #include "main.h"

@@ -1,32 +1,30 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include "utils/precise_input.h"
-#include "menus/core/common_setters.h"
 
+#include "main.h"
+#include "graphics.h"
+#include "state.h"
+#include "color_channels.h"
+#include "easing.h"
+#include "mp3_player.h"
+#include "particles/circles.h"
+
+#include "menus/core/common_setters.h"
 #include "menus/core/ui_screen.h"
+#include "menus/components/ui_use_effect.h"
 #include "menus/components/ui_list.h"
 #include "menus/components/ui_window.h"
 #include "menus/components/ui_image.h"
 #include "menus/components/ui_progress_bar.h"
 #include "menus/components/ui_label.h"
 #include "menus/components/ui_button.h"
-#include "main.h"
-#include "easing.h"
-#include "color_channels.h"
-#include "mp3_player.h"
-#include "graphics.h"
-#include "main_menu.h"
-#include "level_select.h"
-#include "state.h"
-#include "menus/components/ui_use_effect.h"
-#include "particles/circles.h"
-
-#include "settings.h"
-#include "generic_disclaimer.h"
-
-#include "gameplay.h"
-
-#include "info_card.h"
+#include "menus/settings_hub/settings.h"
+#include "menus/settings_hub/info_card.h"
+#include "menus/generic_disclaimer.h"
+#include "menus/gameplay.h"
+#include "menus/main_menu.h"
+#include "menus/level_select.h"
 
 #include "practice.h"
 

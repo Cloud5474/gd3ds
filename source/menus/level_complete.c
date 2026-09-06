@@ -5,24 +5,24 @@
 
 #include "menus/core/common_setters.h"
 
-#include "menus/core/ui_screen.h"
 #include "math_helpers.h"
-#include "menus/components/ui_list.h"
-#include "menus/components/ui_image.h"
-#include "menus/components/ui_label.h"
 #include "fonts/bigFont.h"
 #include "main.h"
 #include "easing.h"
 #include "mp3_player.h"
 #include "level_select.h"
 #include "state.h"
-#include "menus/components/ui_darken.h"
-#include "main.h"
 #include "particles/circles.h"
+
+#include "menus/core/ui_screen.h"
+#include "menus/components/ui_darken.h"
+#include "menus/components/ui_list.h"
+#include "menus/components/ui_image.h"
+#include "menus/components/ui_label.h"
 #include "menus/components/ui_particle.h"
 #include "menus/components/ui_use_effect.h"
+#include "menus/settings_hub/settings.h"
 
-#include "menus/settings.h"
 #include "utils/string_helpers.h"
 
 #include "save/saving.h"

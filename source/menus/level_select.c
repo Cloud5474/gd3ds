@@ -27,7 +27,6 @@
 #include "state.h"
 
 static bool start_level = false;
-static bool exit_flag = false;
 
 int curr_level_id = 0;
 
@@ -44,6 +43,9 @@ static int dragDir;
 //Prevents cards from overlapping 
 //hopefully
 static bool cardCorrection;
+
+static UIScreen *screen;
+static UIScreen *screen_top;
 
 static UIImage *bg_gradient = NULL;
 static UIImage *bg_gradient_top = NULL;
@@ -383,7 +385,6 @@ void level_select_init(UIScreen *s){
     
     curr_level_id = 0;
     start_level = false;
-    exit_flag = false;
     state.custom_level = false;
     dragDistance = 0;
 
@@ -445,8 +446,6 @@ void level_select_init(UIScreen *s){
     cardCorrection = false;
 
     scroll_dir = 0;
-
-    set_fade_status(FADE_STATUS_IN);
         
     // Set bg color
     bg_gradient = (UIImage *) ui_get_element_by_tag(s, "gradient");
