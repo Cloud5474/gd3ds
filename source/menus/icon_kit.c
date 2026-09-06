@@ -191,7 +191,7 @@ static void icon_kit_init(UIScreen *s){
     action_set_page(ui_get_element_by_tag(s, "cube"), NULL);
 
     update_player_colors();
-    set_fade_status(FADE_STATUS_IN);
+    show_glow = (player_glow_enabled || ((p1_color.r | p1_color.g | p1_color.b) == 0));
 
     play_menu_song();
 }

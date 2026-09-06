@@ -13,7 +13,7 @@ image x=160 y=120 id=21 sheet=1 scale=0.9
     windowbutton x=-55 y=-55 w=105 h=30 style=5 text="Options" actions="open_menu[screen="settings",btm_anim="zoom"]" font=2
     windowbutton x=55 y=-55 w=105 h=30 style=5 text="Guide" actions="open_menu[screen="how_to_play",btm_anim="zoom",top_anim="zoom"]" font=2
     windowbutton x=-55 y=-15 w=105 h=30 style=5 text="Credits" actions="open_menu[screen="credits",btm_anim="zoom"]" font=2
-    windowbutton x=55 y=-15 w=105 h=30 style=5 text="Songs" actions="open_menu[screen="songs",btm_anim="slide_down"]" font=2
+    windowbutton x=55 y=-15 w=105 h=30 style=5 text="Songs" actions="close_menu,open_menu[screen="songs",btm_anim="slide_down",type="after_close"]" font=2
 
 
     label x=0 y=15 text="Music" scale=0.5 tag="" align=CENTER

@@ -11,39 +11,29 @@ static size_t ui_stack_min_index() {
 }
 
 static size_t ui_stack_max_index() {
-    if(stack.active_scene_count == 0){
+    if(stack.active_count == 0){
         return 0;
     }
-    return stack.current_anchor + stack.active_scene_count - 1;
+    return stack.current_anchor + stack.active_count - 1;
 }
 
 static size_t ui_stack_next_index() {
-    return stack.current_anchor + stack.active_scene_count;
+    return stack.current_anchor + stack.active_count;
 }
 
 static void open_anchor(){
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScene *scene = &stack.scenes[i];
+        UIScreenPair *pair = &stack.screen_stack[i];
         for(int j = 0; j < 2; j++){
-            UIScreen *screen = &scene->screens[j];
+            UIScreen *screen = &pair->screens[j];
             ui_unload_screen(screen);
         }
     }
 
     size_t index = ui_stack_next_index();
-    UIScene *scene = &stack.scenes[index];
-
-    UIScreen *top = &scene->screens[SCREEN_TOP];
-    UIScreen *btm = &scene->screens[SCREEN_BTM];
-
-    ui_load_screen(top);
-    ui_load_screen(btm);
-
-    finish_animation(top);
-    finish_animation(btm);
 
     stack.current_anchor = index;
-    stack.active_scene_count = 1;
+    stack.active_count = 1;
 }
 
 static void close_anchor(){
@@ -51,40 +41,149 @@ static void close_anchor(){
 
     for(size_t i = ui_stack_min_index(); i < ui_stack_max_index(); i++){
         for(int j = 0; j < 2; j++){
-            UIScreen *screen = &stack.scenes[i].screens[j];
+            UIScreen *screen = &stack.screen_stack[i].screens[j];
             ui_unload_screen(screen);
         }
     }
 
     //find previous anchor
     size_t new_anchor = 0;
-    for(size_t i = stack.current_anchor - 1; i >= 0 ; i--){
-        if(stack.scenes[i].anchor){
+    for(size_t i = stack.current_anchor; i-- > 0; ){
+        if(stack.screen_stack[i].anchor){
             new_anchor = i;
             break;
         }
     }
 
     for(size_t i = new_anchor; i < stack.current_anchor; i++){
-        UIScene *scene = &stack.scenes[i];
+        UIScreenPair *pair = &stack.screen_stack[i];
         for(int j = 0; j < 2; j++){
-            UIScreen *screen = &scene->screens[j];
+            UIScreen *screen = &pair->screens[j];
             ui_load_screen(screen);
             finish_animation(screen);
         }
     }
 
-    stack.active_scene_count = stack.current_anchor - new_anchor;
+    stack.active_count = stack.current_anchor - new_anchor;
 
     stack.current_anchor = new_anchor;
 }
 
-static void attempt_close_top(){
-    UIScene *max_scene = &stack.scenes[ui_stack_max_index()];
+static bool resize_stack(size_t new_capacity){
+    //thanks advexed 
+    if(new_capacity > 32){
+        return false;
+    }
 
-    if(!max_scene->anchor){
-        UIScreen *max_top = &max_scene->screens[SCREEN_TOP];
-        UIScreen *max_btm = &max_scene->screens[SCREEN_BTM];
+    size_t capacity = stack.stack_capacity;
+
+    if(new_capacity <= capacity){
+        return true;
+    }
+
+    while(capacity < new_capacity){
+        capacity += 4;
+    }
+
+    UIScreenPair *temp = realloc(stack.screen_stack, sizeof(UIScreenPair) * capacity);
+
+    if(!temp){
+        return false;
+    }
+
+    stack.screen_stack = temp;
+    stack.stack_capacity = capacity;
+
+    //reset pair pointers in existing screens
+    if(stack.stack_capacity > 0){
+        for(size_t i = 0; i < stack.stack_capacity; i++){
+            UIScreenPair *pair = &stack.screen_stack[i];
+            for(size_t j = 0; j < 2; j++){
+                pair->screens[j].pair = pair;
+            }
+        }
+    }
+
+    return true;
+}
+
+static UIScreenPair *ui_stack_push_base(const UIScreenDefPair *defs){
+    if(!defs){
+        return NULL;
+    }
+
+    int index = ui_stack_next_index();
+
+    if(!resize_stack(index + 1)){
+        return NULL;
+    }
+
+    UIScreenPair *pair = &stack.screen_stack[index];
+
+    pair->name = defs->name;
+
+    UIScreen *top = &pair->screens[SCREEN_TOP];
+    UIScreen *btm = &pair->screens[SCREEN_BTM];
+
+    *top = (UIScreen){ 0 };
+    *btm = (UIScreen){ 0 };
+
+    btm->isBottom = true;
+
+    top->def = &defs->top;
+    btm->def = &defs->btm;
+
+    top->pair = pair;
+    btm->pair = pair;
+
+    return pair;
+}
+
+static void update_opening(){
+    UIStackPush *push = &stack.push;
+
+    if(push->type == PUSH_NEXT){
+        push->push_now = true;
+    }
+
+    //do push
+    if(push->push_now && push->type != PUSH_NONE){
+        push->push_now = false;
+
+        UIScreenPair *pair = ui_stack_push_base(push->defs);
+
+        if(!pair){
+            push->type = PUSH_NONE;
+            return;
+        }
+
+        pair->anchor = (push->type == PUSH_ANCHOR);
+
+        push->type = PUSH_NONE;
+
+        UIScreen *top = &pair->screens[SCREEN_TOP];
+        UIScreen *btm = &pair->screens[SCREEN_BTM];
+
+        if(pair->anchor){
+            open_anchor();
+        } else{
+            stack.active_count++;
+        }
+
+        ui_load_screen(top);
+        ui_load_screen(btm);
+
+        ui_screen_open(top, push->top_anim);
+        ui_screen_open(btm, push->btm_anim);
+    }
+}
+
+static void update_closing(){
+    UIScreenPair *max_pair = &stack.screen_stack[ui_stack_max_index()];
+
+    if(!max_pair->anchor){
+        UIScreen *max_top = &max_pair->screens[SCREEN_TOP];
+        UIScreen *max_btm = &max_pair->screens[SCREEN_BTM];
 
         bool top_closing = max_top->loaded ? max_top->closing : true;
         bool btm_closing = max_btm->loaded ? max_btm->closing : true;
@@ -93,15 +192,20 @@ static void attempt_close_top(){
             ui_unload_screen(max_top);
             ui_unload_screen(max_btm);
 
-            stack.active_scene_count--;
+            stack.active_count--;
+
+            if(stack.push.type == PUSH_AFTER_CLOSE){
+                stack.push.push_now = true;
+            }
         }
     }
 }
 
 static void handle_stack_fading(){
     //anchor transition open/close slop
+    //instant if the active count is 0 (main menu doesn't fade in)
     bool transition_switch = false;
-    if(stack.fade_time >= 255.f){
+    if(stack.fade_time >= 255.f || stack.active_count == 0){
         switch(stack.fade){
             case FADE_STATUS_IN:
                 stack.fade_time = 0.f;
@@ -122,8 +226,9 @@ static void handle_stack_fading(){
     if(transition_switch) {
         switch(stack.transition){
             case UI_TRANSITION_OPENING:
-                open_anchor();
+                if(stack.push.type == PUSH_ANCHOR) stack.push.push_now = true;
                 stack.fade_time = 0.f;
+                //don't fade out if opening the first menu
                 stack.fade = FADE_STATUS_OUT;
                 break;
             case UI_TRANSITION_CLOSING:
@@ -140,40 +245,42 @@ static void handle_stack_fading(){
 }
 
 void ui_stack_update(UIInput *input){
-    if(stack.active_scene_count == 0) return;
+    handle_stack_fading();
 
-    for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScene *scene = &stack.scenes[i];
+    update_opening();
 
-        bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
-    
-        for(int j = 0; j < 2; j++) {
-            UIScreen *screen = &scene->screens[j];
+    if(stack.active_count > 0){
+        for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
+            UIScreenPair *pair = &stack.screen_stack[i];
 
-            UIInput dummy_input = { 0 };
-            //only update top screen with input
-            UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
+            bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
+        
+            for(int j = 0; j < 2; j++) {
+                UIScreen *screen = &pair->screens[j];
 
-            if(screen){
-                ui_screen_update(screen, input_to_use);
+                UIInput dummy_input = { 0 };
+                //only update top screen with input
+                UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
+
+                if(screen){
+                    ui_screen_update(screen, input_to_use);
+                }
             }
         }
+
+        update_closing();
     }
-
-    attempt_close_top();
-
-    handle_stack_fading();
 }
 
 static void draw_stack_debug(){
     char debug[2048];
     size_t pos = 0;
 
-    for (size_t i = 0; i < stack.stack_capacity; i++) {
-        UIScene *scene = &stack.scenes[i];
+    for (size_t i = 0; i <= ui_stack_max_index(); i++) {
+        UIScreenPair *pair = &stack.screen_stack[i];
 
         int r = 0;
-        if(scene->anchor){
+        if(pair->anchor){
             r = 128;
         }
         if(i == stack.current_anchor){
@@ -189,7 +296,7 @@ static void draw_stack_debug(){
             sizeof(debug) - pos,
             "<%d,%d,%d>%s</>\n",
             r, gb, gb,
-            scene->name ? scene->name : "(unnamed)"
+            pair->name ? pair->name : "(unnamed)"
         );
 
         if (pos >= sizeof(debug)) break;
@@ -199,7 +306,7 @@ static void draw_stack_debug(){
     snprintf(anchorSlop, sizeof(anchorSlop), "Anchor: %d", stack.current_anchor);
 
     char activeSlop[] = "Active:....";
-    snprintf(activeSlop, sizeof(activeSlop), "Active: %d", stack.active_scene_count);
+    snprintf(activeSlop, sizeof(activeSlop), "Active: %d", stack.active_count);
 
     char capacitySlop[] = "Capacity:....";
     snprintf(capacitySlop, sizeof(capacitySlop), "Capacity: %d", stack.stack_capacity);
@@ -211,10 +318,10 @@ static void draw_stack_debug(){
 }
 
 void ui_stack_draw(Screens target){
-    if(stack.active_scene_count == 0) return;
+    if(stack.active_count == 0) return;
 
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScreen *screen = &stack.scenes[i].screens[target];
+        UIScreen *screen = &stack.screen_stack[i].screens[target];
         if(screen && screen->loaded){
             ui_screen_draw(screen);
         }
@@ -233,127 +340,72 @@ void ui_stack_draw(Screens target){
     if(target == SCREEN_TOP) draw_stack_debug();
 }
 
-//this kinda just assumes the new capacity is only 1 plus the current capacity since you can only push that many at a time
-static bool resize_stack(size_t new_capacity){
-    //thanks advexed 
-    if(new_capacity > 32){
-        return false;
-    }
-
-    size_t capacity = stack.stack_capacity;
-
-    if(new_capacity <= capacity){
-        return true;
-    }
-
-    //stack is expanded in chunks of 4
-    capacity += 4;
-
-    UIScene *temp = realloc(stack.scenes, sizeof(UIScene) * capacity);
-
-    if(!temp){
-        return false;
-    }
-
-    stack.stack_capacity = capacity;
-    stack.scenes = temp;
-
-    //reset scene pointers in existing screens
-    if(stack.stack_capacity > 0){
-        for(size_t i = 0; i < stack.stack_capacity; i++){
-            UIScene *scene = &stack.scenes[i];
-            for(size_t j = 0; j < 2; j++){
-                scene->screens[j].scene = scene;
-            }
-        }
-    }
-
-    return true;
-}
-
-static UIScene *ui_stack_push_base(const UIScreenDefPair* defs){
-    if(!defs){
-        return NULL;
-    }
-
-    if(stack.transition != UI_TRANSITION_NONE) {
-        printf("Cannot push to stack during transition!");
-        return NULL;
-    }
-
-    int index = ui_stack_next_index();
-
-    if(!resize_stack(index + 1)){
-        return NULL;
-    }
-
-    UIScene *scene = &stack.scenes[index];
-
-    if(!scene){
-        return NULL;
-    }
-
-    scene->name = defs->name;
-
-    UIScreen *top = &scene->screens[SCREEN_TOP];
-    UIScreen *btm = &scene->screens[SCREEN_BTM];
-
-    *top = (UIScreen){ 0 };
-    *btm = (UIScreen){ 0 };
-
-    btm->isBottom = true;
-
-    top->def = &defs->top;
-    btm->def = &defs->btm;
-
-    top->scene = scene;
-    btm->scene = scene;
-
-    return scene;
-}
-
-//initiates the fade to black transition
-void ui_stack_push_anchor(const UIScreenDefPair* defs, bool instant){
-    UIScene *scene = ui_stack_push_base(defs);
-
-    if (!scene) {
+void ui_stack_push(
+    const UIScreenDefPair* defs, 
+    UIAnimation top_anim, 
+    UIAnimation btm_anim,
+    UIStackPushType type
+){
+    if(type == PUSH_NONE){
         return;
     }
 
-    scene->anchor = true;
+    if(stack.transition != UI_TRANSITION_NONE){
+        printf("Cannot push during transition!");
+        return;
+    }
 
-    if(instant){
-        open_anchor();
-    } else{
+    if(stack.push.type != PUSH_NONE){
+        printf("Cannot queue multiple pushes!");
+        return;
+    }
+
+    stack.push.defs = defs;
+    stack.push.top_anim = top_anim;
+    stack.push.btm_anim = btm_anim;
+    stack.push.type = type;
+
+    if(type == PUSH_ANCHOR){
         stack.transition = UI_TRANSITION_OPENING;
         stack.fade = FADE_STATUS_IN;
         stack.fade_time = 0.f;
     }
 }
 
-void ui_stack_push(
-    const UIScreenDefPair* defs, 
+void ui_stack_push_name(
+    const char* name, 
     UIAnimation top_anim, 
-    UIAnimation btm_anim
+    UIAnimation btm_anim,
+    UIStackPushType type
 ){
-    UIScene *scene = ui_stack_push_base(defs);
+    const UIScreenDefPair *defs = ui_get_screen_def(name);
 
-    if (!scene){
+    if(!defs){
         return;
     }
 
-    scene->anchor = false;
+    ui_stack_push(defs, top_anim, btm_anim, type);
+}
 
-    UIScreen *top = &scene->screens[SCREEN_TOP];
-    UIScreen *btm = &scene->screens[SCREEN_BTM];
-    
-    stack.active_scene_count++;
+void ui_stack_push_anchor_instant(const UIScreenDefPair *defs){
+    UIScreenPair *pair = ui_stack_push_base(defs);
+
+    if (!pair) {
+        return;
+    }
+
+    pair->anchor = true;
+
+    open_anchor();
+
+    UIScreen *top = &pair->screens[SCREEN_TOP];
+    UIScreen *btm = &pair->screens[SCREEN_BTM];
 
     ui_load_screen(top);
     ui_load_screen(btm);
 
-    ui_screen_open(top, top_anim);
-    ui_screen_open(btm, btm_anim);
+    finish_animation(top);
+    finish_animation(btm);
 }
 
 void ui_stack_pop(){
@@ -362,21 +414,48 @@ void ui_stack_pop(){
         return;
     }
 
-    if(stack.active_scene_count == 0) return;
+    if(stack.active_count == 0) return;
 
-    UIScene *scene = &stack.scenes[ui_stack_max_index()];
-    if(scene->anchor){
+    UIScreenPair *pair = &stack.screen_stack[ui_stack_max_index()];
+    if(pair->anchor){
        stack.transition = UI_TRANSITION_CLOSING;
        stack.fade = FADE_STATUS_IN;
        stack.fade_time = 0.f;
     } else{
         for(int i = 0; i < 2; i++){
-            ui_screen_close(&scene->screens[i]);
+            ui_screen_close(&pair->screens[i]);
         }
     }
 }
 
 void ui_stack_fini(){
-    free(stack.scenes);
+    for(size_t i = 0; i < stack.stack_capacity; i++){
+        for(int j = 0; j < 2; j++){
+            UIScreen *s = &stack.screen_stack[i].screens[j];
+            if(s->loaded){
+                ui_unload_screen(s);
+            }
+        }
+    }
+
+    free(stack.screen_stack);
     stack.stack_capacity = 0;
+}
+
+UIScreen *ui_stack_get_screen(const char *name, Screens screen) {
+    UIScreenPair *pair = NULL;
+
+    for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
+        UIScreenPair *pair1 = &stack.screen_stack[i];
+
+        if(!pair1) continue;
+
+        if(strcmp(pair1->name, name) == 0){
+            pair = pair1;
+        }
+    }
+
+    if(!pair) return NULL;
+    
+    return &pair->screens[screen];
 }

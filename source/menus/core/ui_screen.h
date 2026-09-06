@@ -5,7 +5,7 @@
 
 #define MAX_ELEMENT_PROPERTIES 64
 
-typedef struct UIScene UIScene;
+typedef struct UIScreenPair UIScreenPair;
 
 typedef struct {
     const Charset *charset;
@@ -74,7 +74,7 @@ typedef struct {
 } UIScreenDefPair;
 
 typedef struct UIScreen {
-    UIScene *scene;
+    UIScreenPair *pair;
     const UIScreenDefinition *def;
 
     UIElement **elements;

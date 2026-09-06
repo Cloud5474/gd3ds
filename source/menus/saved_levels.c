@@ -30,7 +30,7 @@ static UIList *list;
 static void saved_levels_init(UIScreen *s) {
     list_title = (UILabel *) ui_get_element_by_tag(s, "listtitle");
     ui_label_set_text(list_title, "Saved Levels");
-    top_title = (UILabel *) ui_get_element_by_tag(&s->scene->screens[SCREEN_TOP], "toptitle");
+    top_title = (UILabel *) ui_get_element_by_tag(&s->pair->screens[SCREEN_TOP], "toptitle");
     ui_label_set_text(top_title, "Browse your saved user levels!");
 
     list = (UIList *) ui_get_element_by_tag(s, "list");

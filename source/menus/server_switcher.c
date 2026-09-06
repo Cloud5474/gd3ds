@@ -2,7 +2,7 @@
 #include <citro2d.h>
 #include "main.h"
 
-#include "menus/core/ui_screen.h"
+#include "menus/core/ui_stack.h"
 #include "menus/components/ui_label.h"
 #include "menus/components/ui_checkbox.h"
 #include "menus/components/ui_window_button.h"
@@ -11,6 +11,7 @@
 #include "mp3_player.h"
 #include "menus/components/ui_image.h"
 #include "menus/components/ui_window_button.h"
+#include "state.h"
 
 static void darken_text(UIElement* e){
     UILabel *l = (UILabel *)e;
@@ -47,19 +48,17 @@ static void action_switch_server(UIElement* e, const UIPropertyList *args) {
     if(gdps != gdps_before){
         stop_mp3();
         strcpy(menu_loop_path, gdps ? "romfs:/songs/menuLoopGDPS.mp3" : "romfs:/songs/menuLoop.mp3");
-        size_t out_size;
-        void *buf = read_file(menu_loop_path, &out_size);
-        if (buf) {
-            play_mp3_buf(buf, out_size, true, 0);
-        } else {
-            playing_menu_loop = false;
-        }
+        playing_menu_loop = false;
+        play_menu_song();
 
         if(gdps){
+            filters.difficultyFilters = filters.isDemon ? 0 : filters.difficultyFilters;
             disable_demons();
         } else if(!gdps && filters.isDemon){
             enable_demons();
         }
+
+        update_difficulty_tints();
     }
 
     filters.super = filters.super && gdps;

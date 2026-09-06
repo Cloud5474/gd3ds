@@ -441,7 +441,7 @@ static void online_menu_init(UIScreen *s) {
 
     list = (UIList *) ui_get_element_by_tag(s, "list");
     error_label = (UILabel *)ui_get_element_by_tag(s, "errorLabel");
-    page_info_label = (UILabel *)ui_get_element_by_tag(&s->scene->screens[SCREEN_TOP], "pageinfo");
+    page_info_label = (UILabel *)ui_get_element_by_tag(&s->pair->screens[SCREEN_TOP], "pageinfo");
 
     ui_run_func_on_tag(s, "nextpage", ui_disable_element);
     ui_run_func_on_tag(s, "prevpage", ui_disable_element);

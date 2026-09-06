@@ -24,43 +24,45 @@
 bool search_needs_refresh = true;
 bool gdps = false;
 
+static UIScreen *btm_screen = NULL;
+
 static void update_difficulty_tint(UIElement *e){
     int tint = (filters.difficultyFilters & (ui_prop_int(&e->custom_properties, "diffValue", 0))) > 0 ? 255 : 127;
     C2D_PlainImageTint(&((UIButton *)e)->image.tint, C2D_Color32(tint, tint, tint, 255), 1.f);
 }
 
-void enable_demons(UIScreen *s){
+void enable_demons(){
     if(gdps) return;
 
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "easy")), 259, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "normal")), 261, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "hard")), 257, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "harder")), 263, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "insane")), 265, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "easy")), 259, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "normal")), 261, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "hard")), 257, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "harder")), 263, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "insane")), 265, 0);
 }
 
-void disable_demons(UIScreen *s){
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "easy")), 252, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "normal")), 253, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "hard")), 254, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "harder")), 255, 0);
-    ui_button_set_image(((UIButton *)ui_get_element_by_tag(s, "insane")), 256, 0);
+void disable_demons(){
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "easy")), 252, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "normal")), 253, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "hard")), 254, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "harder")), 255, 0);
+    ui_button_set_image(((UIButton *)ui_get_element_by_tag(btm_screen, "insane")), 256, 0);
 }
 
-void update_difficulty_tints(UIScreen *s){
+void update_difficulty_tints(){
     C2D_PlainImageTint(
-        &((UIButton *)ui_get_element_by_tag(s, "na"))->image.tint, 
+        &((UIButton *)ui_get_element_by_tag(btm_screen, "na"))->image.tint, 
         filters.isNA ? C2D_Color32(255, 255, 255, 255) : C2D_Color32(127, 127, 127, 255), 
         1.f);
     C2D_PlainImageTint(
-        &((UIButton *)ui_get_element_by_tag(s, "auto"))->image.tint, 
+        &((UIButton *)ui_get_element_by_tag(btm_screen, "auto"))->image.tint, 
         filters.isAuto ? C2D_Color32(255, 255, 255, 255) : C2D_Color32(127, 127, 127, 255), 
         1.f);
     C2D_PlainImageTint(
-        &((UIButton *)ui_get_element_by_tag(s, "demon"))->image.tint, 
+        &((UIButton *)ui_get_element_by_tag(btm_screen, "demon"))->image.tint, 
         filters.isDemon ? C2D_Color32(255, 255, 255, 255) : C2D_Color32(127, 127, 127, 255), 
         1.f);
-    ui_run_func_on_tag(s, "difficulty", update_difficulty_tint);
+    ui_run_func_on_tag(btm_screen, "difficulty", update_difficulty_tint);
 }
 
 static void action_na(UIElement *e, const UIPropertyList *args){
@@ -120,7 +122,7 @@ static void action_search(UIElement* e, const UIPropertyList *args) {
     filters.searchType = ui_prop_int(&e->custom_properties, "type", 0);
     filters.currentPage = 0;
     search_needs_refresh = true;
-    ui_stack_push_anchor(&online_def, false);
+    ui_stack_push(&online_def, ANIM_NONE, ANIM_NONE, PUSH_ANCHOR);
 }
 
 static UIActionDef search_actions[] = {
@@ -133,6 +135,8 @@ static UIActionDef search_actions[] = {
 };
 
 static void search_menu_init(UIScreen *s) {
+    btm_screen = s;
+
     UITextbox *searchBox = ((UITextbox *)ui_get_element_by_tag(s, "searchbox"));
     snprintf(searchBox->text, sizeof(searchBox->text), "%s", filters.searchQuery);
 

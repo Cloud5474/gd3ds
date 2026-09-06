@@ -51,7 +51,9 @@ void reset_search_filters() {
     filters.lengthFilters = 0;
     filters.difficultyFilters = 0;
     filters.customSongQuery[0] = '\0';
-    update_difficulty_tints();
+    update_difficulty_tints(
+        ui_stack_get_screen("search_menu", SCREEN_BTM)
+    );
 }
 
 void uncompleted_filter(UIElement* e, const UIPropertyList *args) {

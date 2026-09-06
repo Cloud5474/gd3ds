@@ -1481,7 +1481,7 @@ int main(int argc, char* argv[]) {
         faster_speed_particles_bottom.cfg.startColorGreen = 65 / 255.f;
         faster_speed_particles_bottom.cfg.startColorBlue = 255 / 255.f;
 
-        ui_stack_push_anchor(&main_menu_def, true);
+        ui_stack_push_anchor_instant(&main_menu_def);
 
         switch (game_state) {
             case STATE_MENU:

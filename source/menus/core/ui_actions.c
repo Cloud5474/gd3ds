@@ -14,16 +14,16 @@ const UIIntEnumEntry screen_enum[] = {
     { "btm", SCREEN_BTM }
 };
 
+const UIIntEnumEntry push_enum[] = {
+    { "next", PUSH_NEXT },
+    { "after_close", PUSH_AFTER_CLOSE },
+    { "anchor", PUSH_ANCHOR }
+};
+
 static void action_open_menu(UIElement *e, const UIPropertyList *args){
-    bool anchor = ui_prop_bool(args, "anchor", false);
-    const UIScreenDefPair *def = ui_get_screen_def(ui_prop_string(args, "screen", "soggy"));
-    if(anchor){
-        ui_stack_push_anchor(def, false);
-    } else{
-        UIAnimation top_anim = ui_prop_int_enum(args, "top_anim", anim_enum, ARRAY_LEN(anim_enum), ANIM_NONE);
-        UIAnimation btm_anim = ui_prop_int_enum(args, "btm_anim", anim_enum, ARRAY_LEN(anim_enum), ANIM_NONE);
-        ui_stack_push(def, top_anim, btm_anim);
-    }
+    UIAnimation top_anim = ui_prop_int_enum(args, "top_anim", anim_enum, ARRAY_LEN(anim_enum), ANIM_NONE);
+    UIAnimation btm_anim = ui_prop_int_enum(args, "btm_anim", anim_enum, ARRAY_LEN(anim_enum), ANIM_NONE);
+    ui_stack_push_name(ui_prop_string(args, "screen", "soggy"), top_anim, btm_anim, ui_prop_int_enum(args, "type", push_enum, ARRAY_LEN(push_enum), PUSH_NEXT));
 }
 
 static void action_close_menu(UIElement *e, const UIPropertyList *args){
@@ -33,7 +33,7 @@ static void action_close_menu(UIElement *e, const UIPropertyList *args){
 static void action_disable_tag(UIElement *e, const UIPropertyList *args){
     int screen = ui_prop_int_enum(args, "screen", screen_enum, ARRAY_LEN(screen_enum), -1);
     if(screen >= 0 && screen < 2){
-        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_disable_element);
+        ui_run_func_on_tag(&e->screen->pair->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_disable_element);
         return;
     }
     ui_run_func_on_tag(e->screen, ui_prop_string(args, "tag", "unused"), ui_disable_element);
@@ -42,7 +42,7 @@ static void action_disable_tag(UIElement *e, const UIPropertyList *args){
 static void action_enable_tag(UIElement *e, const UIPropertyList *args){
     int screen = ui_prop_int_enum(args, "screen", screen_enum, ARRAY_LEN(screen_enum), -1);
     if(screen >= 0 && screen < 2){
-        ui_run_func_on_tag(&e->screen->scene->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_enable_element);
+        ui_run_func_on_tag(&e->screen->pair->screens[screen], ui_prop_string(args, "tag", ";,[]{}Nope"), ui_enable_element);
         return;
     }
     ui_run_func_on_tag(e->screen, ui_prop_string(args, "tag", "unused"), ui_enable_element);

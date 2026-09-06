@@ -38,6 +38,7 @@
 const UIScreenDefPair *defs[] = {
     &main_menu_def,
     &icon_kit_def,
+    &level_select_def,
     &creator_menu_def,
     &palette_kit_def,
     &credits_def,

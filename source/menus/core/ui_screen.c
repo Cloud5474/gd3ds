@@ -193,6 +193,10 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     if (!screen)
         return;
 
+    if(animation == ANIM_NONE){
+        finish_animation(screen);
+    }
+
     UITransition *t = &screen->transition;
 
     t->animation = animation;
@@ -209,9 +213,7 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
         t->darken_frac = 0.3;
     }
 
-    if(animation != ANIM_NONE){
-        t->in_duration = 0.5;
-    }
+    t->in_duration = 0.5;
 
     t->state = UI_TRANSITION_OPENING;
 
@@ -270,9 +272,9 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 void ui_screen_update(UIScreen* s, UIInput* touch) {
     ui_screen_update_transition(s, DT);
 
-    if (!s->loaded || s->closing) return;
+    if (!s || !s->loaded || s->closing) return;
 
-    if(s->def->update){
+    if(s->def && s->def->update){
         s->def->update(s, touch);
     }
 
@@ -346,7 +348,7 @@ static void ui_screen_handle_anim(UIScreen* s, UITransform *root) {
 void ui_screen_draw(UIScreen* s) {
     if (!s->loaded || s->closing) return;
 
-    bool customDraw = s->def->draw;
+    bool customDraw = s->def && s->def->draw;
 
     if(customDraw) s->def->draw(s, UI_DRAW_BEFORE);
 
@@ -716,7 +718,7 @@ void ui_load_screen(UIScreen* screen) {
     
     fclose(f);
 
-    if(screen->def->init){
+    if(screen->def && screen->def->init){
         screen->def->init(screen);
     }
 }
@@ -724,7 +726,7 @@ void ui_load_screen(UIScreen* screen) {
 void ui_unload_screen(UIScreen *screen) {
     if (!screen->loaded || !screen->elements) return;
 
-    if(screen->def->exit){
+    if(screen->def && screen->def->exit){
         screen->def->exit(screen);
     }
 

@@ -25,11 +25,11 @@ void switch_page2(int page, UIScreen *s) {
     for (int i = 0; i < ARRAY_LEN(how_to_play_pages); i++) {
         if (i == page) {
             ui_run_func_on_tag(s, how_to_play_pages[page], ui_enable_element);
-            ui_run_func_on_tag(&s->scene->screens[SCREEN_TOP], how_to_play_pages[page], ui_enable_element);
+            ui_run_func_on_tag(&s->pair->screens[SCREEN_TOP], how_to_play_pages[page], ui_enable_element);
 
         } else {
             ui_run_func_on_tag(s, how_to_play_pages[i], ui_disable_element);
-            ui_run_func_on_tag(&s->scene->screens[SCREEN_TOP], how_to_play_pages[i], ui_disable_element);
+            ui_run_func_on_tag(&s->pair->screens[SCREEN_TOP], how_to_play_pages[i], ui_disable_element);
         }
     }
 }

@@ -20,8 +20,6 @@
 #include "songs.h"
 #include "state.h"
 
-static bool switch_to_soundtrack = false;
-
 static UISlider *music_slider_bar;
 static UISlider *sound_slider_bar;
 

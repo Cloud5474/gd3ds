@@ -44,13 +44,8 @@ const char *error_strings[] = {
 
 bool external_start_level = false;
 
-static bool first_time_loaded = true;
-
 static bool reload_pending;
 static char reload_path[320];
-
-static UIList *list;
-static UILabel *path_label;
 
 char current_path[320] = { 0 };
 char last_path[320] = { 1 };
@@ -62,18 +57,15 @@ typedef struct {
 
 static void open_folder(UIElement *e, const UIPropertyList* args);
 
-static void external_levels_exit() {
-    current_path[0] = '\0'; // Reset it
-}
-
 static void open_external_popup(UIElement *e, const UIPropertyList* args) {
     LevelCardData *entry = e->userdata;
     strcpy(state.custom_level_path, entry->path);
 }
 
 void load_level_folder(char *folder, UIScreen *s) {
-    if (strncmp(last_path, current_path, sizeof(last_path)) == 0) return;
-    path_label = (UILabel *) ui_get_element_by_tag(s, "path");
+    UIList *list = (UIList *) ui_get_element_by_tag(s, "list");
+    UILabel *path_label = (UILabel *) ui_get_element_by_tag(s, "path");
+    
     ui_run_func_on_tag(s, "no_levels", ui_disable_element);
 
     char path[320+5];
@@ -85,7 +77,7 @@ void load_level_folder(char *folder, UIScreen *s) {
     int count = 0;
     FileOrFolder *entries = load_folder(folder, &count);
     char level_name[256];
-    
+
     ui_list_reset(list);
     
     if (entries && list) {
@@ -222,10 +214,6 @@ static void show_error_message() {
 
 static void external_levels_init(UIScreen *s) {
     external_start_level = false;
-    if (first_time_loaded) {
-        list = (UIList *) ui_get_element_by_tag(s, "list");
-        first_time_loaded = false;
-    }
 
     load_level_folder(current_path, s);
 
@@ -238,8 +226,8 @@ static void external_levels_init(UIScreen *s) {
 
 static void external_levels_update(UIScreen *s, UIInput *i) {
     if (reload_pending) {
-    load_level_folder(reload_path, s);
-    reload_pending = false;
+        load_level_folder(reload_path, s);
+        reload_pending = false;
     }
 }
 
@@ -252,7 +240,6 @@ const UIScreenDefPair external_def = {
         .path = "romfs:/menus/external_levels.txt",
         .init = external_levels_init,
         .update = external_levels_update,
-        .exit = external_levels_exit,
         .action_list = {
             .action_count = ARRAY_LEN(external_actions),
             .actions = external_actions
