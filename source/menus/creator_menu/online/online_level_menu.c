@@ -168,7 +168,7 @@ static void action_play(UIElement *e, const UIPropertyList *args) {
 
 static void action_open_info(UIElement *e, const UIPropertyList *args) {
     if (result == 0 || comes_from_levels){
-        ui_stack_push(&online_infobox_def, ANIM_ZOOM, ANIM_ZOOM);
+        ui_stack_push(&online_infobox_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
     }
 }
 

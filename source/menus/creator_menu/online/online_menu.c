@@ -110,7 +110,7 @@ static void action_clear_data(UIElement* e, const UIPropertyList *args) {
 static void action_open_online_level_menu(UIElement* e, const UIPropertyList *args) {
     OnlineCardData *entry = e->userdata;
     curr_search_id = entry->entryId;
-    ui_stack_push_anchor(&online_level_menu_def, false);
+    ui_stack_push(&online_level_menu_def, ANIM_NONE, ANIM_NONE, PUSH_ANCHOR);
 }
 
 static void action_open_version_warning(UIElement *e, const UIPropertyList *args) {

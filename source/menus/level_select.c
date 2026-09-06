@@ -44,9 +44,6 @@ static int dragDir;
 //hopefully
 static bool cardCorrection;
 
-static UIScreen *screen;
-static UIScreen *screen_top;
-
 static UIImage *bg_gradient = NULL;
 static UIImage *bg_gradient_top = NULL;
 static UIWindowButton *level_card_window = NULL;

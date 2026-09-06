@@ -59,7 +59,7 @@ static void open_folder(UIElement *e, const UIPropertyList* args);
 static void open_external_popup(UIElement *e, const UIPropertyList* args) {
     LevelCardData *entry = e->userdata;
     strcpy(state.custom_level_path, entry->path);
-    ui_stack_push(&external_popup_def, ANIM_ZOOM_SUBTLE, ANIM_ZOOM_SUBTLE);
+    ui_stack_push(&external_popup_def, ANIM_ZOOM_SUBTLE, ANIM_ZOOM_SUBTLE, PUSH_NEXT);
 }
 
 void load_level_folder(char *folder, UIScreen *s) {
