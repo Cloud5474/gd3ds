@@ -21,7 +21,11 @@ static size_t ui_stack_next_index() {
     return stack.current_root + stack.active_count;
 }
 
-static void unload_screenpair(UIScreenPair *pair){
+static void unload_screenpair(int index){
+    UIScreenPair *pair = stack.screen_stack[index];
+
+    if(!pair) return;
+
     if(pair->free_data && pair->data){
         pair->free_data(pair->data);
     }
@@ -32,11 +36,20 @@ static void unload_screenpair(UIScreenPair *pair){
         UIScreen *screen = &pair->screens[j];
         ui_unload_screen(screen);
     }
+
+    free(pair);
+    stack.screen_stack[index] = NULL;
 }
 
 static void open_root(){
+    //unload all active layers below new root
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        unload_screenpair(&stack.screen_stack[i]);
+        //basic unload of previous screens (do not unload entire screenpair)
+        UIScreenPair *pair = stack.screen_stack[i];
+        for(int j = 0; j < 2; j++){
+            UIScreen *screen = &pair->screens[j];
+            ui_unload_screen(screen);
+        }
     }
 
     size_t index = ui_stack_next_index();
@@ -48,21 +61,22 @@ static void open_root(){
 static void close_root(){
     if(stack.current_root == 0) return;
 
-    for(size_t i = ui_stack_min_index(); i < ui_stack_max_index(); i++){
-        unload_screenpair(&stack.screen_stack[i]);
+    //unload all active layers above root
+    for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
+        unload_screenpair(i);
     }
 
     //find previous root
     size_t new_root = 0;
     for(size_t i = stack.current_root; i-- > 0; ){
-        if(stack.screen_stack[i].root){
+        if(stack.screen_stack[i]->root){
             new_root = i;
             break;
         }
     }
 
     for(size_t i = new_root; i < stack.current_root; i++){
-        UIScreenPair *pair = &stack.screen_stack[i];
+        UIScreenPair *pair = stack.screen_stack[i];
         for(int j = 0; j < 2; j++){
             UIScreen *screen = &pair->screens[j];
             ui_load_screen(screen);
@@ -76,7 +90,6 @@ static void close_root(){
 }
 
 static bool resize_stack(size_t new_capacity){
-    //thanks advexed 
     if(new_capacity > 32){
         return false;
     }
@@ -91,29 +104,22 @@ static bool resize_stack(size_t new_capacity){
         capacity += 4;
     }
 
-    UIScreenPair *temp = realloc(stack.screen_stack, sizeof(UIScreenPair) * capacity);
+    UIScreenPair **temp = realloc(stack.screen_stack, sizeof(UIScreenPair *) * capacity);
 
     if(!temp){
         return false;
     }
 
+    memset(temp + stack.stack_capacity, 0, sizeof(UIScreenPair *) * (capacity - stack.stack_capacity));
+
     stack.screen_stack = temp;
     stack.stack_capacity = capacity;
-
-    //reset pair pointers in existing screens
-    if(stack.stack_capacity > 0){
-        for(size_t i = 0; i < stack.stack_capacity; i++){
-            UIScreenPair *pair = &stack.screen_stack[i];
-            for(size_t j = 0; j < 2; j++){
-                pair->screens[j].pair = pair;
-            }
-        }
-    }
 
     return true;
 }
 
-static UIScreenPair *ui_stack_push_base(const UIScreenDefPair *defs){
+//create new screenpair and expand stack if needed
+static UIScreenPair *ui_stack_open(const UIScreenDefPair *defs){
     if(!defs){
         return NULL;
     }
@@ -124,7 +130,11 @@ static UIScreenPair *ui_stack_push_base(const UIScreenDefPair *defs){
         return NULL;
     }
 
-    UIScreenPair *pair = &stack.screen_stack[index];
+    UIScreenPair *pair = calloc(1, sizeof(UIScreenPair));
+
+    if(!pair) return NULL;
+
+    stack.screen_stack[index] = pair;
 
     pair->name = defs->name;
 
@@ -145,6 +155,121 @@ static UIScreenPair *ui_stack_push_base(const UIScreenDefPair *defs){
     return pair;
 }
 
+void ui_stack_push(
+    const UIScreenDefPair* defs, 
+    UIAnimation top_anim, 
+    UIAnimation btm_anim,
+    UIStackPushType type
+){
+    if(type == PUSH_NONE){
+        return;
+    }
+
+    if(stack.transition != UI_TRANSITION_NONE){
+        printf("Cannot push during transition!");
+        return;
+    }
+
+    if(stack.push.type != PUSH_NONE){
+        printf("Cannot queue multiple pushes!");
+        return;
+    }
+
+    stack.push.defs = defs;
+    stack.push.top_anim = top_anim;
+    stack.push.btm_anim = btm_anim;
+    stack.push.type = type;
+
+    if(type == PUSH_ROOT){
+        stack.transition = UI_TRANSITION_OPENING;
+        stack.fade = FADE_STATUS_IN;
+        stack.fade_time = 0.f;
+    }
+}
+
+void ui_stack_push_name(
+    const char* name, 
+    UIAnimation top_anim, 
+    UIAnimation btm_anim,
+    UIStackPushType type
+){
+    const UIScreenDefPair *defs = ui_get_screen_def(name);
+
+    if(!defs){
+        return;
+    }
+
+    ui_stack_push(defs, top_anim, btm_anim, type);
+}
+
+void ui_stack_push_data(void *data){
+    //can't push data when there is no actual push
+    if(stack.push.type == PUSH_NONE) return;
+
+
+    stack.push.data = data;
+}
+
+void ui_stack_push_root_instant(const UIScreenDefPair *defs){
+    UIScreenPair *pair = ui_stack_open(defs);
+
+    if (!pair) {
+        return;
+    }
+
+    pair->root = true;
+
+    open_root();
+
+    UIScreen *top = &pair->screens[SCREEN_TOP];
+    UIScreen *btm = &pair->screens[SCREEN_BTM];
+
+    ui_load_screen(top);
+    ui_load_screen(btm);
+
+    finish_animation(top);
+    finish_animation(btm);
+}
+
+void ui_stack_pop(){
+    if(stack.transition != UI_TRANSITION_NONE) {
+        printf("Cannot pop stack during transition!");
+        return;
+    }
+
+    if(stack.active_count == 0) return;
+
+    UIScreenPair *pair = stack.screen_stack[ui_stack_max_index()];
+    if(pair->root){
+       stack.transition = UI_TRANSITION_CLOSING;
+       stack.fade = FADE_STATUS_IN;
+       stack.fade_time = 0.f;
+    } else{
+        for(int i = 0; i < 2; i++){
+            ui_screen_close(&pair->screens[i]);
+        }
+    }
+}
+
+//pops all active screens
+void ui_stack_pop_context(){
+    if(stack.transition != UI_TRANSITION_NONE) {
+        printf("Cannot pop stack during transition!");
+        return;
+    }
+
+    for(size_t i = ui_stack_min_index() + 1; i < ui_stack_max_index(); i++){
+        for(int j = 0; j < 2; j++){
+            UIScreen *screen = &stack.screen_stack[i]->screens[j];
+            ui_screen_close(screen);
+        }
+    }
+
+    stack.transition = UI_TRANSITION_CLOSING;
+    stack.fade = FADE_STATUS_IN;
+    stack.fade_time = 0.f;
+}
+
 static void update_opening(){
     UIStackPush *push = &stack.push;
 
@@ -156,7 +281,7 @@ static void update_opening(){
     if(push->push_now && push->type != PUSH_NONE){
         push->push_now = false;
 
-        UIScreenPair *pair = ui_stack_push_base(push->defs);
+        UIScreenPair *pair = ui_stack_open(push->defs);
 
         if(!pair){
             push->type = PUSH_NONE;
@@ -192,7 +317,9 @@ static void update_opening(){
 }
 
 static void update_closing(){
-    UIScreenPair *pair = &stack.screen_stack[ui_stack_max_index()];
+    UIScreenPair *pair = stack.screen_stack[ui_stack_max_index()];
+
+    if(!pair) return;
 
     if(!pair->root){
         UIScreen *top = &pair->screens[SCREEN_TOP];
@@ -202,7 +329,7 @@ static void update_closing(){
         bool btm_closing = btm->loaded ? btm->closing : true;
 
         if(stack.transition == UI_TRANSITION_NONE && top_closing && btm_closing){
-            unload_screenpair(pair);
+            unload_screenpair(ui_stack_max_index());
 
             stack.active_count--;
 
@@ -263,7 +390,9 @@ void ui_stack_update(UIInput *input){
 
     if(stack.active_count > 0){
         for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-            UIScreenPair *pair = &stack.screen_stack[i];
+            UIScreenPair *pair = stack.screen_stack[i];
+
+            if(!pair) continue;
 
             bool updating_topmost = i == ui_stack_max_index() && stack.transition == UI_TRANSITION_NONE;
         
@@ -274,9 +403,7 @@ void ui_stack_update(UIInput *input){
                 //only update top screen with input
                 UIInput *input_to_use = updating_topmost && screen->transition.done ? input : &dummy_input;
 
-                if(screen){
-                    ui_screen_update(screen, input_to_use);
-                }
+                ui_screen_update(screen, input_to_use);
             }
         }
 
@@ -289,7 +416,9 @@ static void draw_stack_debug(){
     size_t pos = 0;
 
     for (size_t i = 0; i <= ui_stack_max_index(); i++) {
-        UIScreenPair *pair = &stack.screen_stack[i];
+        UIScreenPair *pair = stack.screen_stack[i];
+
+        if(!pair) continue;
 
         int r = 0;
         if(pair->root){
@@ -333,8 +462,12 @@ void ui_stack_draw(Screens target){
     if(stack.active_count == 0) return;
 
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScreen *screen = &stack.screen_stack[i].screens[target];
-        if(screen && screen->loaded){
+        UIScreenPair *pair = stack.screen_stack[i];
+
+        if(!pair) continue;
+
+        UIScreen *screen = &pair->screens[target];
+        if(screen->loaded){
             ui_screen_draw(screen);
         }
     }
@@ -352,120 +485,9 @@ void ui_stack_draw(Screens target){
     if(target == SCREEN_TOP) draw_stack_debug();
 }
 
-void ui_stack_push(
-    const UIScreenDefPair* defs, 
-    UIAnimation top_anim, 
-    UIAnimation btm_anim,
-    UIStackPushType type
-){
-    if(type == PUSH_NONE){
-        return;
-    }
-
-    if(stack.transition != UI_TRANSITION_NONE){
-        printf("Cannot push during transition!");
-        return;
-    }
-
-    if(stack.push.type != PUSH_NONE){
-        printf("Cannot queue multiple pushes!");
-        return;
-    }
-
-    stack.push.defs = defs;
-    stack.push.top_anim = top_anim;
-    stack.push.btm_anim = btm_anim;
-    stack.push.type = type;
-
-    if(type == PUSH_ROOT){
-        stack.transition = UI_TRANSITION_OPENING;
-        stack.fade = FADE_STATUS_IN;
-        stack.fade_time = 0.f;
-    }
-}
-
-void ui_stack_push_name(
-    const char* name, 
-    UIAnimation top_anim, 
-    UIAnimation btm_anim,
-    UIStackPushType type
-){
-    const UIScreenDefPair *defs = ui_get_screen_def(name);
-
-    if(!defs){
-        return;
-    }
-
-    ui_stack_push(defs, top_anim, btm_anim, type);
-}
-
-void ui_stack_push_data(void *data){
-    stack.push.data = data;
-}
-
-void ui_stack_push_root_instant(const UIScreenDefPair *defs){
-    UIScreenPair *pair = ui_stack_push_base(defs);
-
-    if (!pair) {
-        return;
-    }
-
-    pair->root = true;
-
-    open_root();
-
-    UIScreen *top = &pair->screens[SCREEN_TOP];
-    UIScreen *btm = &pair->screens[SCREEN_BTM];
-
-    ui_load_screen(top);
-    ui_load_screen(btm);
-
-    finish_animation(top);
-    finish_animation(btm);
-}
-
-void ui_stack_pop(){
-    if(stack.transition != UI_TRANSITION_NONE) {
-        printf("Cannot pop stack during transition!");
-        return;
-    }
-
-    if(stack.active_count == 0) return;
-
-    UIScreenPair *pair = &stack.screen_stack[ui_stack_max_index()];
-    if(pair->root){
-       stack.transition = UI_TRANSITION_CLOSING;
-       stack.fade = FADE_STATUS_IN;
-       stack.fade_time = 0.f;
-    } else{
-        for(int i = 0; i < 2; i++){
-            ui_screen_close(&pair->screens[i]);
-        }
-    }
-}
-
-//pops all active screens
-void ui_stack_pop_context(){
-    if(stack.transition != UI_TRANSITION_NONE) {
-        printf("Cannot pop stack during transition!");
-        return;
-    }
-
-    for(size_t i = ui_stack_min_index(); i < ui_stack_max_index(); i++){
-        for(int j = 0; j < 2; j++){
-            UIScreen *screen = &stack.screen_stack[i].screens[j];
-            ui_screen_close(screen);
-        }
-    }
-
-    stack.transition = UI_TRANSITION_CLOSING;
-    stack.fade = FADE_STATUS_IN;
-    stack.fade_time = 0.f;
-}
-
 void ui_stack_fini(){
     for(size_t i = 0; i < stack.stack_capacity; i++){
-        unload_screenpair(&stack.screen_stack[i]);
+        unload_screenpair(i);
     }
 
     free(stack.screen_stack);
@@ -476,7 +498,7 @@ UIScreen *ui_stack_get_screen(const char *name, Screens screen) {
     UIScreenPair *pair = NULL;
 
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
-        UIScreenPair *pair1 = &stack.screen_stack[i];
+        UIScreenPair *pair1 = stack.screen_stack[i];
 
         if(!pair1) continue;
 

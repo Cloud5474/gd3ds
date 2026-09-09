@@ -30,7 +30,8 @@ typedef struct {
 } UIStackPush;
 
 typedef struct {
-    UIScreenPair *screen_stack;
+    //array of pointers to UIScreenPairs
+    UIScreenPair **screen_stack;
     size_t stack_capacity;
 
     //"root" ScreenPairs represent the lowest layer of the current UI context, such as the main menu, creator menu, or level select (as opposed to popups like settings, the color select, etc)
@@ -48,9 +49,6 @@ typedef struct {
     UIStackPush push;
 } UIStack;
 
-void ui_stack_update(UIInput *input);
-void ui_stack_draw(Screens target);
-
 void ui_stack_push(const UIScreenDefPair *defs, UIAnimation top_anim, UIAnimation btm_anim, UIStackPushType type);
 void ui_stack_push_name(const char *name, UIAnimation top_anim, UIAnimation btm_anim, UIStackPushType type);
 void ui_stack_push_data(void *data);
@@ -59,6 +57,9 @@ void ui_stack_push_root_instant(const UIScreenDefPair *defs);
 
 void ui_stack_pop();
 void ui_stack_pop_context();
+
+void ui_stack_update(UIInput *input);
+void ui_stack_draw(Screens target);
 
 void ui_stack_fini();
 

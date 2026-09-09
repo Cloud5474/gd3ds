@@ -214,7 +214,7 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
         t->darken_frac = 0.3;
     }
 
-    t->in_duration = 0.5;
+    if(animation != ANIM_NONE) t->in_duration = 0.5;
 
     t->state = UI_TRANSITION_OPENING;
 

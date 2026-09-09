@@ -174,7 +174,6 @@ static void action_open_info(UIElement *e, const UIPropertyList *args) {
 
 void delete_level(){
     // logic to delete level (post save revamp slop)
-    ui_stack_pop();
 }
 
 static void populate_level_info() {
