@@ -23,38 +23,28 @@
 #include "fonts/chatFont.h"
 #include "fonts/bigFont.h"
 
-static bool yes_exit = false;
-
-static UIScreen screen = {
-    .isBottom = true
-};
-static UILabel *content;
-
-void set_info_content(const char *text) {
-    content = (UILabel *) ui_get_element_by_tag(&screen, "content");
+void set_info_content(const char *text, UIScreen *s) {
+    UILabel *content = (UILabel *) ui_get_element_by_tag(s, "content");
     ui_label_set_text(content, text);
 }
 
-void info_card_init() {
-    ui_load_screen_old(&screen, NULL, 0, "romfs:/menus/setting_hub/info_card.txt");
-    ui_screen_open(&screen, ANIM_ZOOM);
-    yes_exit = false;
+void info_card_init(UIScreen *s) {
+    InfoCardData *info_card_data = s->pair->data;
+    if(!info_card_data) return;
+    set_info_content(info_card_data->text, s);
 }
 
-int info_card_loop() {
-    if (yes_exit) {
-        ui_unload_screen(&screen);
-        return true;
-    }
-
-    UIInput touch;
-    touchPosition touchPos;
-    hidTouchRead(&touchPos);
-    touch.touchPosition = touchPos;
-    touch.interacted = false;
-    ui_screen_update(&screen, &touch);
-
-    ui_screen_draw(&screen);
-
-    return false;
+void info_card_free_data(void *data){
+    InfoCardData *info_card_data = data;
+    if(info_card_data) free(info_card_data);
 }
+
+const UIScreenDefPair info_card_def = {
+    .name = "info_card",
+    .btm = {
+        .path = "romfs:/menus/settings_hub/info_card.txt",
+        .init = info_card_init
+    },
+    .free_data = info_card_free_data
+};
+

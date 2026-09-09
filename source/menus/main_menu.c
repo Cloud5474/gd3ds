@@ -53,7 +53,6 @@ bool old_stereo;
 
 void action_open_info_card_text(const char *text) {
     // ui_stack_push()
-    set_info_content(text);
 }
 
 void handle_title_screen_player(Player *player) {

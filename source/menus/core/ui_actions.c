@@ -17,7 +17,7 @@ const UIIntEnumEntry screen_enum[] = {
 const UIIntEnumEntry push_enum[] = {
     { "next", PUSH_NEXT },
     { "after_close", PUSH_AFTER_CLOSE },
-    { "anchor", PUSH_ANCHOR }
+    { "root", PUSH_ROOT }
 };
 
 static void action_open_menu(UIElement *e, const UIPropertyList *args){
@@ -28,6 +28,10 @@ static void action_open_menu(UIElement *e, const UIPropertyList *args){
 
 static void action_close_menu(UIElement *e, const UIPropertyList *args){
     ui_stack_pop();
+}
+
+static void action_close_context(UIElement *e, const UIPropertyList *args){
+    ui_stack_pop_context();
 }
 
 static void action_disable_tag(UIElement *e, const UIPropertyList *args){
@@ -55,6 +59,7 @@ static void action_play_sound(UIElement *e, const UIPropertyList *args){
 const UIActionDef base_actions[] = {
     { "open_menu", action_open_menu },
     { "close_menu", action_close_menu },
+    { "close_context", action_close_context },
     { "disable_tag", action_disable_tag },
     { "enable_tag", action_enable_tag },
     { "play_sound", action_play_sound }

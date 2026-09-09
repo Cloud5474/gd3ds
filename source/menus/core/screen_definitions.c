@@ -49,6 +49,7 @@ const UIScreenDefPair *defs[] = {
     &statistics_def,
     &how_to_play_def,
     &settings_def,
+    &info_card_def,
     &online_def,
     &saved_levels_def,
     &song_filter_def,

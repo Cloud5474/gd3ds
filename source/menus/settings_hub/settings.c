@@ -23,7 +23,7 @@
 #include "menus/main_menu.h"
 #include "menus/settings_hub/settings.h"
 
-
+#include "menus/settings_hub/info_card.h"
 
 static int current_page = 0;
 
@@ -442,17 +442,25 @@ static void checkbox_action(UIElement *e, const UIPropertyList* args) {
     }
 }
 
-static void info_action(UIElement *e, const UIPropertyList* args) {
-    InfoButtonData *data = e->userdata;
-    if (data) {
-        action_open_info_card_text(data->text);
-    }
-}
-
 static void set_button_style(UIElement *e) {
     UIWindowButton *button = (UIWindowButton *) e;
     int page = ui_prop_int(&e->custom_properties, "page", 0);
     ui_window_button_set_style(button, (page == current_page ? 10 : 5));
+}
+
+void action_open_info(UIElement *e, const UIPropertyList *args){
+    InfoButtonData *e_data = e->userdata;
+    if(!e_data) return;
+
+    const char *text = e_data->text;
+    if(!text) return;
+    
+    InfoCardData *data = malloc(sizeof(InfoCardData));
+    if(!data) return;
+    
+    data->text = text;
+
+    ui_stack_push_data(data);
 }
 
 void action_category(UIElement *e, const UIPropertyList *args) {
@@ -460,6 +468,10 @@ void action_category(UIElement *e, const UIPropertyList *args) {
     request_list_reload = true;
 }
 
+static UIActionDef settings_actions[] = {
+    { "open_info", action_open_info },
+    { "category", action_category}
+};
 
 void create_setting(Setting *setting, int id, UIScreen *s) {
     if (list) {
@@ -507,7 +519,12 @@ void create_setting(Setting *setting, int id, UIScreen *s) {
 
                     ui_element_set_position((UIElement *) info, list_width -+ 13, 0);
                     ui_element_set_scale((UIElement *) info, 0.7f);
-                    ui_element_set_action((UIElement *) info, info_action);
+                    info->base.actions = parse_actions(
+                        "open_menu[screen=\"info_card\" btm_anim=\"zoom\"],open_info", 
+                        settings_actions, 
+                        ARRAY_LEN(settings_actions), 
+                        &info->base.action_count
+                    );
 
                     ui_button_set_image(info, 90, 0);
 
@@ -540,10 +557,6 @@ void load_category(SettingPage page, UIScreen *s) {
         }
     }
 }
-
-static UIActionDef settings_actions[] = {
-    {"category", action_category}
-};
 
 static void settings_init(UIScreen *s) {
     list = (UIList *) ui_get_element_by_tag(s, "list");

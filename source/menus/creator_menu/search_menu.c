@@ -124,7 +124,7 @@ static void action_search(UIElement* e, const UIPropertyList *args) {
     filters.searchType = ui_prop_int(&e->custom_properties, "type", 0);
     filters.currentPage = 0;
     search_needs_refresh = true;
-    ui_stack_push(&online_def, ANIM_NONE, ANIM_NONE, PUSH_ANCHOR);
+    ui_stack_push(&online_def, ANIM_NONE, ANIM_NONE, PUSH_ROOT);
 }
 
 static UIActionDef search_actions[] = {

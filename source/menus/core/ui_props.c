@@ -205,11 +205,7 @@ UIPropertyList ui_prop_list(const UIPropertyList *props, const char *key){
     return ui_parse_prop_list(value);
 }
 
-UIAction *ui_prop_actions(const UIPropertyList *props, const UIActionDef *action_defs, const size_t actions_count, const char *key, size_t *out_entry_count) {
-    char *value = (char *) ui_prop_string(props, key, NULL);
-
-    if(!value) return NULL;
-
+UIAction *parse_actions(char *value, const UIActionDef *action_defs, const size_t actions_count, size_t *out_entry_count) {
     char **entries = split_string_nobrackets(value, ',', out_entry_count);
 
     if(!entries || *out_entry_count == 0){
@@ -269,5 +265,17 @@ UIAction *ui_prop_actions(const UIPropertyList *props, const UIActionDef *action
 
     free_string_array(entries, *out_entry_count);
 
+    return actions;
+}
+
+UIAction *ui_prop_actions(const UIPropertyList *props, const UIActionDef *action_defs, const size_t actions_count, const char *key, size_t *out_entry_count) {
+    char *value = (char *) ui_prop_string(props, key, NULL);
+
+    if(!value) return NULL;
+
+    UIAction *actions = parse_actions(value, action_defs, actions_count, out_entry_count);
+
+    if(!actions) return NULL;
+    
     return actions;
 }

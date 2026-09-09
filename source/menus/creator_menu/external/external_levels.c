@@ -206,9 +206,6 @@ static void show_error_message() {
 
     snprintf(tmp, sizeof(tmp), "<red>ERROR</>:\n%s", message);
 
-    info_card_init();
-    set_info_content(tmp);
-
     level_result = 0;
 }
 
