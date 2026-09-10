@@ -162,6 +162,13 @@ typedef struct {
     bool useTint;
 } UIImage;
 
+typedef enum ButtonAnimType {
+    BUTTON_ANIM_NORMAL,
+    BUTTON_ANIM_PULL,
+    //uninmplemented lel
+    BUTTON_ANIM_DARKEN
+} ButtonAnimType;
+
 typedef struct {
     UIElement base;
 
@@ -170,8 +177,9 @@ typedef struct {
     bool hovered;
     bool pressed;
 
+    ButtonAnimType animType;
     float hoverTimer;
-    float hoverScale;
+    float hoverProgress;
     float hoverFactor;
 
     int font;

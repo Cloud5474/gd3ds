@@ -208,17 +208,14 @@ static void icon_kit_init_top(UIScreen *s){
 
 }
 
-static void icon_kit_draw_top(UIScreen *s, UIDrawPhase phase){
-    if(phase == UI_DRAW_BEFORE) return;
-
-    begin_eye_layer(DEPTH_POPUP);
-    spawn_icon_at(
-        last_displayed_gamemode, *current_icons[last_displayed_gamemode], show_glow, 200, 120, 0, 0, 0, 2.f,
-        C2D_Color32(p1_color.r, p1_color.g, p1_color.b, 255),
-        C2D_Color32(p2_color.r, p2_color.g, p2_color.b, 255),
-        C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255)
-    );
-    end_eye_layer();
+static void icon_kit_update_top(UIScreen *s, UIInput *input){
+    UIIcon *icon = (UIIcon *)ui_get_element_by_tag(s, "big_icon");
+ 
+    ui_icon_set_gamemode_index(icon, last_displayed_gamemode, *current_icons[last_displayed_gamemode]);
+    ui_icon_set_p1(icon, C2D_Color32(p1_color.r, p1_color.g, p1_color.b, 255));
+    ui_icon_set_p2(icon, C2D_Color32(p2_color.r, p2_color.g, p2_color.b, 255));
+    ui_icon_set_glow(icon, C2D_Color32(glow_color.r, glow_color.g, glow_color.b, 255));
+    icon->glow = show_glow;
 }
 
 static const UIActionDef icon_kit_actions[] = {
@@ -234,7 +231,7 @@ const UIScreenDefPair icon_kit_def = {
     .top = {
         .path = "romfs:/menus/icon_kit_top.txt",
         .init = icon_kit_init_top,
-        .draw = icon_kit_draw_top
+        .update = icon_kit_update_top
     },
     .btm = {
         .path = "romfs:/menus/icon_kit.txt",

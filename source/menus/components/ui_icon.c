@@ -111,7 +111,7 @@ UIIcon *ui_create_icon(UIScreen *screen) {
 
     ui_element_apply_default_properties(&button->base, screen);
     
-    button->hoverScale = 1;
+    button->hoverProgress = 1;
     button->hoverFactor = 1;
 
     C2D_SpriteFromSheet(&button->image.sprite, ui_sheet, 175);

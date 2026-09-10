@@ -12,6 +12,12 @@
 #include "main.h"
 #include "ui_slider.h"
 
+const UIIntEnumEntry button_anim_enum[] = {
+    { "normal", BUTTON_ANIM_NORMAL },
+    { "pull", BUTTON_ANIM_PULL },
+    { "darken", BUTTON_ANIM_DARKEN }
+};
+
 //prevents two or more buttons from being pressed at the exact same time
 static int pressedKey;
 
@@ -44,22 +50,38 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
         }
     }
 
-    EaseTypes bounce_type;
     // Animation
-    if (button->hovered) {
-        button->hoverTimer += DT * (button->keyPressTimer > 0 ? 2 : 1);
-        bounce_type = (button->keyPressTimer > 0 ? EASE_OUT : BOUNCE_OUT);
-    } else {
-        button->hoverTimer -= DT;
-        // As the animation plays in reverse, we just use bounce in
-        bounce_type = BOUNCE_IN;
+    switch(button->animType){
+        case BUTTON_ANIM_NORMAL:
+            EaseTypes bounce_type;
+            if (button->hovered) {
+                button->hoverTimer += DT * (button->keyPressTimer > 0 ? 2 : 1);
+                bounce_type = (button->keyPressTimer > 0 ? EASE_OUT : BOUNCE_OUT);
+            } else {
+                button->hoverTimer -= DT;
+                // As the animation plays in reverse, we just use bounce in
+                bounce_type = BOUNCE_IN;
+            }
+
+            button->hoverTimer = clampf(button->hoverTimer, 0.f, BUTTON_HOVER_ANIM_TIME);
+            button->hoverProgress = easeValue(bounce_type, 1.0f, BUTTON_HOVER_SCALE, button->hoverTimer, BUTTON_HOVER_ANIM_TIME, 0);
+
+            // Apply hover factor
+            button->hoverProgress = 1 + (button->hoverProgress - 1) * button->hoverFactor;
+            break;
+        case BUTTON_ANIM_PULL:
+            if (button->hovered) {
+                button->hoverTimer += DT;
+            } else {
+                button->hoverTimer -= DT;
+            }
+
+            button->hoverTimer = clampf(button->hoverTimer, 0.f, 0.2f);
+            button->hoverProgress = easeValue(EASE_IN_OUT, 0.f, 6.f, button->hoverTimer, 0.2f, 2.0f);
+            break;
+        default:
+            break;
     }
-
-    button->hoverTimer = clampf(button->hoverTimer, 0.f, BUTTON_HOVER_ANIM_TIME);
-    button->hoverScale = easeValue(bounce_type, 1.0f, BUTTON_HOVER_SCALE, button->hoverTimer, BUTTON_HOVER_ANIM_TIME, 0);
-
-    // Apply hover factor
-    button->hoverScale = 1 + (button->hoverScale - 1) * button->hoverFactor;
 
     bool pressedTouch = touch->down & KEY_TOUCH;
     bool releasedTouch = touch->up & KEY_TOUCH;
@@ -81,8 +103,11 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     if (button->hovered && releasedTouch && !pressedKey) {
         button->pressed = false;
         button->hovered = false;
-        button->hoverTimer = 0.f;
-        button->hoverScale = 1.f;
+        //only the normal animation (zoom in) snaps when you release it
+        if(button->animType == BUTTON_ANIM_NORMAL){
+            button->hoverTimer = 0.f;
+            button->hoverProgress = 1.f;
+        }
         
         // This lets subclasses do something before the real action (checkbox uses it to flip the texture)
         if (button->pre_action) {
@@ -136,8 +161,17 @@ void ui_button_draw_text(UIElement *e, UITransform *transform) {
 void ui_button_modify_transform(UIElement *e, UITransform *t) {
     UIButton *button = (UIButton *) e;
 
-    t->scaleX *= button->hoverScale;
-    t->scaleY *= button->hoverScale;
+    switch(button->animType){
+        case BUTTON_ANIM_NORMAL:
+            t->scaleX *= button->hoverProgress;
+            t->scaleY *= button->hoverProgress;
+            break;
+        case BUTTON_ANIM_PULL:
+            t->y += button->hoverProgress;
+            break;
+        default:
+            break;
+    }
 }
 
 static void ui_button_draw(UIElement* e, UITransform *transform) {
@@ -163,7 +197,7 @@ static void ui_button_destroy(UIElement *e) {
 static void ui_button_on_disable(UIElement *e) {
     UIButton *button = (UIButton *) e;
     button->hovered = false;
-    button->hoverScale = 1.f;
+    button->hoverProgress = 1.f;
     button->hoverTimer = 0.f;
 }
 
@@ -206,7 +240,7 @@ UIButton *ui_create_button(UIScreen *screen) {
 
     ui_element_apply_default_properties(&e->base, screen);
 
-    e->hoverScale = 1.f;
+    e->hoverProgress = 1.f;
     e->hoverFactor = 1.f;
 
     pressedKey = false;
@@ -238,6 +272,8 @@ UIElement *ui_create_button_from_props(UIScreen *screen, const UIPropertyList *p
     button->hoverFactor = ui_prop_float(props, "hoverFactor", 1);
     
     button->keyBinds = ui_prop_bitfield(props, "keyBinds", keybind_table, ARRAY_LEN(keybind_table));
+
+    button->animType = ui_prop_int_enum(props, "anim", button_anim_enum, ARRAY_LEN(button_anim_enum), BUTTON_ANIM_NORMAL);
     
     return &button->base;
 }

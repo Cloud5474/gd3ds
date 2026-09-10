@@ -49,7 +49,7 @@ static void ui_window_button_destroy(UIElement *e) {
 static void ui_window_button_on_disable(UIElement *e) {
     UIButton *button = (UIButton *) e;
     button->hovered = false;
-    button->hoverScale = 1.f;
+    button->hoverProgress = 1.f;
     button->hoverTimer = 0.f;
 }
 
@@ -81,7 +81,7 @@ UIWindowButton *ui_create_window_button(UIScreen *screen) {
 
     ui_element_apply_default_properties(&button->base, screen);
     
-    button->hoverScale = 1;
+    button->hoverProgress = 1;
     button->hoverFactor = 1;
 
     ui_window_button_set_tint(e, C2D_Color32(255, 255, 255, 255));
