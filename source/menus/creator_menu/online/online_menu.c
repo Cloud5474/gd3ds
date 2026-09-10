@@ -18,6 +18,7 @@
 
 #include "menus/core/ui_screen.h"
 #include "menus/core/common_setters.h"
+#include "menus/core/ui_element.h"
 #include "menus/components/ui_window_button.h"
 #include "menus/components/ui_list.h"
 #include "menus/components/ui_image.h"
@@ -113,19 +114,6 @@ static void action_open_online_level_menu(UIElement* e, const UIPropertyList *ar
     ui_stack_push(&online_level_menu_def, ANIM_NONE, ANIM_NONE, PUSH_ROOT);
 }
 
-static void action_open_version_warning(UIElement *e, const UIPropertyList *args) {
-    VersionWarningData *data = e->userdata;
-    if (data) {
-        char buffer[256];
-        if (data->wasUpdated) {
-            snprintf(buffer, sizeof(buffer), "This level was uploaded <#ffff00>before or in</> %.1f,\nbut was updated in a later version. It\nmight not be <#60abef>playable</>.", GD_VERSION);
-        } else {
-            snprintf(buffer, sizeof(buffer), "This level was uploaded <#ff0000>after</> %.1f.\nIt will most likely <#ff00ff>not be playable</>.", GD_VERSION);
-        }
-        action_open_info_card_text(buffer);
-    }
-}
-
 static void update_arrows(UIScreen *s) {
     if (searchEntriesLength == page_entry->amount) ui_run_func_on_tag(s, "nextpage", ui_enable_element); else ui_run_func_on_tag(s, "nextpage", ui_disable_element);
     if ((filters.currentPage) >= 1) ui_run_func_on_tag(s, "prevpage", ui_enable_element); else ui_run_func_on_tag(s, "prevpage", ui_disable_element);
@@ -134,6 +122,42 @@ static void update_arrows(UIScreen *s) {
     snprintf(pageInfo, 42 - 1, "%d to %d of %d", page_entry->currentOffset + 1, page_entry->currentOffset + page_entry->amount, page_entry->totalPages * page_entry->amount - 1);
     ui_label_set_text(page_info_label, pageInfo);
 }
+
+static void action_change_page(UIElement* e, const UIPropertyList *args) {
+    filters.currentPage += ui_prop_int(&e->custom_properties, "page", 0);
+    search_needs_refresh = true;
+    update_arrows(e->screen);
+    thread = create_network_thread(&search_task);
+    ui_enable_element((UIElement *) spinner);
+    if (list) ui_list_reset(list);
+}
+
+static void action_version_warning(UIElement* e, const UIPropertyList *args){
+    VersionWarningData *e_data = e->userdata;
+    if(!e_data) return;
+
+    char buffer[256];
+    if (e_data->wasUpdated) {
+        snprintf(buffer, sizeof(buffer), "This level was uploaded <#60abef>before or in</> %.1f,\nbut was updated in a later version. It\n<#ffa54b>might not be playable</>.", GD_VERSION);
+    } else {
+        snprintf(buffer, sizeof(buffer), "This level was uploaded <#60abef>after</> %.1f.\nIt will most likely <#f25149>not be playable</>.", GD_VERSION);
+    }
+
+    InfoCardData *data = malloc(sizeof(InfoCardData));
+    if(!data) return;
+
+    data->text = strdup(buffer);
+    data->copied = true;
+
+    ui_stack_push_data(data);
+}
+
+static UIActionDef online_actions[] = {
+    { "open_level_menu", action_open_online_level_menu },
+    { "changepage", action_change_page },
+    { "clear_data", action_clear_data },
+    { "open_version_warning", action_version_warning }
+};
 
 static void populate_list() {
     ui_disable_element((UIElement *) spinner);
@@ -393,7 +417,12 @@ static void populate_list() {
                     if (tmp > 120) tmp = 120;
                     ui_element_set_position((UIElement *)v_warn_button, -list_width + 48 + tmp + 10, -17);
                     ui_element_set_scale((UIElement *)v_warn_button, 0.3f);
-                    ui_element_set_action((UIElement *)v_warn_button, action_open_version_warning);
+                    v_warn_button->base.actions = parse_actions(
+                        "open_menu[screen=\"info_card\" btm_anim=\"zoom\"],open_version_warning", 
+                        online_actions, 
+                        ARRAY_LEN(online_actions), 
+                        &v_warn_button->base.action_count
+                    );
                     ui_element_set_userdata((UIElement *)v_warn_button, data);
                     ui_element_add_child(card, (UIElement *)v_warn_button);
                 }
@@ -445,21 +474,6 @@ static void handle_errors(int code) {
 
     }
 }
-
-static void action_change_page(UIElement* e, const UIPropertyList *args) {
-    filters.currentPage += ui_prop_int(&e->custom_properties, "page", 0);
-    search_needs_refresh = true;
-    update_arrows(e->screen);
-    thread = create_network_thread(&search_task);
-    ui_enable_element((UIElement *) spinner);
-    if (list) ui_list_reset(list);
-}
-
-static UIActionDef online_actions[] = {
-    {"open_level_menu", action_open_online_level_menu },
-    {"changepage", action_change_page },
-    {"clear_data", action_clear_data }
-};
 
 static void online_menu_init(UIScreen *s) {
     spinner = (UISpinner *) ui_get_element_by_tag(s, "spinner");

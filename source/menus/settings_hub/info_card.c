@@ -36,7 +36,9 @@ void info_card_init(UIScreen *s) {
 
 void info_card_free_data(void *data){
     InfoCardData *info_card_data = data;
-    if(info_card_data) free(info_card_data);
+    if(!info_card_data) return;
+    if(info_card_data->copied) free((void *)info_card_data->text);
+    free(info_card_data);
 }
 
 const UIScreenDefPair info_card_def = {
