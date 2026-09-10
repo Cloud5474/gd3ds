@@ -206,6 +206,15 @@ static void show_error_message() {
 
     snprintf(tmp, sizeof(tmp), "<red>ERROR</>:\n%s", message);
 
+    InfoCardData *ext_error_data = malloc(sizeof(InfoCardData));
+    if(!ext_error_data) return;
+
+    ext_error_data->text = strdup(tmp);
+    ext_error_data->copied = true;
+
+    ui_stack_push(&info_card_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+    ui_stack_push_data(ext_error_data);
+
     level_result = 0;
 }
 
@@ -214,16 +223,16 @@ static void external_levels_init(UIScreen *s) {
 
     load_level_folder(current_path, s);
 
-    if (level_result) {
-        show_error_message();
-    }
-
     play_menu_song();
 }
 
 static void external_levels_update(UIScreen *s, UIInput *i) {
     if (reload_pending) {
         load_level_folder(reload_path, s);
+        if (level_result) {
+            show_error_message();
+        }
+
         reload_pending = false;
     }
 }

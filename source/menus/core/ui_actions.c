@@ -7,6 +7,8 @@ const UIIntEnumEntry anim_enum[] = {
     { "slide_right", ANIM_SLIDE_RIGHT },
     { "zoom", ANIM_ZOOM },
     { "zoom_subtle", ANIM_ZOOM_SUBTLE },
+    { "bounce_down", ANIM_BOUNCE_DOWN },
+    { "bounce_down_slow", ANIM_BOUNCE_DOWN_SLOW },
 };
 
 const UIIntEnumEntry screen_enum[] = {

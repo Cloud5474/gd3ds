@@ -208,13 +208,31 @@ void ui_screen_open(UIScreen *screen, UIAnimation animation) {
     t->out_duration = 0.f;
     t->darken_frac = 1.f;
 
-    if(animation == ANIM_SLIDE_DOWN){
-        t->out_duration = 0.5;
-    } else{
-        t->darken_frac = 0.3;
-    }
-
     if(animation != ANIM_NONE) t->in_duration = 0.5;
+
+    switch (animation) {
+    case ANIM_SLIDE_DOWN:
+        t->out_duration = 0.5;
+        break;
+
+    case ANIM_BOUNCE_DOWN:
+        t->out_duration = 0.5;
+        t->darken_frac = 0.6;
+        break;
+
+    case ANIM_BOUNCE_DOWN_SLOW:
+        t->in_duration = 1;
+        t->out_duration = 1;
+        t->darken_frac = 0.6;
+        break;
+
+    default:
+        t->darken_frac = 0.3;
+        break;
+
+    };
+
+
 
     t->state = UI_TRANSITION_OPENING;
 
@@ -325,6 +343,23 @@ static void ui_screen_handle_anim(UIScreen* s, UITransform *root) {
 
             root->x = cx * (1.f - scale_value);
             root->y = cy * (1.f - scale_value);
+            break;
+        case ANIM_BOUNCE_DOWN:
+            if (s->transition.state == UI_TRANSITION_CLOSING) 
+            slide_value = 1.f - easeValue(EASE_IN_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 2.f); 
+            else 
+            slide_value = easeValue(BOUNCE_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 0.6f);
+
+            root->y = -(1.f - slide_value) * height;
+            break;
+        case ANIM_BOUNCE_DOWN_SLOW:
+            if (s->transition.state == UI_TRANSITION_CLOSING) 
+            slide_value = 1.f - easeValue(EASE_IN_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 2.f); 
+            else 
+            slide_value = easeValue(BOUNCE_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 1.f);
+            
+
+            root->y = -(1.f - slide_value) * height;
             break;
         case ANIM_SLIDE_RIGHT:
             slide_value = easeValue(ELASTIC_OUT, 0.f, 1.f, s->transition.time, s->transition.duration, 0.6f);
