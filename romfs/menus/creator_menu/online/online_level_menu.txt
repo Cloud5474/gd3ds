@@ -20,7 +20,7 @@ spinner x=160 y=70 id=53 sheet=1 scale=1 speed=240 tag="spinner"
 
 button x=235 y=23 id=323 sheet=0 scale=1 actions=open_menu[screen="icon_kit" btm_anim="bounce_down" top_anim="bounce_down"] anim="pull"
 
-button x=295 y=25 id=49 sheet=0 scale=1 actions=open_menu[screen="delete_level" btm_anim="zoom"]
+button x=295 y=25 id=49 sheet=0 scale=1 actions="delete"
 button x=295 y=75 id=202 sheet=0 scale=1 action="reload"
 button x=295 y=125 id=24 sheet=0 scale=1 actions=open_menu[screen="online_level_comments" btm_anim="zoom_subtle" top_anim="zoom_subtle"]
 

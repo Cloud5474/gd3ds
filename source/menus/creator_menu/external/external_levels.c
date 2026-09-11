@@ -204,13 +204,15 @@ static void show_error_message() {
         message = (char *) error_strings[message_id]; 
     }
 
-    snprintf(tmp, sizeof(tmp), "<red>ERROR</>:\n%s", message);
+    snprintf(tmp, sizeof(tmp), message);
 
     InfoCardData *ext_error_data = malloc(sizeof(InfoCardData));
     if(!ext_error_data) return;
 
     ext_error_data->text = strdup(tmp);
     ext_error_data->copied = true;
+    ext_error_data->title = strdup("Error");
+    ext_error_data->customTitle = true;
 
     ui_stack_push(&info_card_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
     ui_stack_push_data(ext_error_data);

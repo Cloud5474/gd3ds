@@ -4,7 +4,7 @@
 #include "menus/creator_menu/creator_menu.h"
 #include "menus/creator_menu/online/online_menu.h"
 #include "menus/settings_hub/credits.h"
-#include "menus/creator_menu/online/delete_online_level.h"
+#include "menus/creator_menu/online/two_option_pop_up.h"
 #include "menus/creator_menu/external/external_level_infobox.h"
 #include "menus/creator_menu/external/external_levels.h"
 #include "menus/creator_menu/external/external_popup.h"
@@ -56,7 +56,7 @@ const UIScreenDefPair *defs[] = {
     &length_filter_def,
     &search_filters_def,
     &server_switcher_def,
-    &delete_level_def,
+    &two_option_pop_up_def,
     &clear_filters_def,
     &online_infobox_def,
     &online_level_menu_def,

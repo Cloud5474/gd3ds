@@ -25,14 +25,13 @@
 #include "menus/creator_menu/external/external_level_infobox.h"
 #include "menus/creator_menu/online/online_level_comments.h"
 #include "menus/creator_menu/online/online_level_infobox.h"
-#include "menus/creator_menu/online/delete_online_level.h"
+#include "menus/creator_menu/online/two_option_pop_up.h"
 #include "menus/creator_menu/online/online_menu.h"
 #include "menus/creator_menu/external/external_popup.h"
-#include "menus/creator_menu/online/online_level_errorbox.h"
-#include "menus/creator_menu/online/online_level_warningbox.h"
 #include "menus/creator_menu/online/online_level_comments.h"
 #include "menus/settings_hub/songs.h"
 #include "menus/settings_hub/settings.h"
+#include "menus/settings_hub/info_card.h"
 
 #include "fonts/chatFont.h"
 #include "fonts/goldFont.h"
@@ -125,6 +124,16 @@ static UILabel *speed_label;
 static UILabel *song_size_label;
 static UIButton *song_download_button;
 
+bool in_warning = false;
+bool in_warning_screen = false;
+
+typedef enum WarningPopupStep {
+    WARNING_HIGH_OBJECT,
+    WARNING_VERSION,
+    WARNING_MISSING_SONG,
+    WARNING_DONE
+} WarningPopupStep;
+
 static void update_download_button(){
     bool song_exists = check_song(search_entries[curr_search_id].songId);
     if (song_exists) {
@@ -156,13 +165,12 @@ static void action_download(){
     }
 }
 
-static int warning_result = 0;
-
 static void action_play(UIElement *e, const UIPropertyList *args) {
     if (result == 0 || comes_from_levels) {
-        pressed_play = true;
         int song_id = search_entries[curr_search_id].songId;
         song_exists = song_id == 0 || check_song(song_id);
+        pressed_play = true;
+        in_warning = true;
     }
 }
 
@@ -174,6 +182,21 @@ static void action_open_info(UIElement *e, const UIPropertyList *args) {
 
 void delete_level(){
     // logic to delete level (post save revamp slop)
+}
+
+static void action_open_delete_level(){
+    if (result == 0 || comes_from_levels){
+        PopUpData *delete_level_data = malloc(sizeof(PopUpData));
+    if(!delete_level_data) return;
+
+    delete_level_data->text = strdup("Are you sure you want to\ndelete this level?");
+    delete_level_data->title = strdup("Delete Level");
+    delete_level_data->proceed_text = strdup("Yes");
+    delete_level_data->cancel_text = strdup("No");
+
+    ui_stack_push(&two_option_pop_up_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+    ui_stack_push_data(delete_level_data);
+    }
 }
 
 static void populate_level_info() {
@@ -346,8 +369,16 @@ static void handle_errors(int code) {
             snprintf(error_message, sizeof(error_message), "An unknown error has occurred.\nError code: %d", result);
             break;
     }
-    // in_errorbox = true;
-    // online_errorbox_init(error_message);
+    InfoCardData *data = malloc(sizeof(InfoCardData));
+    if(!data) return;
+
+    data->text = strdup(error_message);
+    data->title = strdup("Error");
+    data->customTitle = true;
+    data->copied = true;
+
+    ui_stack_push(&info_card_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+    ui_stack_push_data(data);
 }
 
 static void handle_song_codes(int code) {
@@ -424,7 +455,7 @@ static void action_refresh_level(UIElement *e, const UIPropertyList *props) {
 
 static void play_level() {
     // play_flag = true;
-    // play_sfx(&play_sound, 1);
+    play_sfx(&play_sound, 1);
 
     // state.custom_level = true;
     // state.online_level = true;
@@ -435,18 +466,11 @@ static void play_level() {
 
 static UIActionDef online_level_actions[] = {
     {"info", action_open_info },
-    {"delete", delete_level},
+    {"delete", action_open_delete_level},
     {"reload", action_refresh_level },
     {"play", action_play },
     {"download", action_download },
 };
-
-typedef enum WarningPopupStep {
-    WARNING_HIGH_OBJECT,
-    WARNING_VERSION,
-    WARNING_MISSING_SONG,
-    WARNING_DONE
-} WarningPopupStep;
 
 static void advance_warning_step() {
     int obj_count = (is_N3DS ? 44000 : 14000);
@@ -464,42 +488,64 @@ static void advance_warning_step() {
         warning_step = WARNING_DONE;
 }
 
-static void handle_warnings() {
-    // if (warning_result == 1) {
-    //     pressed_play = false;
-    //     warning_step = WARNING_HIGH_OBJECT;
-    //     warning_result = 0;
-    //     return;
-    // } else if (warning_result == 2) {
-    //     warning_step++;
-    //     warning_result = 0;
-    // }
+//this is almost completely broken
 
-    // advance_warning_step();
+static void handle_warnings() {
+    if (pop_up_result == 1) {
+        warning_step++;
+        in_warning_screen = false;
+        pop_up_result = 0;
+    } else if (pop_up_result == 2){
+        pressed_play = false;
+        warning_step = WARNING_HIGH_OBJECT;
+        in_warning = false;
+        pop_up_result = 0;
+        return;
+    }
+
     
-    // if (!in_warningbox) {
-    //     switch (warning_step) {
-    //         case WARNING_HIGH_OBJECT:
-    //             warning_result = 0;
-    //             online_level_warningbox_init("High objects", "This level has a <#ffa54b>high object</> count\nand might not be <#ff5a5a>fully playable</>.");
-    //             in_warningbox = true;
-    //             break;
-    //         case WARNING_VERSION:
-    //             warning_result = 0;
-    //             online_level_warningbox_init("Version warning", "This level was made or updated in an\n<#ffa54b>incompatible game version</>. It might\nnot be <#ff5a5a>fully playable</>.");
-    //             in_warningbox = true;
-    //             break;
-    //         case WARNING_MISSING_SONG:
-    //             warning_result = 0;
-    //             online_level_warningbox_init("Missing song", "This level uses a <#4c8cc7>custom song</> that\nhas not been <#36c244>downloaded</> yet. Play\nwithout music?");
-    //             in_warningbox = true;
-    //             break;
-    //         case WARNING_DONE:
-    //             pressed_play = false;
-    //             warning_step = 0;
-    //             play_level();
-    //     }
-    // }
+    if (!in_warning_screen && pop_up_result == 0) {
+        advance_warning_step();
+        PopUpData *warning_data = malloc(sizeof(PopUpData));
+        if (!warning_data) return;
+
+        warning_data->proceed_text = strdup("Play");
+        warning_data->cancel_text = strdup("Cancel");
+
+        switch (warning_step) {
+            case WARNING_HIGH_OBJECT:
+                warning_data->text = strdup("This level has a <#ffa54b>high object</> count\nand might not be <#ff5a5a>fully playable</>.");
+                warning_data->title = strdup("High objects");
+
+                ui_stack_push(&two_option_pop_up_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+                ui_stack_push_data(warning_data);
+                in_warning_screen = true;
+                break;
+            case WARNING_VERSION:
+                warning_data->text = strdup("This level was made or updated in an\n<#ffa54b>incompatible game version</>. It might\nnot be <#ff5a5a>fully playable</>.");
+                warning_data->title = strdup("Version warning");
+
+                ui_stack_push(&two_option_pop_up_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+                ui_stack_push_data(warning_data);
+                in_warning_screen = true;
+                break;
+            case WARNING_MISSING_SONG:
+                warning_data->text = strdup("This level uses a <#4c8cc7>custom song</> that\nhas not been <#36c244>downloaded</> yet. Play\nwithout music?");
+                warning_data->title = strdup("Missing song");
+
+                ui_stack_push(&two_option_pop_up_def, ANIM_ZOOM, ANIM_ZOOM, PUSH_NEXT);
+                ui_stack_push_data(warning_data);
+                in_warning_screen = true;
+                break;
+            case WARNING_DONE:
+                pressed_play = false;
+                in_warning = false;
+                warning_step = 0;
+                free(warning_data);
+                in_warning_screen = false;
+                play_level();
+        }
+    }
 }
 
 static void online_level_init_top (UIScreen *s) {
@@ -532,7 +578,8 @@ static void online_level_init (UIScreen *s) {
     passed_highobj_warning = false;
     passed_version_warning = false;
     passed_song_warning = false;
-    warning_result = 0;
+    in_warning = false;
+    in_warning_screen = false;
     warning_step = 0;
     result = -2;
     refresh = false;
@@ -577,7 +624,7 @@ static void online_level_init (UIScreen *s) {
 }
 
 static void online_level_menu_update(UIScreen *s, UIInput *i) {
-     if (song_data_task.finished) {
+        if (song_data_task.finished) {
             int song_data_result = -3;
             song_data_result = song_data_task.result;
             // Handle result
@@ -629,7 +676,7 @@ static void online_level_menu_update(UIScreen *s, UIInput *i) {
             level_task.finished = false;
         }
 
-        if (pressed_play) {
+        if (pressed_play && !in_warning_screen) {
             handle_warnings();
         }
 
@@ -657,16 +704,6 @@ static void online_level_menu_exit() {
 
     comes_from_levels = false;
 }
-// this needs to be converted to work with the post screen revamp level menu lol
-// if (in_warningbox)
-//         {
-//             int returned = online_level_warningbox_loop();
-//             if (returned != 0)
-//             {
-//                 in_warningbox = false;
-//                 warning_result = returned;
-//             }
-//         }
 
 const UIScreenDefPair online_level_menu_def = {
     .name = "online_level_menu",

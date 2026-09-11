@@ -55,9 +55,9 @@ static void handle_comment_errors(int code) {
     char temp[64];
     switch (code) {
         case -2:
-            //gdps returns -2 when no comments are found idky 
-            if (gdps) break;
-            ui_label_set_text(error_label, "An unknown error has\n occured.");
+            //gdps returns -2 when no comments are found idky (update, gd does this too i should change the unknown error code later)
+            // if (gdps) break;
+            // ui_label_set_text(error_label, "An unknown error has\n occured.");
             break;
         case -1:
             break;
