@@ -12,6 +12,8 @@
 #include "main.h"
 #include "ui_slider.h"
 
+#include "menus/core/screen_navigation.h"
+
 const UIIntEnumEntry button_anim_enum[] = {
     { "normal", BUTTON_ANIM_NORMAL },
     { "pull", BUTTON_ANIM_PULL },
@@ -20,6 +22,16 @@ const UIIntEnumEntry button_anim_enum[] = {
 
 //prevents two or more buttons from being pressed at the exact same time
 static int pressedKey;
+
+void ui_button_pressed_key(UIElement *e){
+    UIButton *button = (UIButton *) e;
+
+    button->pressed = true;
+    button->hovered = true;
+    button->hoverTimer = 0.2f;
+    button->keyPressTimer = 45;
+    pressedKey = true;
+}
 
 void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
     UIButton *button = (UIButton *) e;
@@ -31,12 +43,8 @@ void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform) {
         validKeybinds &= ~(KEY_B | KEY_X | KEY_L | KEY_R);
     }
 
-    if((touch->down & validKeybinds) > 0){
-        button->pressed = true;
-        button->hovered = true;
-        button->hoverTimer = 0.2f;
-        button->keyPressTimer = 45;
-        pressedKey = true;
+    if((touch->down & validKeybinds) > 0 && !is_navigating){
+        ui_button_pressed_key(e);
     }
 
     if(button->keyPressTimer > 0){
@@ -245,6 +253,8 @@ UIButton *ui_create_button(UIScreen *screen) {
 
     pressedKey = false;
 
+    e->base.navigable = true;
+    
     return e;
 }
 
@@ -254,6 +264,8 @@ UIElement *ui_create_button_from_props(UIScreen *screen, const UIPropertyList *p
     if (!button) return NULL;
 
     ui_element_apply_properties(&button->base, screen, props);
+
+    button->base.navigable = ui_prop_bool(props, "navigable", true);
 
     button->invisible = ui_prop_bool(props, "invisible", false);
 

@@ -4,6 +4,7 @@
 #include "menus/core/ui_element.h"
 #include "ui_screen.h"
 #include "screen_definitions.h"
+#include "screen_navigation.h"
 #include "mp3_player.h"
 #include "fonts/bigFont.h"
 #include <string.h>
@@ -95,6 +96,8 @@ static void close_root(){
     stack->active_count = stack->current_root - new_root;
 
     stack->current_root = new_root;
+
+    ui_switch_navigation_screen(ui_stack_get_max_screen(SCREEN_BTM));
 }
 
 static bool resize_stack(size_t new_capacity){
@@ -233,6 +236,13 @@ void ui_stack_push_root_instant(const UIScreenDefPair *defs){
 
     finish_animation(top);
     finish_animation(btm);
+
+    top->selected = (NavigationEntry) { 0 };
+    top->last_selected = (NavigationEntry) { 0 };
+
+    navigation_switching_screen = true;
+
+    ui_switch_navigation_screen(btm);
 }
 
 void ui_stack_push_game_state(int game_state){
@@ -325,6 +335,11 @@ static void update_opening(){
 
         ui_screen_open(top, push->top_anim);
         ui_screen_open(btm, push->btm_anim);
+
+        top->selected = (NavigationEntry) { 0 };
+        top->last_selected = (NavigationEntry) { 0 };
+
+        navigation_switching_screen = true;
     }
 }
 
@@ -347,6 +362,8 @@ static void update_closing(){
 
             if(stack->push.type == PUSH_AFTER_CLOSE){
                 stack->push.push_now = true;
+            } else{
+                ui_switch_navigation_screen(ui_stack_get_max_screen(SCREEN_BTM));
             }
         }
     }
@@ -549,6 +566,10 @@ void ui_stack_clear(){
     *stack = (UIStack){ 0 };
 }
 
+UIScreen *ui_stack_get_max_screen(Screens screen){
+    return &stack->screen_stack[ui_stack_max_index()]->screens[screen];
+}
+
 UIScreen *ui_stack_get_screen(const char *name, Screens screen) {
     UIScreenPair *pair = NULL;
 
@@ -565,4 +586,8 @@ UIScreen *ui_stack_get_screen(const char *name, Screens screen) {
     if(!pair) return NULL;
     
     return &pair->screens[screen];
+}
+
+bool ui_stack_restrict_navigation(){
+    return stack->fade != FADE_STATUS_NONE || stack->root_transition != UI_TRANSITION_NONE || stack->push.push_now;
 }

@@ -80,6 +80,8 @@ UIColor *ui_create_color_button(UIScreen *screen) {
     C2D_SpriteFromSheet(&button->image.sprite, ui_sheet, 35);
     C3D_TexSetFilter(button->image.sprite.image.tex, GPU_LINEAR, GPU_LINEAR);
 
+    button->base.navigable = true;
+
     return e;
 }
 
@@ -91,6 +93,8 @@ UIElement *ui_create_color_button_from_props(UIScreen *screen, const UIPropertyL
     UIButton *button = (UIButton *) color_button;
 
     ui_element_apply_properties(&button->base, screen, props);
+
+    button->base.navigable = ui_prop_bool(props, "navigable", true);
     
     ui_element_set_size(&button->base, 30, 30);
 

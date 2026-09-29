@@ -4,6 +4,7 @@
 #include "menus/core/common_setters.h"
 #include "ui_element.h"
 #include "ui_screen.h"
+#include "screen_navigation.h"
 
 #include "menus/components/ui_button.h"
 #include "menus/components/ui_image.h"
@@ -290,6 +291,8 @@ void ui_screen_update_transition(UIScreen *screen, float dt) {
 
         if (t->state == UI_TRANSITION_CLOSING) {
             screen->closing = true;
+        } else if(screen->isBottom){
+            ui_switch_navigation_screen(screen);
         }
     }
 }
@@ -472,36 +475,6 @@ char* next_token(char** cursor) {
     }
 
     return start;
-}
-
-// Generic element search
-UIElement *ui_find_element(UIElement *element, UIElementPredicate predicate, void *userdata) {
-    if (!element) return NULL;
-
-    // Check this element
-    if (predicate(element, userdata))
-        return element;
-
-    // Check children
-    for (UIElement *child = element->first_child; child; child = child->next_sibling) {
-        UIElement *found = ui_find_element(child, predicate, userdata);
-
-        if (found) return found;
-    }
-
-    // Nothing in this element
-    return NULL;
-}
-
-// Generic element visitor
-void ui_visit_tree(UIElement *element, UIElementVisitor visitor, void *userdata) {
-    if (!element) return;
-
-    visitor(element, userdata);
-
-    for (UIElement *child = element->first_child; child; child = child->next_sibling) {
-        ui_visit_tree(child, visitor, userdata);
-    }
 }
 
 static bool has_tag(UIElement *element, void *userdata) {

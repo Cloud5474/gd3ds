@@ -12,6 +12,7 @@
 #include "ui_list.h"
 #include "utils/gfx.h"
 #include <stdlib.h>
+#include "menus/core/screen_navigation.h"
 
 void ui_list_reset(UIList *list) {
     if (!list) return;
@@ -90,33 +91,35 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
         l->lastTouchY = touch->touchPosition.py;
     }
 
-    if(abs(touch->cpad.dy) > 48){
-        l->scrollY += (touch->cpad.dy / 25);
-    }
+    if(!is_navigating){
+        if(abs(touch->cpad.dy) > 48){
+            l->scrollY += (touch->cpad.dy / 25);
+        }
 
-    if(touch->down & (KEY_UP | KEY_DOWN)){
-        l->dpadHeldTime = 0;
-    }
+        if(touch->down & (KEY_UP | KEY_DOWN)){
+            l->dpadHeldTime = 0;
+        }
 
-    if(l->dpadHeldTime > 60){
-        l->dpadHeldTime = 60;
-    }
+        if(l->dpadHeldTime > 60){
+            l->dpadHeldTime = 60;
+        }
 
-    if(touch->held & KEY_UP){
-        l->scrollY += 4;
-        if(l->dpadHeldTime >= 60){
+        if(touch->held & KEY_UP){
             l->scrollY += 4;
-        }
+            if(l->dpadHeldTime >= 60){
+                l->scrollY += 4;
+            }
 
-        l->dpadHeldTime++;
-    }
-    if(touch->held & KEY_DOWN){
-        l->scrollY -= 4;
-        if(l->dpadHeldTime >= 60){
+            l->dpadHeldTime++;
+        }
+        if(touch->held & KEY_DOWN){
             l->scrollY -= 4;
-        }
+            if(l->dpadHeldTime >= 60){
+                l->scrollY -= 4;
+            }
 
-        l->dpadHeldTime++;
+            l->dpadHeldTime++;
+        }
     }
 
     // Handle releasing dragging

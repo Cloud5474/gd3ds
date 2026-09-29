@@ -40,6 +40,7 @@
 #include "menus/gameplay.h"
 #include "menus/creator_menu/soggy.h"
 #include "menus/core/screen_definitions.h"
+#include "menus/core/screen_navigation.h"
 #include "menus/settings_hub/settings.h"
 #include "menus/creator_menu/creator_menu.h"
 #include "menus/creator_menu/external/external_levels.h"
@@ -646,6 +647,8 @@ void ui_loop(){
     u64 lastTime = svcGetSystemTick();
 
     ui_stack_set_stack(&menu_stack);
+    
+    ui_switch_navigation_screen(ui_stack_get_max_screen(SCREEN_BTM));
 
     while (aptMainLoop()) {
         u64 now = svcGetSystemTick();
@@ -669,6 +672,7 @@ void ui_loop(){
         hidCircleRead(&touch.cpad);
 
         ui_stack_update(&touch);
+        ui_navigation_update(&touch);
         
         // Frees a render target, so keep it out of the frame below
         update_stereo_target();
@@ -686,6 +690,8 @@ void ui_loop(){
         if(is_saving()) {
             draw_text(&bigFont_fontCharset, &bigFont_sheet, 0, 234, 0.5f, 0.5f, 0, false, "Saving...");
         }
+
+        ui_navigation_draw();
 
         draw_stack_fade();
 

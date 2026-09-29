@@ -91,6 +91,8 @@ UICheckBox *ui_create_checkbox(UIScreen *screen) {
 
     set_checkbox_texture(e, e->checked);
 
+    button->base.navigable = true;
+
     return e;
 }
 
@@ -102,6 +104,8 @@ UIElement *ui_create_checkbox_from_props(UIScreen *screen, const UIPropertyList 
     UIButton *button = (UIButton* ) checkbox;
 
     ui_element_apply_properties(&button->base, screen, props);
+
+    button->base.navigable = ui_prop_bool(props, "navigable", true);
     
     checkbox->checked = ui_prop_bool(props, "checked", false);
     

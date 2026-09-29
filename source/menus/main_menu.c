@@ -51,8 +51,8 @@ static float bg_scroll = 0;
 bool old_wide;
 bool old_stereo;
 
-void action_open_info_card_text(const char *text) {
-    // ui_stack_push()
+void action_open_exit(){
+
 }
 
 void handle_title_screen_player(Player *player) {
@@ -221,12 +221,6 @@ static void main_menu_init_top(UIScreen *s){
 }
 
 static void main_menu_update(UIScreen *s, UIInput *input){
-    if (input->down & KEY_SELECT) {
-        ui_stack_push_game_state(STATE_EXIT);
-        stop_mp3();
-        return;
-    }
-
     if (settingsState.wideEnabled != old_wide || settingsState.stereoEnabled != old_stereo) {
         gspWaitForVBlank();
         apply_screen_modes();

@@ -39,6 +39,8 @@ typedef struct UITransform UITransform;
 typedef struct UIElement UIElement;
 typedef struct UIScreen UIScreen;
 
+typedef void (*UIElementVisitor)(UIElement *element, void *userdata);
+typedef bool (*UIElementPredicate)(UIElement *, void *);
 typedef void (*UIActionFn)(UIElement *e, const UIPropertyList *args);
 
 typedef struct UIAction {
@@ -65,6 +67,9 @@ UITransform ui_transform_combine(UITransform *parent, UIElement *e);
 void ui_update_tree(UIElement *e, UIInput *input, UITransform *parent);
 void ui_draw_tree(UIElement *e, UITransform *parent);
 void ui_destroy_tree(UIElement *e);
+
+UIElement *ui_find_element(UIElement *element, UIElementPredicate predicate, void *userdata);
+void ui_visit_tree(UIElement *element, UIElementVisitor visitor, void *userdata);
 
 // Premade functions for on "ui_run_func_on_tag"
 void ui_enable_element(UIElement *e);
@@ -113,6 +118,8 @@ struct UIElement {
     bool enabled;
 
     bool draws_children;
+
+    bool navigable;
 
     //array of actions to call
     UIAction *actions;

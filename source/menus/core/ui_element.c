@@ -92,6 +92,36 @@ void ui_destroy_tree(UIElement *e) {
     e->destroy(e);
 }
 
+// Generic element search
+UIElement *ui_find_element(UIElement *element, UIElementPredicate predicate, void *userdata) {
+    if (!element) return NULL;
+
+    // Check this element
+    if (predicate(element, userdata))
+        return element;
+
+    // Check children
+    for (UIElement *child = element->first_child; child; child = child->next_sibling) {
+        UIElement *found = ui_find_element(child, predicate, userdata);
+
+        if (found) return found;
+    }
+
+    // Nothing in this element
+    return NULL;
+}
+
+// Generic element visitor
+void ui_visit_tree(UIElement *element, UIElementVisitor visitor, void *userdata) {
+    if (!element) return;
+
+    visitor(element, userdata);
+
+    for (UIElement *child = element->first_child; child; child = child->next_sibling) {
+        ui_visit_tree(child, visitor, userdata);
+    }
+}
+
 void ui_enable_element(UIElement *e) { 
     e->enabled = true;
 
@@ -199,6 +229,8 @@ void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropert
     );
 
     e->custom_properties = ui_prop_list(props, "custom");
+
+    e->navigable = ui_prop_bool(props, "navigable", false);
 }
 
 void ui_element_apply_default_properties(UIElement *e, UIScreen *screen) {

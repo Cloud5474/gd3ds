@@ -74,6 +74,7 @@ void ui_stack_draw(Screens target);
 
 void ui_stack_clear();
 
+UIScreen *ui_stack_get_max_screen(Screens screen);
 UIScreen *ui_stack_get_screen(const char *name, Screens screen);
-UIScreen *ui_stack_get_screen_from_pair(UIScreenPair *pair, Screens screen);
-UIScreen *ui_stack_get_screen_relative(UIScreen *screen, Screens which);
+
+bool ui_stack_restrict_navigation();

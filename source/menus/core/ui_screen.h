@@ -76,6 +76,12 @@ typedef struct {
     void (*free_data)(void *data);
 } UIScreenDefPair;
 
+typedef struct {
+    UIElement *e;
+    UITransform t;
+    UIList *list;
+} NavigationEntry;
+
 typedef struct UIScreen {
     UIScreenPair *pair;
     const UIScreenDefinition *def;
@@ -90,10 +96,11 @@ typedef struct UIScreen {
 
     bool loaded:1;
     bool closing:1;
+
+    NavigationEntry selected;
+    NavigationEntry last_selected;
 } UIScreen;
 
-typedef void (*UIElementVisitor)(UIElement *element, void *userdata);
-typedef bool (*UIElementPredicate)(UIElement *, void *);
 typedef UIElement *(*UICreateFn)(UIScreen *screen, const UIPropertyList *);
 
 extern C2D_SpriteSheet ui_sheet;

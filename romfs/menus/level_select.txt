@@ -33,7 +33,7 @@ label x=160 y=183 text="0%" scale=0.4 align=CENTER tag="level_card,practiceprogr
 
 # duplicate menu
 
-windowbutton x=160 y=80 w=220 h=80 style=2 hoverFactor=0.5 tag="level_card_2,card_window_2"
+windowbutton x=160 y=80 w=220 h=80 style=2 hoverFactor=0.5 tag="level_card_2,card_window_2" navigable=0
 {
     label x=0 y=0 text="" align=CENTER tag="level_title_2" w=178
     image x=100 y=-30 id=408

@@ -129,6 +129,8 @@ UIElement *ui_create_icon_from_props(UIScreen *screen, const UIPropertyList *pro
 
     ui_element_apply_properties(&button->base, screen, props);
 
+    button->base.navigable = ui_prop_bool(props, "navigable", true);
+
     ui_element_set_size(&button->base, 30, 30);
     
     button->hoverFactor = ui_prop_float(props, "hoverFactor", 1);    
@@ -142,6 +144,8 @@ UIElement *ui_create_icon_from_props(UIScreen *screen, const UIPropertyList *pro
     ui_icon_set_p1(icon, ui_prop_color(props, "p1_color", ABGR8(175, 175, 175, 255)));
     ui_icon_set_p2(icon, ui_prop_color(props, "p2_color", ABGR8(255, 255, 255, 255)));
     ui_icon_set_glow(icon, ui_prop_color(props, "glow_color", ABGR8(255, 255, 255, 255)));
+
+    button->base.navigable = true;
 
     return &button->base;
 }

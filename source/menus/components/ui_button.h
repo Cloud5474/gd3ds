@@ -5,6 +5,7 @@
 #define BUTTON_HOVER_SCALE 1.25f
 #define BUTTON_HOVER_ANIM_TIME 0.4f
 
+void ui_button_pressed_key(UIElement *e);
 void ui_button_draw_text(UIElement *e, UITransform *transform);
 void ui_button_update(UIElement* e, UIInput* touch, UITransform *transform);
 
