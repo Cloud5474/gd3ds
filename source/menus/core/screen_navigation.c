@@ -10,6 +10,22 @@
 #define SELECTION_CORNER_H 27
 #define PADDING 5
 
+/*
+    TO DO:
+        LISTS:
+            -make them navigable, and exclude their children from navigable searches
+            -Clicking the A button with a list highlighted does one of two things:
+                -If it has children, select first child and limit navigation to list's 
+                children
+                -If it does not, set locked_selected to true and make it so that pressing
+                up/down simply scrolls the list
+        SLIDERS:
+            -make them navigable, and make it so that selectingn them sets locked_selected
+            to true and pressing left/right slides it up and down
+
+        locked_selected can be toggled off by pressing B
+*/
+
 typedef enum {
     DIR_NONE,
     DIR_UP,
@@ -24,6 +40,8 @@ static UIScreen *screen = NULL;
 bool is_navigating = false;
 static float nav_anim_progress = 0.f;
 static float selector_fade = 0.f;
+static UIList *list = NULL;
+bool locked_selected = false;
 
 static float get_entry_x(NavigationEntry entry){
     return entry.t.x;
@@ -72,8 +90,7 @@ static bool add_navigation_entry(
     size_t *count,
     size_t *capacity,
     UIElement *e,
-    UITransform *parent,
-    UIList *list
+    UITransform *parent
 ) {
     if (!e || !e->enabled) return true;
 
@@ -109,8 +126,7 @@ static bool add_navigation_entry(
                 count,
                 capacity,
                 child,
-                &world,
-                list ? list : NULL)) {
+                &world)) {
             return false;
         }
     }
@@ -147,8 +163,7 @@ static NavigationEntry *get_navigation_entries(UIElement **elements, size_t e_co
                 &count,
                 &capacity,
                 elements[i],
-                &identity,
-                NULL)) {
+                &identity)) {
 
             free(navigable);
             *out_count = 0;
