@@ -205,6 +205,7 @@ UIElement *ui_create_list_from_props(UIScreen *screen, const UIPropertyList *pro
     if (!list) return NULL;
     
     ui_element_apply_properties(&list->base, screen, props);
+    list->base.navigable = ui_prop_bool(props, "navigable", true);
 
     ui_list_set_bg_color(list, ui_prop_color(props, "bgColor", ABGR8(0, 0, 0, 0)));
 

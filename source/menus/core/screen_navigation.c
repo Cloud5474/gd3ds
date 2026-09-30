@@ -40,7 +40,6 @@ static UIScreen *screen = NULL;
 bool is_navigating = false;
 static float nav_anim_progress = 0.f;
 static float selector_fade = 0.f;
-static UIList *list = NULL;
 bool locked_selected = false;
 
 static float get_entry_x(NavigationEntry entry){
@@ -115,10 +114,12 @@ static bool add_navigation_entry(
 
         (*entries)[(*count)++] = (NavigationEntry) {
             .e = e,
-            .t = world,
-            .list = list
+            .t = world
         };
     }
+
+    //list children are not included in base navigation entries (the list must be selected)
+    if(e->type == UI_LIST) return true;
 
     for (UIElement *child = e->first_child; child; child = child->next_sibling) {
         if (!add_navigation_entry(
@@ -430,6 +431,11 @@ void ui_navigation_update(UIInput *input){
                 ui_button_pressed_key(screen->selected.e);
                 ui_set_checkbox_checked((UICheckBox *)screen->selected.e, !((UICheckBox *)screen->selected.e)->checked);
                 break; 
+            case UI_LIST:
+                
+                break;
+            case UI_SLIDER:
+                break;
             default:
                 break;
         }
