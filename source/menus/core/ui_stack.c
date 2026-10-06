@@ -51,6 +51,7 @@ static void unload_screenpair(int index){
 }
 
 static void open_root(){
+    /*
     //unload all active layers below new root
     for(size_t i = ui_stack_min_index(); i <= ui_stack_max_index(); i++){
         //basic unload of previous screens (do not unload entire screenpair)
@@ -60,6 +61,7 @@ static void open_root(){
             ui_unload_screen(screen);
         }
     }
+    */
 
     size_t index = ui_stack_next_index();
 
@@ -88,8 +90,7 @@ static void close_root(){
         UIScreenPair *pair = stack->screen_stack[i];
         for(int j = 0; j < 2; j++){
             UIScreen *screen = &pair->screens[j];
-            ui_load_screen(screen);
-            finish_animation(screen);
+            if(screen->def->focus) screen->def->focus(screen);
         }
     }
 
@@ -234,6 +235,9 @@ void ui_stack_push_root_instant(const UIScreenDefPair *defs){
     ui_load_screen(top);
     ui_load_screen(btm);
 
+    if(top->def->focus) top->def->focus(top);
+    if(btm->def->focus) btm->def->focus(btm);
+
     finish_animation(top);
     finish_animation(btm);
 
@@ -336,8 +340,11 @@ static void update_opening(){
         ui_screen_open(top, push->top_anim);
         ui_screen_open(btm, push->btm_anim);
 
-        top->selected = (NavigationEntry) { 0 };
-        top->last_selected = (NavigationEntry) { 0 };
+        if(top->def->focus) top->def->focus(top);
+        if(btm->def->focus) btm->def->focus(btm);
+
+        top->selected = get_empty_navigation_entry();
+        top->last_selected = get_empty_navigation_entry();
 
         navigation_switching_screen = true;
     }

@@ -61,10 +61,14 @@ typedef struct {
 typedef struct {
     const char* path;
 
+    //called on load
     void (*init)(UIScreen *);
     void (*update)(UIScreen *, UIInput *);
     void (*draw)(UIScreen *, UIDrawPhase);
+    //called on unload
     void (*exit)(UIScreen *);
+    //called when a screen is opened OR refocused (made active) when a root above is closed
+    void (*focus)(UIScreen *);
 
     UIActionList action_list;
 } UIScreenDefinition;
@@ -80,6 +84,10 @@ typedef struct {
     UIElement *e;
     UITransform t;
     UIList *list;
+    UITransform list_t;
+
+    int list_entry_top;
+    int list_entry_bottom;
 } NavigationEntry;
 
 typedef struct UIScreen {

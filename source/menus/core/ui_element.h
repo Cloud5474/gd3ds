@@ -299,6 +299,7 @@ typedef struct {
     UIElement base;
 
     int scrollY;
+    int scrollSmoothY;
     int contentHeight;
     int lastTouchY;
 
@@ -307,6 +308,9 @@ typedef struct {
     int dpadHeldTime;
 
     u32 background_color;
+
+    //true when a list needs to be deselected for navigation for whatever reason (usually list reset)
+    bool nav_deselect;
 } UIList;
 
 typedef struct {

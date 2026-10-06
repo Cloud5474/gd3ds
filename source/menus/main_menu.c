@@ -179,6 +179,11 @@ static void handle_players() {
 static void main_menu_init(UIScreen *s){
     play_menu_song();
 
+    old_wide = settingsState.wideEnabled;
+    old_stereo = settingsState.stereoEnabled;
+}
+
+static void main_menu_focus(UIScreen *s){
     main_menu_color_index = 0;
     u32 color = default_lvl_colors[main_menu_color_index % NUM_MENU_COLORS];
     main_menu_color_index++;
@@ -207,9 +212,6 @@ static void main_menu_init(UIScreen *s){
     state.current_player = 0;
     trail = &trail_p1;
     wave_trail = &wave_trail_p1;
-
-    old_wide = settingsState.wideEnabled;
-    old_stereo = settingsState.stereoEnabled;
 }
 
 static void main_menu_init_top(UIScreen *s){
@@ -381,6 +383,7 @@ const UIScreenDefPair main_menu_def = {
         .init = main_menu_init,
         .update = main_menu_update,
         .draw = main_menu_draw,
-        .exit = main_menu_exit
+        .exit = main_menu_exit,
+        .focus = main_menu_focus
     }
 };

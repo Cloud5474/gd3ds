@@ -16,8 +16,6 @@
 
 void ui_list_reset(UIList *list) {
     if (!list) return;
-    
-    list->scrollY = 0;
 
     UIElement *child = list->base.first_child;
 
@@ -32,6 +30,9 @@ void ui_list_reset(UIList *list) {
     
     list->contentHeight = 0;
     list->lastTouchY = 0;
+
+    //keeping the list selected after it reset would most certainly corrupt the NavigationEntry
+    list->nav_deselect = true;
 }
 
 
@@ -136,6 +137,12 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
         if (l->scrollY > 0) l->scrollY = 0;
         if (l->scrollY < minScroll) l->scrollY = minScroll;
     }
+
+    float smoothing = 10.0f;
+    float t = 1.0f - expf(-smoothing * delta);
+
+    l->scrollSmoothY += (l->scrollY - l->scrollSmoothY) * t;
+
 }
 
 static void ui_list_draw(UIElement* e, UITransform *transform) {
@@ -153,7 +160,7 @@ static void ui_list_draw(UIElement* e, UITransform *transform) {
     // Enable clipping
     set_scissor(GPU_SCISSOR_NORMAL, scissor_x, scissor_y, width, height);
 
-    float y = l->scrollY - e->h * 0.5f;
+    float y = l->scrollSmoothY - e->h * 0.5f;
 
     for (UIElement *item = e->first_child; item; item = item->next_sibling) {
         UITransform t = *transform;

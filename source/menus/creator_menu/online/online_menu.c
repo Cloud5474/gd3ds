@@ -425,7 +425,41 @@ static void populate_list() {
                 ui_element_add_child(card, (UIElement *)like_icon);
             }
 
-            // Exclamation mark
+            UIWindowButton *button = ui_create_window_button(&default_screen);
+            if (button) {
+                // Store in the user data
+                OnlineCardData *data = malloc(sizeof(*data));
+
+                data->entryId = i;
+                data->levelId = entry->levelId;
+                data->redownload = false;
+
+                SavedLevelDataEntry *saved_data = get_saved_level_data(entry->levelId);
+                if (!saved_data) {
+                    ui_window_button_set_style(button, 10);
+                    ui_button_set_text((UIButton *)button, "Get");
+                    button->base.textScale = 0.48f;
+                } else {
+                    if (saved_data->search_entry.levelVersion != entry->levelVersion) {
+                        ui_window_button_set_style(button, 14);
+                        ui_button_set_text((UIButton *)button, "Update");
+                        button->base.textScale = 0.30f;
+                        data->redownload = true;
+                    } else {
+                        ui_window_button_set_style(button, 5);
+                        ui_button_set_text((UIButton *)button, "View");
+                        button->base.textScale = 0.48f;
+                    }
+                }
+
+                ui_element_set_position((UIElement *)button, list_width - 32, 0);
+                ui_element_set_size((UIElement *)button, 48, 28);
+                ui_element_set_action((UIElement *)button, action_open_online_level_menu);
+                ui_element_set_userdata((UIElement *) button, data);
+                ui_element_add_child(card, (UIElement *)button);
+            }
+
+                        // Exclamation mark
             float version = derive_gj_version(entry->gameVersion);
             if (version > GD_VERSION) {
                 UIButton *v_warn_button = ui_create_button(&default_screen);
@@ -454,41 +488,6 @@ static void populate_list() {
                     ui_element_set_userdata((UIElement *)v_warn_button, data);
                     ui_element_add_child(card, (UIElement *)v_warn_button);
                 }
-            }
-
-            UIWindowButton *button = ui_create_window_button(&default_screen);
-            if (button) {
-                // Store in the user data
-                OnlineCardData *data = malloc(sizeof(*data));
-
-                data->entryId = i;
-                data->levelId = entry->levelId;
-                data->redownload = false;
-
-                SavedLevelDataEntry *saved_data = get_saved_level_data(entry->levelId);
-                if (!saved_data) {
-                    ui_window_button_set_style(button, 10);
-                    ui_button_set_text((UIButton *)button, "Get");
-                    button->base.textScale = 0.48f;
-                } else {
-                    if (saved_data->search_entry.levelVersion != entry->levelVersion) {
-                        ui_window_button_set_style(button, 14);
-                        ui_button_set_text((UIButton *)button, "Update");
-                        button->base.textScale = 0.30f;
-                        data->redownload = true;
-                    } else {
-                        ui_window_button_set_style(button, 5);
-                        ui_button_set_text((UIButton *)button, "View");
-                        button->base.textScale = 0.48f;
-                    }
-                }
-
-
-                ui_element_set_position((UIElement *)button, list_width - 32, 0);
-                ui_element_set_size((UIElement *)button, 48, 28);
-                ui_element_set_action((UIElement *)button, action_open_online_level_menu);
-                ui_element_set_userdata((UIElement *) button, data);
-                ui_element_add_child(card, (UIElement *)button);
             }
 
             LevelDataEntry *level_data = get_online_level_data(entry->levelId);
@@ -559,6 +558,10 @@ static void online_menu_init(UIScreen *s) {
     play_menu_song();
 }
 
+static void online_menu_focus(UIScreen *s){
+    //reset all the view/get buttons
+}
+
 static void online_menu_update(UIScreen *s, UIInput *i) {
     // Run when finished
         if (search_task.finished) {
@@ -595,6 +598,7 @@ const UIScreenDefPair online_def = {
         .init = online_menu_init,
         .update = online_menu_update,
         .exit = online_menu_exit,
+        .focus = online_menu_focus,
         .action_list = {
             .action_count = ARRAY_LEN(online_actions),
             .actions = online_actions
