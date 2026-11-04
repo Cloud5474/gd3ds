@@ -20,7 +20,7 @@ static void update_length_tint(UIElement *e){
         length_str = (char *) level_lengths[length];
     }
 
-    snprintf(l->text, sizeof(l->text), "<%d,%d,%d>%s</>", opacity, opacity, opacity, length_str);
+    ui_label_snprintf(l, "<%d,%d,%d>%s</>", opacity, opacity, opacity, length_str);
 }
 
 static void update_length_tints(UIScreen *s){

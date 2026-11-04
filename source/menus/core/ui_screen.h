@@ -132,8 +132,6 @@ void ui_assets_init();
 
 C2D_SpriteSheet *get_sheet(int sheet);
 
-void copy_tag_array(UIElement *e, const char *tags);
-
 void finish_animation(UIScreen *screen);
 
 void ui_screen_open(UIScreen *screen, UIAnimation animation);

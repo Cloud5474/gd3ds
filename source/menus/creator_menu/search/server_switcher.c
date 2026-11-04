@@ -1,6 +1,7 @@
 #include "menus/creator_menu/search/server_switcher.h"
 #include <3ds.h>
 #include <citro2d.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "menus/core/ui_screen.h"
@@ -20,8 +21,8 @@
 static void darken_text(UIElement* e){
     UILabel *l = (UILabel *)e;
 
-    if(ui_prop_int(&e->parent->custom_properties, "server", 0) != gdps) snprintf(l->text, sizeof(l->text), "<127, 127, 127>%s</>", ui_prop_string(&e->custom_properties, "basetext", "Fuck you"));
-    else snprintf(l->text, sizeof(l->text), "<255, 255, 255>%s</>", ui_prop_string(&e->custom_properties, "basetext", "Fuck you"));
+    if(ui_prop_int(&e->parent->custom_properties, "server", 0) != gdps) ui_label_snprintf(l, "<127, 127, 127>%s</>", ui_prop_string(&e->custom_properties, "basetext", "Fuck you"));
+    else ui_label_snprintf(l, "<255, 255, 255>%s</>", ui_prop_string(&e->custom_properties, "basetext", "Fuck you"));
 }
 
 static void darken_image(UIElement* e){

@@ -1,9 +1,11 @@
 #include "menus/core/common_setters.h"
 
+#include <stdlib.h>
 #include <citro2d.h>
 #include "menus/core/ui_screen.h"
 #include "menus/core/ui_props.h"
 #include "ui_slider.h"
+#include "menus/core/screen_navigation.h"
 
 // If currently using an slider
 bool sliding;
@@ -128,6 +130,39 @@ static void ui_slider_update(UIElement* e, UIInput* touch, UITransform *transfor
         sliding = false;
     }
 
+    if(nav_is_selected(e)){
+        bool sliding = false;
+        float amount = (s->max_value / (500.f - (1.0f + s->slide_time))) / s->max_value;
+
+        if(abs(touch->cpad.dx) > 48){
+            s->value += (touch->cpad.dx / 25) * amount;
+        }
+
+        if(touch->down & KEY_RIGHT){
+            sliding = true;
+            s->value += amount;
+        }
+
+        if(touch->down & KEY_LEFT){
+            sliding = true;
+            s->value -= amount;
+        }
+
+        if(sliding){
+            s->slide_time += (delta * 10.f);
+        } else{
+            s->slide_time = 0.f;
+        }
+    }
+
+    if(s->value > s->max_value){
+        s->value = s->max_value;
+    }
+
+    if(s->value < 0){
+        s->value = 0;
+    }
+
     // Mask background elements
     if (inside) {
         touch->interacted = true;
@@ -195,6 +230,8 @@ UIElement *ui_create_slider_from_props(UIScreen *screen, const UIPropertyList *p
     if (!slider) return NULL;
 
     ui_element_apply_properties(&slider->base, screen, props);
+
+    slider->base.navigable = ui_prop_bool(props, "navigable", true);
 
     slider->max_value = ui_prop_float(props, "max_value", 100);
 

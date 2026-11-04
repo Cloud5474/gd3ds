@@ -8,9 +8,6 @@
 
 #include "ui_props.h"
 
-#define TAGS_PER_ELEMENT 5
-#define TAG_LENGTH 32
-
 typedef enum {
     UI_BUTTON,
     UI_IMAGE,
@@ -144,7 +141,8 @@ struct UIElement {
     struct UIElement *next_sibling;
     struct UIElement *prev_sibling;
 
-    char tag[TAGS_PER_ELEMENT][TAG_LENGTH];
+    char **tag;
+    size_t tag_count;
 
     void (*update)(UIElement*, UIInput*, UITransform *);
     void (*draw)(UIElement*, UITransform *);
@@ -231,7 +229,7 @@ typedef struct {
 typedef struct {
     UIElement base;
     
-    char text[512];
+    char *text;
     float alignment;
 
     int font;
@@ -303,12 +301,16 @@ typedef struct {
     int contentHeight;
     int lastTouchY;
 
-    bool dragging;
-
     int dpadHeldTime;
 
     u32 background_color;
 
+    bool dragging;
+
+    //false initially; true when child is added, then set to false once the navigation updates (ignored if child count > 0)
+    bool has_children_now;
+    //set to true after navigation detects that has_children_now is true so that no subsequent reselections are done
+    bool has_children;
     //true when a list needs to be deselected for navigation for whatever reason (usually list reset)
     bool nav_deselect;
 } UIList;
@@ -335,6 +337,7 @@ typedef struct {
     float value;
 
     bool dragging;
+    float slide_time;
 
     C2D_Sprite track_frame;
     C2D_Sprite track;

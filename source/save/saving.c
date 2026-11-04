@@ -1379,6 +1379,7 @@ static SavingError threaded_save(SavingTask *task) {
 
     FILE *file = fopen(task->tmp_file, "wb");
     if (!file) {
+        free(compressed);
         return SAVE_ERROR_OPEN_FILE;
     }
 

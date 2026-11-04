@@ -2,6 +2,7 @@
 #include <citro2d.h>
 #include "menus/core/ui_screen.h"
 #include "menus/core/ui_props.h"
+#include <stdarg.h>
 
 static const UIFloatEnumEntry alignment_table[] = {
     { "LEFT",   0.f },
@@ -35,15 +36,50 @@ static void ui_label_draw(UIElement* e, UITransform *transform) {
 
 static void ui_label_destroy(UIElement* e) {
     if (e) {
+        if(((UILabel *)e)->text){
+            free(((UILabel *)e)->text);
+        }
         free(e);
         e = NULL;
     }
 }
 
+void ui_label_snprintf(UILabel *label, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    va_list args_copy;
+    va_copy(args_copy, args);
+    size_t length = vsnprintf(NULL, 0, format, args_copy);
+    va_end(args_copy);
+
+    if (length < 0) {
+        va_end(args);
+        return;
+    }
+
+    char *text = malloc(length + 1);
+    if (text == NULL) {
+        va_end(args);
+        return;
+    }
+
+    vsnprintf(text, length + 1, format, args);
+    va_end(args);
+
+    free(label->text);
+    label->text = text;
+}
+
 void ui_label_set_text(UILabel *e, const char *text) {
     if (!e || !text) return;
 
-    strncpy(e->text, text, sizeof(e->text) - 1);
+    //get rid of original text
+    if(e->text){
+        free(e->text);
+    }
+
+    e->text = strdup(text);
 }
 
 UILabel *ui_create_label(UIScreen *screen) {
@@ -80,3 +116,4 @@ UIElement *ui_create_label_from_props(UIScreen *screen, const UIPropertyList *pr
 
     return &label->base;
 }
+

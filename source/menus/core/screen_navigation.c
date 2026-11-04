@@ -2,6 +2,7 @@
 #include "ui_screen.h"
 #include "ui_stack.h"
 #include "main.h"
+#include "menus/components/ui_slider.h"
 #include "menus/components/ui_checkbox.h"
 #include "menus/components/ui_button.h"
 #include <stdlib.h>
@@ -12,24 +13,11 @@
 
 /*
     TO DO:
-        LISTS:
-            -make them navigable, and exclude their children from navigable searches
-            -Clicking the A button with a list highlighted does one of two things:
-                -If it has children, select first child and limit navigation to list's 
-                children
-                -If it does not, set locked_selected to true and make it so that pressing
-                up/down simply scrolls the list
         SLIDERS:
             -make them navigable, and make it so that selectingn them sets locked_selected
             to true and pressing left/right slides it up and down
 
-        locked_selected can be toggled off by pressing B
-
-
-
-    -currently, vertical list navigation does not work
-    -the selection box gets much too small on extremely small buttons
-    -list gets unselected when returning to a screen which had said list selected (i know why but idk how to fix lols!)
+    -Make ts work in gameplay
 */
 
 typedef enum {
@@ -60,6 +48,11 @@ NavigationEntry get_empty_navigation_entry(){
     return empty;
 }
 
+//whether dpad/stick controls for lists/sliders should be used for that particular element
+bool nav_is_selected(UIElement *e){
+    return is_navigating && (locked_selected && e == screen->selected.e);
+}
+
 //lists have 2 possible selection modes: scroll mode and navigation mode. 
 //scroll mode means you use up/down to control the list, navigation mode means you can use the dpad to navigate the list's children. 
 //in scroll mode, screen->selected.list is NULL, but locked_selected is true.
@@ -72,9 +65,29 @@ static bool is_list_scrolling(NavigationEntry entry){
     return entry.e->type == UI_LIST && locked_selected;
 }
 
-static bool is_slider_scrolling(NavigationEntry entry){
-    return entry.e->type == UI_SLIDER && locked_selected;
+static bool is_on_slider(NavigationEntry entry){
+    return entry.e->type == UI_SLIDER;
 }
+
+static bool is_slider_scrolling(NavigationEntry entry){
+    return is_on_slider(entry) && locked_selected;
+}
+
+static float get_entry_w(NavigationEntry entry){
+    //add extra padding for button
+    if(is_on_slider(entry)) {
+        return fabsf((entry.e->w + ((UISlider *)entry.e)->button.image.subtex->width / 2.f) * entry.t.scaleX);
+    }
+    
+    return fabsf(entry.e->w * entry.t.scaleX);
+};
+
+static float get_entry_h(NavigationEntry entry){
+    //add extra padding for button
+    if(is_on_slider(entry)) return fabsf((((UISlider *)entry.e)->button.image.subtex->height / 2.f) * entry.t.scaleY);
+
+    return fabsf(entry.e->h * entry.t.scaleY);
+};
 
 static float get_entry_x(NavigationEntry entry){
     return entry.t.x;
@@ -85,20 +98,16 @@ static float get_entry_y(NavigationEntry entry){
 }
 
 static float get_entry_x_render(NavigationEntry entry){
-    return get_entry_x(entry) - abs((entry.e->w) * entry.t.scaleX) / 2.f;
+    return get_entry_x(entry) - get_entry_w(entry) / 2.f;
 }
 
 static float get_entry_y_render(NavigationEntry entry){
-    return get_entry_y(entry) - (abs((entry.e->h) * entry.t.scaleY) / 2.f) + (is_list_navigating(entry) ? entry.list->scrollSmoothY : 0.f);
+    float offset = 0.f;
+    if(is_list_navigating(entry)){
+        offset = entry.list->scrollSmoothY;
+    }
+    return get_entry_y(entry) - (get_entry_h(entry) / 2.f) + offset;
 }
-
-static float get_entry_w(NavigationEntry entry){
-    return fabsf(entry.e->w * entry.t.scaleX);
-};
-
-static float get_entry_h(NavigationEntry entry){
-    return fabsf(entry.e->h * entry.t.scaleY);
-};
 
 static void navigate_to(NavigationEntry entry) {
     if (!entry.e)
@@ -722,9 +731,22 @@ void ui_navigation_update(UIInput *input){
         screen->selected.list->nav_deselect = false;
         deselect_list();
     }
+
+    //reselect list if children are newly added
+    if(is_list_scrolling(screen->selected)){
+        UIList *e = ((UIList *)screen->selected.e);
+        if(e && e->has_children_now){
+            e->has_children_now = false;
+            e->has_children = true;
+            locked_selected = false;
+            if(!attempt_select_list(screen->selected)){
+                locked_selected = true;
+            }
+        }
+    }
 }
 
-void draw_selection_box(float x, float y, float w, float h, u32 col){
+static void draw_selection_box(float x, float y, float w, float h, u32 col){
     C2D_Image selection_corner = C2D_SpriteSheetGetImage(*get_sheet(1), 58);
     C2D_ImageTint tint = { 0 };
 

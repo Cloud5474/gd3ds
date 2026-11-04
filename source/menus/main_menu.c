@@ -51,10 +51,6 @@ static float bg_scroll = 0;
 bool old_wide;
 bool old_stereo;
 
-void action_open_exit(){
-
-}
-
 void handle_title_screen_player(Player *player) {
     if (state.input.holdJump) {
         if (player->buffering_state == BUFFER_NONE) {
@@ -179,6 +175,8 @@ static void handle_players() {
 static void main_menu_init(UIScreen *s){
     play_menu_song();
 
+    allocate_particles();
+
     old_wide = settingsState.wideEnabled;
     old_stereo = settingsState.stereoEnabled;
 }
@@ -205,7 +203,6 @@ static void main_menu_focus(UIScreen *s){
     get_buffer(CHANNEL_GROUND)->active = false;
     get_buffer(CHANNEL_LINE)->active = false;
 
-    allocate_particles();
     init_variables();
     reset_players();
 

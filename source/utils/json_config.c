@@ -27,7 +27,7 @@ static struct json_object* get_path_object(struct json_object* root, const char*
 
 static struct json_object* create_path_parent(struct json_object* root, const char* path, char* last_key) {
     char buffer[256];
-    strncpy(buffer, path, sizeof(buffer) - 1);
+    snprintf(buffer, sizeof(buffer), "%s", path);
 
     char* token = strtok(buffer, CONFIG_OBJECT_DELIMITER);
     struct json_object* current = root;

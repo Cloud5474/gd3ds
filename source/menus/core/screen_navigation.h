@@ -11,3 +11,4 @@ void ui_reset_navigation();
 void ui_switch_navigation_screen(UIScreen *s);
 
 NavigationEntry get_empty_navigation_entry();
+bool nav_is_selected(UIElement *e);

@@ -477,11 +477,11 @@ char* next_token(char** cursor) {
     return start;
 }
 
-static bool has_tag(UIElement *element, void *userdata) {
+static bool has_tag(UIElement *e, void *userdata) {
     const char *tag = userdata;
 
-    for (int i = 0; i < TAGS_PER_ELEMENT; i++) {
-        if (strcmp(element->tag[i], tag) == 0)
+    for (int i = 0; i < e->tag_count; i++) {
+        if (strcmp(e->tag[i], tag) == 0)
             return true;
     }
 
@@ -504,12 +504,12 @@ typedef struct {
     void (*func)(UIElement *);
 } UITagVisitorData;
 
-static void visit_tag(UIElement *element, void *userdata) {
+static void visit_tag(UIElement *e, void *userdata) {
     UITagVisitorData *data = userdata;
 
-    for (int i = 0; i < TAGS_PER_ELEMENT; i++) {
-        if (strcmp(element->tag[i], data->tag) == 0) {
-            data->func(element);
+    for (int i = 0; i < e->tag_count; i++) {
+        if (strcmp(e->tag[i], data->tag) == 0) {
+            data->func(e);
             break;
         }
     }
@@ -530,8 +530,8 @@ void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag) {
     float movement_x = 0;
     float movement_y = 0;
     for (int i = 0; i < screen->count; i++) {
-        for (int j = 0; j < TAGS_PER_ELEMENT; j++) {
-            UIElement *e = screen->elements[i];
+        UIElement *e = screen->elements[i];
+        for (int j = 0; j < e->tag_count; j++) {
             // Check for element with this tag
             if (strcmp(e->tag[j], tag) == 0) {
                 if (!found_parent) {
@@ -545,31 +545,6 @@ void ui_set_pos_on_tag(UIScreen *screen, float x, float y, const char *tag) {
             }
         }
     }
-}
-
-static void split_tags(const char *input, char tag[][TAG_LENGTH]) {
-    int i = 0;
-    char *token = strtok((char *) input, ",");
-
-    while (token != NULL && i < TAGS_PER_ELEMENT)
-    {
-        strncpy(tag[i], token, TAG_LENGTH - 1);
-        tag[i][TAG_LENGTH - 1] = '\0';   // Ensure null terminator
-        i++;
-
-        token = strtok(NULL, ",");
-    }
-}
-
-void copy_tag_array(UIElement *e, const char *tags) {
-    if (tags == NULL) return;
-
-    char tag[TAGS_PER_ELEMENT][TAG_LENGTH] = { 0 };
-
-    // Split the tags
-    split_tags(tags, tag);
-
-    memcpy(e->tag, tag, sizeof(tag));
 }
 
 UNUSED static void print_props(UIPropertyList *props) {

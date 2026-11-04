@@ -41,6 +41,7 @@ void ui_list_add(UIList* list, UIElement* item) {
 
     ui_element_add_child((UIElement *) list, item);
 
+    list->has_children_now = true;
     list->contentHeight += item->h;
 }
 
@@ -92,7 +93,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
         l->lastTouchY = touch->touchPosition.py;
     }
 
-    if(!is_navigating){
+    if(nav_is_selected(e)){
         if(abs(touch->cpad.dy) > 48){
             l->scrollY += (touch->cpad.dy / 25);
         }
@@ -138,7 +139,7 @@ static void ui_list_update(UIElement* e, UIInput* touch, UITransform *transform)
         if (l->scrollY < minScroll) l->scrollY = minScroll;
     }
 
-    float smoothing = 10.0f;
+    float smoothing = 20.0f;
     float t = 1.0f - expf(-smoothing * delta);
 
     l->scrollSmoothY += (l->scrollY - l->scrollSmoothY) * t;
@@ -200,6 +201,8 @@ UIList *ui_create_list(UIScreen *screen) {
     e->base.destroy = ui_list_destroy;
 
     e->base.draws_children = true;
+
+    e->has_children = false;
     
     ui_list_reset(e);
 

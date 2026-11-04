@@ -408,7 +408,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 MotionTrail_ResumeStroke(trail);
                 player->vel_y = jump_heights_table[state.speed][JUMP_YELLOW_ORB][player->gamemode][player->mini];
                 
-                player->ball_rotation_speed = -BALL_SLOW_ROTATION;
+                player->ball_rotation_speed = BALL_SLOW_ROTATION;
                 
                 player->on_ground = false;
                 player->on_ceiling = false;
@@ -436,7 +436,7 @@ void handle_special_hitbox(Player *player, int obj, const ObjectHitbox *hitbox) 
                 MotionTrail_ResumeStroke(trail);
                 player->vel_y = jump_heights_table[state.speed][JUMP_PINK_ORB][player->gamemode][player->mini];
                 
-                player->ball_rotation_speed = -BALL_SLOW_ROTATION;
+                player->ball_rotation_speed = BALL_SLOW_ROTATION;
                 
                 player->on_ground = false;
                 player->on_ceiling = false;

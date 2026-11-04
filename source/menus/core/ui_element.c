@@ -81,13 +81,22 @@ void ui_destroy_tree(UIElement *e) {
     if (e->userdata && e->userdata_destroy) e->userdata_destroy(e->userdata);
 
     if(e->actions){
-        for(int i = 0; i < e->action_count; i++){
+        for(size_t i = 0; i < e->action_count; i++){
             ui_destroy_proplist(&e->actions[i].args);
         }
         free(e->actions);
     }
 
     ui_destroy_proplist(&e->custom_properties);
+
+    if(e->tag){
+        for(size_t i = 0; i < e->tag_count; i++){
+            if(!e->tag[i]) continue;
+            
+            free(e->tag[i]);
+        }
+        free(e->tag);
+    }
     
     e->destroy(e);
 }
@@ -184,11 +193,48 @@ UIElement *ui_get_child_by_type(UIElement *parent, UIElementType type) {
     return NULL;
 }
 
-UIActionFn ui_find_action(const UIActionDef* actions, size_t count, const char* name) {
+UIActionFn ui_find_action(const UIActionDef* actions, size_t count, const char *name) {
     for (size_t i = 0; i < count; i++)
         if (strcmp(actions[i].name, name) == 0)
             return actions[i].fn;
     return NULL;
+}
+
+static void copy_tag_array(UIElement *e, const char *tags) {
+    if (!tags) return;
+
+    char *tags_dup = strdup(tags);
+
+    if(!tags_dup) return;
+
+    size_t tag_count = 0;
+
+    char *token = strtok(tags_dup, ",");
+    while (token) {
+        char **temp = realloc(e->tag, (tag_count + 1) * sizeof(char *));
+
+        //fail realloc
+        if(!temp){
+            for(size_t i = 0; i < tag_count; i++){
+                if(e->tag[i]){
+                    free(e->tag[i]);
+                }
+            }
+            if(e->tag) free(e->tag);
+            tag_count = 0;
+            break;
+        }
+
+        e->tag = temp;
+
+        e->tag[tag_count++] = strdup(token);
+
+        token = strtok(NULL, ",");
+    }
+
+    free(tags_dup);
+
+    e->tag_count = tag_count;
 }
 
 void ui_element_apply_properties(UIElement *e, UIScreen *screen, const UIPropertyList *props) {

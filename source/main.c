@@ -688,6 +688,16 @@ void ui_loop(){
 
         ui_stack_draw(SCREEN_BTM);
 
+        if (state.profiling) {
+            ProfilerUpdateData data = {
+                .touchPos = touchPos,
+                .kDown = touch.down
+            };
+
+            profiler_update(data);
+            profiler_draw();
+        }
+
         if(is_saving()) {
             draw_text(&bigFont_fontCharset, &bigFont_sheet, 0, 234, 0.5f, 0.5f, 0, false, "Saving...");
         }
