@@ -877,9 +877,9 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
         case BLUE_GRAVITY_PORTAL: {
             player->gravObjID = obj;
             if (!GET_ACTIVATED(obj)) {
-                startGravitySweep(true);
                 player->ceilingInvTime = CEILING_INVUL_TIME;
                 if (player->upsideDown) {
+                    startGravitySweep(true);
                     if (player->gamemode != GAMEMODE_BALL && state.showPlayer) motionTrailResumeStroke(trail);
                     if (player->gamemode == GAMEMODE_WAVE) motionTrailAddWavePoint(waveTrail);
                     player->velY /= -2;
@@ -909,9 +909,9 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
         case YELLOW_GRAVITY_PORTAL: {
             player->gravObjID = obj;
             if (!GET_ACTIVATED(obj)) {
-                startGravitySweep(false);
                 player->ceilingInvTime = CEILING_INVUL_TIME;
                 if (!player->upsideDown) {
+                    startGravitySweep(false);
                     if (player->gamemode != GAMEMODE_BALL && state.showPlayer) motionTrailResumeStroke(trail);
                     if (player->gamemode == GAMEMODE_WAVE) motionTrailAddWavePoint(waveTrail);
                     player->velY /= -2;
