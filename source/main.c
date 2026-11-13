@@ -649,6 +649,7 @@ void ui_loop(){
 
     ui_stack_set_stack(&menu_stack);
     
+    hard_toggle_navigation(true);
     ui_switch_navigation_screen(ui_stack_get_max_screen(SCREEN_BTM));
 
     while (aptMainLoop()) {
@@ -748,6 +749,8 @@ void game_loop() {
     ui_stack_set_stack(&gameplay_stack);
     ui_stack_clear();
     ui_stack_push(&gameplay_def, ANIM_NONE, ANIM_NONE, PUSH_ROOT);
+    hard_toggle_navigation(false);
+    ui_switch_navigation_screen(ui_stack_get_max_screen(SCREEN_BTM));
 
     update_player_colors();
 
@@ -1221,6 +1224,7 @@ void game_loop() {
         }
 
         ui_stack_update(&touch);
+        ui_navigation_update(&touch);
 
         // If the wide or 3D settings have been changed, reinitialize screens
         if (settingsState.wideEnabled != old_wide || settingsState.stereoEnabled != old_stereo) {
@@ -1342,6 +1346,8 @@ void game_loop() {
             //gameplay_screen_bot_loop();
             ui_stack_draw(SCREEN_BTM);
             draw_level_complete();
+
+            ui_navigation_draw();
             
             change_blending(true);
             draw_touch_effect();

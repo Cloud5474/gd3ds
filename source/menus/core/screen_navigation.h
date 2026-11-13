@@ -2,8 +2,10 @@
 #include "menus/core/ui_screen.h"
 #include "stdbool.h"
 
-extern bool navigation_switching_screen;
 extern bool is_navigating;
+extern bool new_screen_opening;
+
+void hard_toggle_navigation(bool navigate);
 
 void ui_navigation_update(UIInput *input);
 void ui_navigation_draw();

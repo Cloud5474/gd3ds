@@ -24,6 +24,7 @@
 #include "menus/gameplay.h"
 #include "menus/main_menu.h"
 #include "menus/level_select.h"
+#include "menus/core/screen_navigation.h"
 
 #include "practice.h"
 
@@ -108,6 +109,8 @@ void reset_coins(){
 void pause_game() {
     if (state.end_wall_anim_playing) return;
 
+    hard_toggle_navigation(true);
+
     update_progress_bars();
     game_paused = true;
     if (song_loaded || state.practice_mode) pause_playback_mp3();
@@ -129,6 +132,8 @@ void pause_game() {
 }
 
 void unpause_game() {
+    hard_toggle_navigation(false);
+
     game_paused = false;
     if (pi_enabled) {
         sync_precise_input(true);

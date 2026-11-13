@@ -244,8 +244,6 @@ void ui_stack_push_root_instant(const UIScreenDefPair *defs){
     top->selected = (NavigationEntry) { 0 };
     top->last_selected = (NavigationEntry) { 0 };
 
-    navigation_switching_screen = true;
-
     ui_switch_navigation_screen(btm);
 }
 
@@ -346,7 +344,7 @@ static void update_opening(){
         top->selected = get_empty_navigation_entry();
         top->last_selected = get_empty_navigation_entry();
 
-        navigation_switching_screen = true;
+        new_screen_opening = true;
     }
 }
 

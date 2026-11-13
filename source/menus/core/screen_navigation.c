@@ -13,9 +13,6 @@
 
 /*
     TO DO:
-        SLIDERS:
-            -make them navigable, and make it so that selectingn them sets locked_selected
-            to true and pressing left/right slides it up and down
 
     -Make ts work in gameplay
 */
@@ -28,15 +25,23 @@ typedef enum {
     DIR_RIGHT
 } NavigationDir;
 
-bool navigation_switching_screen = false;
 static UIScreen *screen = NULL;
 
+bool can_navigate = true;
 bool is_navigating = false;
+
+//used to temporarily disable navigation while a screen is opening
+bool new_screen_opening = false;
+
 static float nav_anim_progress = 0.f;
 static float selector_fade = 0.f;
 
 //whether the controls are locked onto a specific element (slider sliding, list scrolling)
 bool locked_selected = false;
+
+void hard_toggle_navigation(bool navigate){
+   can_navigate = navigate; 
+}
 
 NavigationEntry get_empty_navigation_entry(){
     NavigationEntry empty = (NavigationEntry){ 0 };
@@ -597,15 +602,16 @@ void ui_reset_navigation(){
     nav_anim_progress = 1.f;
 }
 
-static void toggle_navigation(bool navigation){
+static void soft_toggle_navigation(bool navigation){
     is_navigating = navigation;
     if(is_navigating){
         nav_anim_progress = 1.f;
     }
+    ui_reset_navigation();
 }
 
 static bool restrict_navigation(){
-    return !is_navigating || !screen || !screen->transition.done || !screen->selected.e || ui_stack_restrict_navigation() || navigation_switching_screen;
+    return !can_navigate || !is_navigating || !screen || !screen->transition.done || !screen->selected.e || ui_stack_restrict_navigation() || new_screen_opening;
 }
 
 static void ensure_list_entry_visible(NavigationEntry entry) {
@@ -634,11 +640,11 @@ static void deselect_list(){
 
 void ui_navigation_update(UIInput *input){
     if(input->down & KEY_SELECT){
-        toggle_navigation(!is_navigating);
+        soft_toggle_navigation(!is_navigating);
     }
 
     if(input->down & KEY_TOUCH){
-        toggle_navigation(false);
+        soft_toggle_navigation(false);
     }
 
     if(nav_anim_progress <= 1.f){
@@ -818,9 +824,9 @@ void ui_navigation_draw(){
 }
 
 void ui_switch_navigation_screen(UIScreen *s){
-    if(!s || !s->isBottom) return; //navigation only on bottom screen for now
+    if(!s || !s->isBottom) return; //navigation only on bottom screen
 
-    navigation_switching_screen = false;
+    new_screen_opening = false;
 
     screen = s;
     nav_anim_progress = 1.f;
