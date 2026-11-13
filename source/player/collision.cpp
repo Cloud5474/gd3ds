@@ -27,6 +27,7 @@
 #include "menus/level_select.hpp"
 #include "particles/lightning.hpp"
 #include "particles/gravity_sweep.hpp"
+#include "particles/divorce_effect.hpp"
 
 namespace gd3ds
 {
@@ -982,12 +983,10 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
                 if (player->mini) {
                     startBgFlash();
 
-                    lightningBolts.push_back(
-                        Lightning(
-                            objects.x[obj] + randomInt(-25.0f, 25.0f) + 25.0f, state.cameraY + 50.0f + SCREEN_HEIGHT, 
-                            objects.x[obj], objects.y[obj], 
-                            LightningType::SIZE_NORMAL
-                        )
+                    addLightning(
+                        objects.x[obj] + randomInt(-25.0f, 25.0f) + 25.0f, state.cameraY + 50.0f + SCREEN_HEIGHT, 
+                        objects.x[obj], objects.y[obj], 
+                        LightningType::SIZE_NORMAL
                     );
 
                     setMini(player, false);
@@ -1019,12 +1018,10 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
                 if (!player->mini){
                     startBgFlash();
 
-                    lightningBolts.push_back(
-                        Lightning(
-                            objects.x[obj] + randomInt(-25.0f, 25.0f) + 25.0f, state.cameraY + 50.0f + SCREEN_HEIGHT, 
-                            objects.x[obj], objects.y[obj], 
-                            LightningType::SIZE_MINI
-                        )
+                    addLightning(
+                        objects.x[obj] + randomInt(-25.0f, 25.0f) + 25.0f, state.cameraY + 50.0f + SCREEN_HEIGHT, 
+                        objects.x[obj], objects.y[obj], 
+                        LightningType::SIZE_MINI
                     );
 
                     setMini(player, true);
@@ -1247,12 +1244,10 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
             if (GET_ACTIVATED(obj)) break;
             int oi = objects.childObject[obj];
             if (oi >= 0) {
-                lightningBolts.push_back(
-                    Lightning(
-                        objects.x[obj], objects.y[obj],
-                        objects.x[oi], objects.y[oi], 
-                        LightningType::TELEPORT
-                    )
+                addLightning(
+                    objects.x[obj], objects.y[obj],
+                    objects.x[oi], objects.y[oi], 
+                    LightningType::TELEPORT
                 );
 
                 player->y = objects.y[oi];
@@ -1498,6 +1493,16 @@ void handleSpecialHitbox(Player *player, int obj, const ObjectHitbox *hitbox) {
         case DIVORCE_PORTAL: {
             if (!GET_ACTIVATED(obj)) {
                 if (state.dual){
+                    add_divorce(
+                        state.currentPlayer, 
+                        player->gamemode, 
+                        player->x, 
+                        player->y, 
+                        player->rotation, 
+                        player->mini ? 0.6f : 1.0f, 
+                        player->upsideDown
+                    );
+                    
                     state.dual = false;
                     if (state.currentPlayer == 1) {
                         memcpy(&state.player, player, sizeof(Player));
